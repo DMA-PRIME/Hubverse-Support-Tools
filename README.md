@@ -8,6 +8,7 @@ The toolkit is currently in beta testing. Generated files should always be check
 
 - **Model Metadata Generator:** Creates hub-specific model metadata YAML through a guided form.
 - **Hubverse Data Preparation:** Converts Excel, CSV, TSV, JSON, pasted, or manually entered data into Hubverse target time-series data, with target and location mapping plus optional Python or R transformation code.
+- **Hubverse Submission Guide:** Teaches the GitHub submission process from the beginning, creates personalized file paths and filenames, and provides a safe rehearsal of website, GitHub Desktop, and command-line routes. This guide is in beta; its instructions are being validated and its screenshots are being updated.
 
 ## Publish with GitHub Pages
 
@@ -33,12 +34,15 @@ Hubverse-Support-Toolkit/
 │   ├── tools/
 │   │   ├── metadata-generator/
 │   │   │   └── index.html        # Online metadata tool
-│   │   └── data-preparation/
-│   │       └── index.html        # Online data-preparation tool
+│   │   ├── data-preparation/
+│   │   │   └── index.html        # Online data-preparation tool
+│   │   └── submission-guide/
+│   │       └── index.html         # Online submission guide
 │   └── offline/
 │       ├── README.txt
 │       ├── Hubverse-Metadata-Generator.html
-│       └── Hubverse-Data-Preparation.html
+│       ├── Hubverse-Data-Preparation.html
+│       └── Hubverse-Submission-Guide.html
 └── project/                      # Not published by GitHub Pages
 ```
 
@@ -52,7 +56,7 @@ Standalone tool files are available in `docs/offline/` and from the download but
 2. Save it locally.
 3. Double-click it to open it in a modern browser.
 
-No installation or local web server is required. The Model Metadata Generator's application code, styles, tutorial, and hub schema snapshots are contained inside its HTML file. Links to external documentation still require an internet connection.
+No installation or local web server is required. Each tool's application code, styles, and embedded content are contained inside its HTML file. Links to external documentation still require an internet connection.
 
 ## Add another tool
 
