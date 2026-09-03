@@ -1,0 +1,905 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Browser-based tools from DMA-PRIME at Clemson University that support the technical steps of Hubverse submissions.">
+  <meta name="theme-color" content="#522D80">
+  <title>Hubverse Support Toolkit | DMA-PRIME at Clemson University</title>
+  <style>
+    :root {
+      --orange: #f56600;
+      --orange-dark: #ad3f00;
+      --orange-soft: #fff2e8;
+      --purple: #522d80;
+      --purple-dark: #2f174d;
+      --purple-soft: #f3eef8;
+      --ink: #241d2e;
+      --muted: #625b6c;
+      --line: #ded8e5;
+      --surface: #ffffff;
+      --page: #faf9fc;
+      --success: #176b57;
+      --shadow: 0 20px 55px rgba(47, 23, 77, 0.12);
+      --radius: 22px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--page);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; }
+
+    a:focus-visible,
+    button:focus-visible {
+      outline: 3px solid #ffffff;
+      outline-offset: 2px;
+      box-shadow: 0 0 0 5px var(--purple-dark);
+    }
+
+    .skip-link {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 100;
+      padding: 10px 15px;
+      border-radius: 10px;
+      color: #fff;
+      background: var(--purple-dark);
+      transform: translateY(-150%);
+      transition: transform 160ms ease;
+    }
+
+    .skip-link:focus { transform: translateY(0); }
+
+    .beta-bar {
+      padding: 9px 20px;
+      color: #fff;
+      background: var(--orange-dark);
+      font-size: 0.86rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0.01em;
+    }
+
+    .beta-bar a { text-underline-offset: 3px; }
+
+    .site-header {
+      position: relative;
+      z-index: 10;
+      border-bottom: 1px solid rgba(82, 45, 128, 0.12);
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(16px);
+    }
+
+    .nav {
+      width: min(calc(100% - 40px), var(--max));
+      min-height: 82px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 13px;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 45px;
+      height: 45px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 14px;
+      color: #fff;
+      background: linear-gradient(145deg, var(--purple), var(--purple-dark));
+      box-shadow: 0 9px 22px rgba(82, 45, 128, 0.23);
+      font-size: 0.83rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    .brand-copy { display: grid; line-height: 1.2; }
+
+    .brand-copy strong {
+      color: var(--purple-dark);
+      font-size: 1rem;
+      letter-spacing: 0.01em;
+    }
+
+    .brand-copy span {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 650;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .nav-links a {
+      padding: 9px 12px;
+      border-radius: 10px;
+      color: #4f485a;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover { color: var(--purple); background: var(--purple-soft); }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      color: #fff;
+      background:
+        radial-gradient(circle at 83% 9%, rgba(245, 102, 0, 0.3), transparent 23rem),
+        radial-gradient(circle at 0% 100%, rgba(255, 255, 255, 0.1), transparent 26rem),
+        linear-gradient(135deg, var(--purple-dark), var(--purple) 58%, #68419a);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.17;
+      background-image:
+        linear-gradient(rgba(255,255,255,.16) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.16) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: linear-gradient(to right, transparent, #000 55%);
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      width: min(calc(100% - 40px), var(--max));
+      margin: 0 auto;
+      padding: 92px 0 86px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+      align-items: center;
+      gap: clamp(48px, 8vw, 96px);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 19px;
+      color: #ffd8bd;
+      font-size: 0.78rem;
+      font-weight: 850;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 28px;
+      height: 3px;
+      border-radius: 999px;
+      background: var(--orange);
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      max-width: 760px;
+      margin-bottom: 22px;
+      font-size: clamp(2.75rem, 6vw, 5rem);
+      line-height: 0.98;
+      letter-spacing: -0.055em;
+    }
+
+    .hero-copy > p {
+      max-width: 710px;
+      margin-bottom: 31px;
+      color: rgba(255,255,255,.85);
+      font-size: clamp(1.04rem, 2vw, 1.22rem);
+      line-height: 1.68;
+    }
+
+    .hero-actions,
+    .card-actions,
+    .resource-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .button {
+      min-height: 47px;
+      padding: 12px 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      font-size: 0.93rem;
+      font-weight: 800;
+      text-decoration: none;
+      transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+    }
+
+    .button:hover { transform: translateY(-2px); }
+
+    .button-primary {
+      color: #fff;
+      background: var(--orange-dark);
+      box-shadow: 0 12px 24px rgba(113, 39, 0, 0.28);
+    }
+
+    .button-primary:hover { background: #8f3100; }
+
+    .button-ghost {
+      color: #fff;
+      border-color: rgba(255,255,255,.38);
+      background: rgba(255,255,255,.08);
+    }
+
+    .button-ghost:hover { background: rgba(255,255,255,.14); }
+
+    .button-dark { color: #fff; background: var(--purple); }
+    .button-dark:hover { background: var(--purple-dark); }
+
+    .button-light {
+      color: var(--purple);
+      border-color: #cfc4dc;
+      background: #fff;
+    }
+
+    .button-light:hover { border-color: var(--purple); background: var(--purple-soft); }
+
+    .hero-panel {
+      position: relative;
+      padding: 25px;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 24px;
+      color: var(--ink);
+      background: rgba(255,255,255,.96);
+      box-shadow: 0 30px 75px rgba(25, 9, 43, 0.3);
+    }
+
+    .panel-kicker {
+      margin-bottom: 9px;
+      color: var(--orange-dark);
+      font-size: 0.76rem;
+      font-weight: 850;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .hero-panel h2 {
+      margin-bottom: 23px;
+      color: var(--purple-dark);
+      font-size: 1.32rem;
+      letter-spacing: -0.025em;
+    }
+
+    .path-step {
+      position: relative;
+      display: grid;
+      grid-template-columns: 42px minmax(0,1fr);
+      gap: 14px;
+      padding-bottom: 20px;
+    }
+
+    .path-step:last-child { padding-bottom: 0; }
+
+    .path-step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: 20px;
+      top: 41px;
+      bottom: 4px;
+      width: 2px;
+      background: #e3dce9;
+    }
+
+    .step-number {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      color: var(--purple);
+      background: var(--purple-soft);
+      font-weight: 900;
+    }
+
+    .path-step:first-of-type .step-number { color: #fff; background: var(--orange-dark); }
+
+    .path-step strong { display: block; color: var(--purple-dark); font-size: 0.96rem; }
+    .path-step p { margin: 3px 0 0; color: var(--muted); font-size: 0.84rem; line-height: 1.5; }
+
+    main section { padding: 82px 0; }
+
+    .container {
+      width: min(calc(100% - 40px), var(--max));
+      margin: 0 auto;
+    }
+
+    .section-head {
+      max-width: 720px;
+      margin-bottom: 36px;
+    }
+
+    .section-label {
+      margin-bottom: 10px;
+      color: var(--orange-dark);
+      font-size: 0.76rem;
+      font-weight: 850;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .section-head h2,
+    .split-copy h2,
+    .feedback h2 {
+      margin-bottom: 13px;
+      color: var(--purple-dark);
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.08;
+      letter-spacing: -0.045em;
+    }
+
+    .section-head p,
+    .split-copy > p { color: var(--muted); font-size: 1.03rem; }
+
+    .tool-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(270px, .55fr);
+      gap: 22px;
+    }
+
+    .tool-card,
+    .future-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: 0 10px 35px rgba(47, 23, 77, 0.07);
+    }
+
+    .tool-card {
+      position: relative;
+      overflow: hidden;
+      padding: 34px;
+    }
+
+    .tool-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 6px;
+      background: linear-gradient(var(--orange), #ff9b54);
+    }
+
+    .tool-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .tool-icon {
+      width: 58px;
+      height: 58px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 22px;
+      border-radius: 17px;
+      color: var(--purple);
+      background: var(--purple-soft);
+    }
+
+    .tool-icon svg { width: 29px; height: 29px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #944000;
+      background: var(--orange-soft);
+      font-size: 0.72rem;
+      font-weight: 850;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .badge::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--orange);
+    }
+
+    .tool-card h3 {
+      margin-bottom: 11px;
+      color: var(--purple-dark);
+      font-size: 1.62rem;
+      letter-spacing: -0.03em;
+    }
+
+    .tool-description { max-width: 710px; margin-bottom: 23px; color: var(--muted); }
+
+    .feature-list {
+      margin: 0 0 28px;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      list-style: none;
+    }
+
+    .feature-list li {
+      padding: 7px 10px;
+      border: 1px solid #ddd4e6;
+      border-radius: 9px;
+      color: #51475c;
+      background: #fbf9fd;
+      font-size: 0.79rem;
+      font-weight: 700;
+    }
+
+    .future-card {
+      padding: 31px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background:
+        linear-gradient(145deg, rgba(82,45,128,.035), rgba(245,102,0,.045)),
+        #fff;
+    }
+
+    .future-card .plus {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 52px;
+      border: 1px dashed #ab9abf;
+      border-radius: 15px;
+      color: var(--purple);
+      font-size: 1.5rem;
+      font-weight: 500;
+    }
+
+    .future-card h3 { margin-bottom: 9px; color: var(--purple-dark); font-size: 1.2rem; }
+    .future-card p { margin-bottom: 0; color: var(--muted); font-size: 0.91rem; }
+
+    .how-section { border-block: 1px solid var(--line); background: #fff; }
+
+    .how-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .how-card {
+      padding: 25px;
+      border-radius: 18px;
+      background: var(--page);
+    }
+
+    .how-card span {
+      display: inline-grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      margin-bottom: 16px;
+      border-radius: 11px;
+      color: #fff;
+      background: var(--purple);
+      font-size: 0.84rem;
+      font-weight: 900;
+    }
+
+    .how-card h3 { margin-bottom: 7px; color: var(--purple-dark); font-size: 1.02rem; }
+    .how-card p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+
+    .offline-section { background: var(--purple-soft); }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(310px, .8fr);
+      align-items: center;
+      gap: clamp(42px, 8vw, 90px);
+    }
+
+    .offline-steps {
+      margin: 25px 0 0;
+      padding: 0;
+      display: grid;
+      gap: 13px;
+      list-style: none;
+      counter-reset: offline;
+    }
+
+    .offline-steps li {
+      counter-increment: offline;
+      display: grid;
+      grid-template-columns: 32px minmax(0,1fr);
+      align-items: start;
+      gap: 11px;
+      color: #4d4556;
+    }
+
+    .offline-steps li::before {
+      content: counter(offline);
+      width: 29px;
+      height: 29px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      color: var(--purple);
+      background: #fff;
+      font-size: 0.78rem;
+      font-weight: 900;
+      box-shadow: 0 4px 12px rgba(47,23,77,.09);
+    }
+
+    .download-card {
+      padding: 28px;
+      border: 1px solid #d6c9e2;
+      border-radius: 21px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .file-row {
+      display: grid;
+      grid-template-columns: 48px minmax(0,1fr);
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 21px;
+    }
+
+    .file-icon {
+      width: 48px;
+      height: 55px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px 10px 13px 13px;
+      color: #fff;
+      background: linear-gradient(150deg, var(--purple), #7652a3);
+      font-size: 0.65rem;
+      font-weight: 900;
+      letter-spacing: .06em;
+    }
+
+    .file-row strong { display: block; color: var(--purple-dark); }
+    .file-row span { color: var(--muted); font-size: .81rem; }
+    .download-card .button { width: 100%; }
+    .privacy-note { margin: 15px 0 0; color: var(--success); font-size: .79rem; font-weight: 750; text-align: center; }
+
+    .resources { background: #fff; }
+
+    .resource-layout {
+      display: grid;
+      grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+      gap: 58px;
+      align-items: start;
+    }
+
+    .resource-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 13px;
+    }
+
+    .resource-link {
+      min-height: 102px;
+      padding: 19px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      color: var(--purple-dark);
+      background: var(--page);
+      font-size: .92rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .resource-link:hover { border-color: #b9a6cc; background: var(--purple-soft); }
+    .resource-link span { color: var(--orange-dark); font-size: .78rem; }
+
+    .feedback {
+      position: relative;
+      overflow: hidden;
+      padding: 42px;
+      border-radius: 25px;
+      color: #fff;
+      background: linear-gradient(130deg, var(--purple-dark), var(--purple));
+      box-shadow: var(--shadow);
+    }
+
+    .feedback::after {
+      content: "β";
+      position: absolute;
+      right: 24px;
+      top: -80px;
+      color: rgba(255,255,255,.07);
+      font-size: 17rem;
+      font-family: Georgia, serif;
+      line-height: 1;
+    }
+
+    .feedback > * { position: relative; z-index: 1; }
+    .feedback h2 { color: #fff; }
+    .feedback p { max-width: 830px; color: rgba(255,255,255,.83); }
+    .feedback strong { color: #fff; }
+    .feedback .button { margin-top: 7px; }
+
+    footer {
+      padding: 34px 0 40px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .footer-inner {
+      width: min(calc(100% - 40px), var(--max));
+      margin: 0 auto;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 32px;
+    }
+
+    .footer-inner p { margin: 0; color: var(--muted); font-size: .82rem; }
+    .footer-inner strong { color: var(--purple-dark); }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 17px; }
+    .footer-links a { color: var(--purple); font-size: .82rem; font-weight: 750; text-underline-offset: 3px; }
+
+    @media (max-width: 900px) {
+      .hero-inner,
+      .split,
+      .resource-layout { grid-template-columns: 1fr; }
+      .hero-inner { padding-block: 72px; }
+      .hero-panel { max-width: 560px; }
+      .tool-grid { grid-template-columns: 1fr; }
+      .future-card .plus { margin-bottom: 24px; }
+    }
+
+    @media (max-width: 700px) {
+      .nav { min-height: 72px; }
+      .nav-links a:not(:last-child) { display: none; }
+      .brand-copy span { display: none; }
+      .hero-inner { padding-block: 62px; }
+      h1 { font-size: clamp(2.55rem, 14vw, 4rem); }
+      main section { padding: 65px 0; }
+      .how-grid,
+      .resource-list { grid-template-columns: 1fr; }
+      .tool-card,
+      .future-card,
+      .feedback { padding: 27px; }
+      .tool-top { display: block; }
+      .tool-top .badge { margin-bottom: 14px; }
+      .footer-inner { display: grid; }
+    }
+
+    @media (max-width: 440px) {
+      .beta-bar { padding-inline: 14px; }
+      .nav,
+      .hero-inner,
+      .container,
+      .footer-inner { width: min(calc(100% - 28px), var(--max)); }
+      .brand-mark { width: 41px; height: 41px; }
+      .nav-links a { padding-inline: 9px; }
+      .hero-actions .button,
+      .card-actions .button { width: 100%; }
+      .hero-panel { padding: 21px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <div class="beta-bar">
+    Beta testing: please verify files against your hub’s current requirements and <a href="mailto:ambleic@clemson.edu?subject=Hubverse%20Support%20Toolkit%20feedback">tell us about possible mistakes</a>.
+  </div>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="Primary navigation">
+      <a class="brand" href="./" aria-label="Hubverse Support Toolkit home">
+        <span class="brand-mark" aria-hidden="true">DP</span>
+        <span class="brand-copy">
+          <strong>DMA-PRIME</strong>
+          <span>Clemson University</span>
+        </span>
+      </a>
+      <div class="nav-links">
+        <a href="#tools">Tools</a>
+        <a href="#offline">Offline use</a>
+        <a href="#feedback">Feedback</a>
+        <a href="https://hubverse.io/" target="_blank" rel="noopener">Hubverse ↗</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow">DMA-PRIME · Clemson University</p>
+          <h1 id="hero-title">Hubverse Support Toolkit</h1>
+          <p>Practical, browser-based tools that help modeling teams handle the technical pieces of Hubverse submissions. Follow guided prompts, prepare correctly structured files, and download your results—no coding required.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#tools">Explore the tools <span aria-hidden="true">↓</span></a>
+            <a class="button button-ghost" href="#offline">Run tools offline</a>
+          </div>
+        </div>
+
+        <aside class="hero-panel" aria-label="A simpler submission workflow">
+          <p class="panel-kicker">Submission support, simplified</p>
+          <h2>From requirements to ready-to-review files</h2>
+          <div class="path-step">
+            <span class="step-number">1</span>
+            <div><strong>Choose a support tool</strong><p>Select the technical task you need help completing.</p></div>
+          </div>
+          <div class="path-step">
+            <span class="step-number">2</span>
+            <div><strong>Follow the guided prompts</strong><p>Enter the requested information without writing code.</p></div>
+          </div>
+          <div class="path-step">
+            <span class="step-number">3</span>
+            <div><strong>Download and review</strong><p>Compare the result with your hub’s current guidance before submitting.</p></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="tools" aria-labelledby="tools-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="section-label">Available tools</p>
+          <h2 id="tools-title">Technical support without the technical overhead</h2>
+          <p>Each tool runs directly in your browser, guides you through the required information, and provides a file you can review and submit.</p>
+        </div>
+
+        <div class="tool-grid">
+          <article class="tool-card">
+            <div class="tool-top">
+              <div class="tool-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6.5 3.5h7l4 4v13h-11z"/><path d="M13.5 3.5v4h4"/><path d="M9.5 12h5M9.5 15.5h5"/>
+                </svg>
+              </div>
+              <span class="badge">Beta</span>
+            </div>
+            <h3>Model Metadata Generator</h3>
+            <p class="tool-description">Create a hub-specific model metadata file using a guided form. Select your hub, enter the required information, review the result, and download a ready-to-review <code>.yml</code> file.</p>
+            <ul class="feature-list" aria-label="Tool features">
+              <li>No coding</li>
+              <li>Hub-specific prompts</li>
+              <li>Browser-only</li>
+              <li>Offline-ready</li>
+            </ul>
+            <div class="card-actions">
+              <a class="button button-dark" href="./tools/metadata-generator/">Open tool <span aria-hidden="true">→</span></a>
+              <a class="button button-light" href="./offline/Hubverse-Metadata-Generator.html" download="Hubverse-Metadata-Generator.html">Download standalone HTML</a>
+            </div>
+          </article>
+
+          <aside class="future-card">
+            <span class="plus" aria-hidden="true">+</span>
+            <div>
+              <p class="section-label">Growing toolkit</p>
+              <h3>More submission support tools</h3>
+              <p>Additional tools can be added here as separate pages while remaining available together from this single toolkit.</p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="how-section" aria-labelledby="how-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="section-label">How it works</p>
+          <h2 id="how-title">A guided path through each task</h2>
+        </div>
+        <div class="how-grid">
+          <article class="how-card"><span>1</span><h3>Open a tool</h3><p>Choose a tool from the catalog and use it online or download the standalone version.</p></article>
+          <article class="how-card"><span>2</span><h3>Complete the prompts</h3><p>Provide the requested information. The tool handles the file structure and formatting.</p></article>
+          <article class="how-card"><span>3</span><h3>Review and submit</h3><p>Download the result, check it against your hub’s latest instructions, and follow the hub’s submission process.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="offline-section" id="offline" aria-labelledby="offline-title">
+      <div class="container split">
+        <div class="split-copy">
+          <p class="section-label">Work offline</p>
+          <h2 id="offline-title">Take the tools with you</h2>
+          <p>Every tool is also provided as one self-contained HTML file. It needs no installation, server, account, or internet connection.</p>
+          <ol class="offline-steps">
+            <li>Select <strong>Download standalone HTML</strong> on a tool card.</li>
+            <li>Save the file somewhere convenient on your computer.</li>
+            <li>Double-click the saved file to open it in your usual web browser.</li>
+          </ol>
+          <p style="margin:18px 0 0;color:#625b6c;font-size:.86rem">If your browser opens the HTML instead of saving it, right-click the download button and choose <strong>Save link as</strong>.</p>
+        </div>
+        <aside class="download-card" aria-label="Download the Model Metadata Generator">
+          <div class="file-row">
+            <span class="file-icon" aria-hidden="true">HTML</span>
+            <div><strong>Model Metadata Generator</strong><span>Self-contained offline tool</span></div>
+          </div>
+          <a class="button button-dark" href="./offline/Hubverse-Metadata-Generator.html" download="Hubverse-Metadata-Generator.html">Download offline HTML</a>
+          <p class="privacy-note">Your entries are processed locally in your browser.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="resources" aria-labelledby="resources-title">
+      <div class="container resource-layout">
+        <div class="section-head">
+          <p class="section-label">Official resources</p>
+          <h2 id="resources-title">Stay connected to Hubverse guidance</h2>
+          <p>This toolkit supports the technical workflow. Official Hubverse documentation and each hub’s current configuration remain the authoritative sources for submission requirements.</p>
+        </div>
+        <div class="resource-list">
+          <a class="resource-link" href="https://hubverse.io/" target="_blank" rel="noopener">Visit Hubverse <span>Official website ↗</span></a>
+          <a class="resource-link" href="https://docs.hubverse.io/" target="_blank" rel="noopener">Read the documentation <span>Hubverse docs ↗</span></a>
+          <a class="resource-link" href="https://hubverse.io/quickstart/submit.html" target="_blank" rel="noopener">Submission guidance <span>Model output quickstart ↗</span></a>
+          <a class="resource-link" href="https://hubverse.io/community/hubs.html" target="_blank" rel="noopener">Explore participating hubs <span>Hub directory ↗</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section id="feedback" aria-labelledby="feedback-title">
+      <div class="container">
+        <div class="feedback">
+          <p class="section-label" style="color:#ffd8bd">Beta testing and feedback</p>
+          <h2 id="feedback-title">Help us make the toolkit better</h2>
+          <p><strong>This toolkit is currently in beta testing.</strong> There may be mistakes, missing hubs, or requirements that have changed. Always compare generated files with your selected hub’s current instructions and official validation process before submission.</p>
+          <p>We are always looking for feedback. If something is unclear or you find a possible error, please let us know.</p>
+          <a class="button button-primary" href="mailto:ambleic@clemson.edu?subject=Hubverse%20Support%20Toolkit%20feedback">Email ambleic@clemson.edu</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <p><strong>Hubverse Support Toolkit</strong><br>Developed by <a href="https://dma-prime.org/" target="_blank" rel="noopener">DMA-PRIME</a> at <a href="https://www.clemson.edu/" target="_blank" rel="noopener">Clemson University</a>.</p>
+      <div class="footer-links">
+        <a href="https://hubverse.io/" target="_blank" rel="noopener">Hubverse</a>
+        <a href="https://docs.hubverse.io/" target="_blank" rel="noopener">Documentation</a>
+        <a href="mailto:ambleic@clemson.edu?subject=Hubverse%20Support%20Toolkit%20feedback">Feedback</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
