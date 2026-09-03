@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Prepare Hubverse-compatible target time-series data without coding. Runs entirely in your browser.">
-  <title>Data Preparation | Hubverse Support Toolkit</title>
+  <meta name="description" content="Prepare Hubverse-compatible model-output data without coding. Runs entirely in your browser.">
+  <title>Hubverse Data Prep</title>
   <style>
     :root {
       --ink: #172033;
@@ -69,26 +69,6 @@
       transform: translateY(-150%);
     }
     .skip-link:focus { transform: translateY(0); }
-
-    .toolkit-context {
-      color: #fff;
-      background: #522d80;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .toolkit-context-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: min(1180px, calc(100% - 40px));
-      min-height: 34px;
-      margin: 0 auto;
-      gap: 16px;
-    }
-
-    .toolkit-context a { color: #fff; text-decoration: none; }
-    .toolkit-context a:hover { color: #ffd8bd; }
 
     .topbar {
       position: sticky;
@@ -600,6 +580,15 @@
     .range-list, .target-map-list { display: grid; gap: 8px; margin-top: 12px; }
     .target-map-row { display: grid; grid-template-columns: minmax(140px,1fr) 30px minmax(190px,1fr); align-items: center; gap: 9px; }
     .source-value { overflow: hidden; padding: 9px 10px; color: #344054; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 8px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .prediction-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--line); }
+    .prediction-fields .field + .field { margin-top: 0; }
+    .prediction-fields .full { grid-column: 1 / -1; }
+    .task-rules { display: grid; gap: 8px; margin-top: 14px; }
+    .task-rule { min-width: 0; padding: 11px 12px; background: #f8fafc; border: 1px solid var(--line); border-radius: 9px; }
+    .task-rule-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 7px; }
+    .task-rule-head strong { color: var(--navy); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+    .task-rule p { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+    .rule-chip { display: inline-block; margin: 2px 3px 0 0; padding: 2px 5px; color: #34516d; background: #fff; border: 1px solid #d6e0ea; border-radius: 5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10px; }
     .compact-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
     .custom-target { display: grid; grid-template-columns: minmax(170px,1fr) 150px auto; align-items: end; gap: 9px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
     .custom-target .field + .field { margin-top: 0; }
@@ -747,8 +736,6 @@
     }
 
     @media (max-width: 680px) {
-      .toolkit-context-inner { width: min(100% - 28px, 1180px); justify-content: center; }
-      .toolkit-context-inner span { display: none; }
       .topbar { min-height: 62px; padding: 0 14px; }
       .brand { gap: 8px; }
       .brand-mark { width: 34px; height: 34px; }
@@ -787,7 +774,8 @@
       .about-hero { padding: 26px 22px; }
       .about-hero h1 { font-size: 31px; }
       .definition { grid-template-columns: 1fr; gap: 7px; }
-      .assignment-row, .custom-target, .inline-options, .target-map-row { grid-template-columns: 1fr; }
+      .assignment-row, .custom-target, .inline-options, .target-map-row, .prediction-fields { grid-template-columns: 1fr; }
+      .prediction-fields .full { grid-column: auto; }
       .target-map-row .mapping-arrow { display: none; }
       .tour-visual { min-height: 240px; padding: 17px; }
       .mock-content { min-height: 190px; padding: 15px; }
@@ -802,7 +790,7 @@
     }
 
     @media print {
-      .toolkit-context, .topbar, .stepper, .panel-actions, .button, dialog, .toast-region { display: none !important; }
+      .topbar, .stepper, .panel-actions, .button, dialog, .toast-region { display: none !important; }
       body { background: #fff; }
       .shell { width: 100%; padding: 0; }
       .workspace, .about-hero, .about-card { box-shadow: none; }
@@ -812,13 +800,6 @@
 <body>
   <a class="skip-link" href="#mainContent">Skip to content</a>
 
-  <div class="toolkit-context">
-    <div class="toolkit-context-inner">
-      <a href="../../" aria-label="Return to the Hubverse Support Toolkit homepage">← Hubverse Support Toolkit</a>
-      <span>DMA-PRIME · Clemson University</span>
-    </div>
-  </div>
-
   <header class="topbar">
     <a class="brand" href="#" aria-label="Hubverse Data Prep home" id="brandHome">
       <span class="brand-mark" aria-hidden="true">
@@ -827,7 +808,7 @@
           <path d="M10.8 7.1 6.3 15.4M13.2 7.1l4.5 8.3M7.5 17.5h9"></path>
         </svg>
       </span>
-      <span><span class="brand-name">Hubverse Data Prep</span><span class="brand-kicker">Target data, made submission-ready</span></span>
+      <span><span class="brand-name">Hubverse Data Prep</span><span class="brand-kicker">Model output, made submission-ready</span></span>
     </a>
 
     <nav class="topnav" aria-label="Main navigation">
@@ -851,9 +832,9 @@
     <section id="prepareView" class="shell" aria-labelledby="pageTitle">
       <div class="hero">
         <div>
-          <p class="eyebrow">No-code target data preparation</p>
+          <p class="eyebrow">No-code model-output preparation</p>
           <h1 id="pageTitle">Turn ordinary files into hub-ready data.</h1>
-          <p class="hero-copy">Choose a hub, map your date, location, and value columns, assign targets, and export a clean <strong>time-series.csv</strong> plus optional reusable Python or R code.</p>
+          <p class="hero-copy">Choose a hub, map your prediction fields, assign targets, and export a clean <strong>model-output.csv</strong> plus optional reusable Python or R code.</p>
         </div>
         <div class="hero-badge">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7 9 18l-5-5"></path></svg>
@@ -935,7 +916,7 @@
           </div>
 
           <div class="panel-actions">
-            <span class="helper">Required: one date column, one location column, and one observed value column.</span>
+            <span class="helper">Start with a date, location, and prediction value. Quantile, sample, or category columns can be matched in Step 2.</span>
             <div class="panel-actions-right">
               <button class="button button-primary button-lg" type="button" id="toStep2Button" disabled>Choose hub &amp; map columns
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
@@ -956,7 +937,7 @@
           <div class="setup-flow">
             <div class="card card-soft flow-card">
               <div class="card-heading" data-step-label="1">
-                <div><h3>Choose the destination hub</h3><p>The profile controls valid targets, locations, dates, and output columns.</p></div>
+                <div><h3>Choose the destination hub</h3><p>The profile controls task groups, targets, locations, output types, and value rules.</p></div>
               </div>
               <button class="info-tip" type="button" aria-label="About hub profiles">i<span class="info-tip-text" role="tooltip">Choose the hub that will receive this file. Built-in rules are marked; all other hubs can load their current local configuration files.</span></button>
               <div class="field">
@@ -970,19 +951,19 @@
               <div class="field" style="margin-top:14px">
                 <label for="configFiles">Current hub configuration <span class="helper">(recommended when prompted)</span></label>
                 <input id="configFiles" type="file" multiple accept=".json,application/json">
-                <small>Select <code>tasks.json</code> and/or <code>target-data.json</code>. They are read locally and override the selected profile.</small>
+                <small>Select the hub's current <code>tasks.json</code>. It is read locally and supplies target-specific task and output-type rules. A target-data file may also be included for location metadata.</small>
               </div>
               <div class="config-loaded" id="configLoaded" hidden></div>
             </div>
 
             <div class="card flow-card">
               <div class="card-heading" data-step-label="2">
-                <div><h3>Match the three source columns</h3><p>Each output field must come from one source column.</p></div>
+                <div><h3>Match the core source columns</h3><p>These identify the round date, hub location, and prediction value.</p></div>
               </div>
-              <button class="info-tip" type="button" aria-label="About column matching">i<span class="info-tip-text" role="tooltip">Pick the original columns containing the date, location, and observed value. Their source names can be anything.</span></button>
+              <button class="info-tip" type="button" aria-label="About column matching">i<span class="info-tip-text" role="tooltip">Pick the original columns containing the round or reference date, location, and prediction value. Their source names can be anything.</span></button>
               <div class="mapping-list">
                 <div class="mapping-row">
-                  <div class="mapping-target"><code id="dateOutputCode">target_end_date</code><small>Date</small></div>
+                  <div class="mapping-target"><code id="dateOutputCode">reference_date</code><small>Round/reference date</small></div>
                   <div class="mapping-arrow" aria-hidden="true">←</div>
                   <select id="dateMap" aria-label="Source column for date"></select>
                 </div>
@@ -992,17 +973,34 @@
                   <select id="locationMap" aria-label="Source column for location"></select>
                 </div>
                 <div class="mapping-row">
-                  <div class="mapping-target"><code>observation</code><small>Observed value</small></div>
+                  <div class="mapping-target"><code>value</code><small>Prediction value</small></div>
                   <div class="mapping-arrow" aria-hidden="true">←</div>
-                  <select id="valueMap" aria-label="Source column for observed value"></select>
+                  <select id="valueMap" aria-label="Source column for prediction value"></select>
                 </div>
               </div>
               <div class="field" style="margin-top:17px">
                 <label for="dateOutputName">Output date column</label>
-                <input id="dateOutputName" type="text" value="target_end_date" autocomplete="off" readonly>
-                <small>Set by the hub profile or uploaded target-data configuration.</small>
+                <input id="dateOutputName" type="text" value="reference_date" autocomplete="off" readonly>
+                <small>Set by the hub profile or the round identifier in an uploaded <code>tasks.json</code>.</small>
               </div>
               <div id="configExtraFields"></div>
+              <div class="prediction-fields">
+                <div class="field">
+                  <label for="outputTypeMap">Source <code>output_type</code> column</label>
+                  <select id="outputTypeMap"></select>
+                  <small>Use a column when rows contain more than one representation.</small>
+                </div>
+                <div class="field" id="fixedOutputTypeField">
+                  <label for="fixedOutputType">Or use one output type</label>
+                  <select id="fixedOutputType"></select>
+                  <small>Used only when no source output-type column is selected.</small>
+                </div>
+                <div class="field full">
+                  <label for="outputTypeIdMap">Source <code>output_type_id</code> column</label>
+                  <select id="outputTypeIdMap"></select>
+                  <small>Map the quantile level, PMF/CDF category, or sample ID. Leave blank only for mean or median rows.</small>
+                </div>
+              </div>
             </div>
 
             <div class="card flow-card">
@@ -1025,7 +1023,7 @@
               <div class="card-heading" data-step-label="4">
                 <div><h3>Confirm the cleaning defaults</h3><p>Automatic dates and target-aware values work for most files; adjust only when needed.</p></div>
               </div>
-              <button class="info-tip" type="button" aria-label="About cleaning rules">i<span class="info-tip-text" role="tooltip">Ambiguous numeric dates default to month/day/year. Every valid date is exported as YYYY-MM-DD, and extra source columns are removed.</span></button>
+              <button class="info-tip" type="button" aria-label="About cleaning rules">i<span class="info-tip-text" role="tooltip">Ambiguous numeric dates default to month/day/year. Dates become YYYY-MM-DD; prediction values are checked against the selected target/output rule and are never rounded automatically.</span></button>
               <div class="field">
                 <label for="dateStrategy">Date interpretation</label>
                 <select id="dateStrategy">
@@ -1037,9 +1035,9 @@
                 <small>All valid dates are exported as YYYY-MM-DD.</small>
               </div>
               <div class="field">
-                <label for="valueType">Fallback observation type</label>
+                <label for="valueType">Fallback prediction value type</label>
                 <select id="valueType">
-                  <option value="auto">Automatic from the assigned target</option>
+                  <option value="auto">Automatic (tasks.json rule, otherwise number)</option>
                   <option value="number">Number (whole or decimal)</option>
                   <option value="integer">Whole number only</option>
                   <option value="proportion">Proportion (0 to 1)</option>
@@ -1047,18 +1045,18 @@
                   <option value="text">Text / category</option>
                   <option value="logical">True / false</option>
                 </select>
-                <small>Preset targets provide their own type; this fallback is used for custom targets.</small>
+                <small>An uploaded <code>tasks.json</code> takes precedence. This fallback is used only when no output-type value rule is available; values are never rounded automatically.</small>
               </div>
               <details class="advanced">
                 <summary>Advanced options</summary>
                 <div class="advanced-body">
                   <label class="option-toggle" style="padding-top:0">
                     <input id="allowMissing" type="checkbox">
-                    <span><strong>Allow blank observations</strong><span>Blank values will be retained and reported as warnings.</span></span>
+                    <span><strong>Allow blank prediction values</strong><span>Blank values will be retained and reported as warnings.</span></span>
                   </label>
                   <label class="option-toggle">
                     <input id="sortOutput" type="checkbox" checked>
-                    <span><strong>Sort the final file</strong><span>Orders rows by the hub's observable-unit fields.</span></span>
+                    <span><strong>Sort the final file</strong><span>Orders rows by task IDs, <code>output_type</code>, and <code>output_type_id</code>.</span></span>
                   </label>
                   <div class="split-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8h.01"></path></svg><span>Unmapped and non-required source columns are deliberately removed from the final file.</span></div>
                 </div>
@@ -1098,7 +1096,7 @@
               <div class="card-heading" data-step-label="1">
                 <div><h3>Assign one target to every row</h3><p id="targetAssignmentCopy">Start with the simplest method, then use a source column or row ranges if the file contains several targets.</p></div>
               </div>
-              <button class="info-tip" type="button" aria-label="About target assignment">i<span class="info-tip-text" role="tooltip">A target describes what the observation measures. Assign one target to all rows, map a target column, or create non-overlapping row ranges.</span></button>
+              <button class="info-tip" type="button" aria-label="About target assignment">i<span class="info-tip-text" role="tooltip">A target describes what the prediction represents. Assign one target to all rows, map a target column, or create non-overlapping row ranges.</span></button>
               <div id="targetRequiredControls">
                 <div class="field">
                   <label for="targetAssignmentMode">How should targets be assigned?</label>
@@ -1145,7 +1143,8 @@
                 </div>
                 <div class="split-note" id="customTargetWarning" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4 3.7 19h16.6L12 4Z"></path><path d="M12 9v4M12 16h.01"></path></svg><span>Custom targets are accepted by this preparer but are not verified against the preset hub. Confirm the exact ID with the hub.</span></div>
               </div>
-              <div class="config-loaded" id="targetNotRequired" hidden><strong>No target field required</strong>The uploaded target-data configuration does not include <code>target</code> in its observable unit.</div>
+              <div class="config-loaded" id="targetNotRequired" hidden><strong>No <code>target</code> column required</strong>The selected model-task configuration identifies targets through other task IDs.</div>
+              <div class="task-rules" id="taskRulesSummary"></div>
             </div>
 
             <div class="card card-soft flow-card">
@@ -1196,7 +1195,7 @@
           <div class="panel-heading">
             <div>
               <h2 id="step4Title">Review the checks</h2>
-              <p class="section-copy">We checked dates, locations, values, required fields, and duplicate observable units. Review any items below before export.</p>
+              <p class="section-copy">We checked dates, locations, target-specific task groups, output types, values, and duplicate predictions. Review any items below before export.</p>
             </div>
             <button class="button button-secondary" type="button" id="rerunButton">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8 8 0 1 0-2.3 5.7"></path><path d="M20 5v6h-6"></path></svg>
@@ -1250,18 +1249,18 @@
           <div class="success-stage">
             <div class="success-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 12 4.5 4.5L19 7"></path></svg></div>
             <h2 id="step5Title">Your Hubverse file is ready</h2>
-            <p>The cleaned target time-series data are packaged as a standards-friendly CSV. Download it now or copy the full CSV to your clipboard.</p>
+            <p>The cleaned model output is packaged as a Hubverse-shaped CSV. Download it now or copy the full CSV to your clipboard.</p>
 
             <div class="download-card">
               <div class="file-row">
                 <span class="file-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h7l4 4v14H7V3Z"></path><path d="M14 3v5h5M9.5 13h5M9.5 16h5"></path></svg></span>
-                <span class="file-meta"><strong>time-series.csv</strong><span id="downloadMeta">0 rows · CSV</span></span>
+                <span class="file-meta"><strong>model-output.csv</strong><span id="downloadMeta">0 rows · CSV</span></span>
                 <span class="badge badge-neutral">UTF-8</span>
               </div>
               <div class="download-actions">
                 <button class="button button-primary button-lg" type="button" id="downloadButton">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4"></path><path d="M5 20h14"></path></svg>
-                  Download time-series.csv
+                  Download model-output.csv
                 </button>
                 <button class="button button-secondary button-lg" type="button" id="copyButton">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="11" height="12" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2"></path></svg>
@@ -1271,7 +1270,7 @@
               <div class="output-columns" id="outputColumns"><span class="output-columns-label">Columns included</span></div>
               <div class="placement-note">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8h.01"></path></svg>
-                <span>For a repository-based hub, this CSV normally belongs at <strong>target-data/time-series.csv</strong>. Your hub's instructions take precedence.</span>
+                <span>Rename this file using the hub's required round and model ID, then place it in your model's <strong>model-output/&lt;model_id&gt;/</strong> folder. The hub's instructions take precedence.</span>
               </div>
             </div>
             <div id="generatedCodeSection" hidden>
@@ -1304,16 +1303,17 @@
       <div class="about-hero">
         <p class="eyebrow">About this tool</p>
         <h1 id="aboutTitle">A focused bridge from source data to Hubverse.</h1>
-        <p>Hubverse target time-series data use one row per observed unit. This standalone tool turns ordinary Excel, CSV, TSV, JSON, or pasted data into that structure and catches common formatting problems before submission.</p>
+        <p>Hubverse model output uses one row per unique prediction. This standalone tool turns ordinary Excel, CSV, TSV, JSON, or pasted data into that structure and catches common formatting problems before submission.</p>
       </div>
 
       <div class="about-grid">
         <article class="about-card full">
           <h2>What each field means</h2>
           <div class="definition-list">
-            <div class="definition"><code>target_end_date</code><p>The date attached to the observed target. Hubs may use another configured name, such as <code>target_date</code>. Dates are exported in ISO <strong>YYYY-MM-DD</strong> format.</p></div>
+            <div class="definition"><code>reference_date</code><p>The round or forecast reference date used by many hubs. The exact date field comes from the selected hub. Dates are exported in ISO <strong>YYYY-MM-DD</strong> format.</p></div>
             <div class="definition"><code>location</code><p>The hub's identifier for the geographic unit, such as a FIPS code or a custom location ID. Values are kept as text so leading zeros are preserved.</p></div>
-            <div class="definition"><code>observation</code><p>The value that was observed for the specified date and location. It can be prepared as a number, integer, text category, or logical value.</p></div>
+            <div class="definition"><code>output_type</code> + <code>output_type_id</code><p>The representation and row identifier: for example, <code>quantile</code> with probability level <code>0.25</code>, or <code>sample</code> with a sample ID.</p></div>
+            <div class="definition"><code>value</code><p>The prediction. Its datatype and limits come from the matching target and output-type block in <code>tasks.json</code>; a count target does not automatically mean quantile values must be integers.</p></div>
             <div class="definition"><code>target</code><p>A hub task ID identifying the outcome. Assign one target to all rows, map target values from a source column, or assign targets to inclusive row ranges.</p></div>
           </div>
         </article>
@@ -1324,15 +1324,15 @@
             <li><strong>Add data</strong>Upload Excel, CSV, TSV, JSON, text, paste, or manually enter rows.</li>
             <li><strong>Choose a hub</strong>Apply a preset or load the hub's current configuration, then match fields.</li>
             <li><strong>Assign rows</strong>Set targets and crosswalk source locations to hub IDs.</li>
-            <li><strong>Review checks</strong>Resolve invalid dates, missing values, and duplicates.</li>
-            <li><strong>Download</strong>Save <code>time-series.csv</code> and optional Python or R code.</li>
+            <li><strong>Review checks</strong>Resolve invalid dates, task/output combinations, missing values, and true duplicate predictions.</li>
+            <li><strong>Download</strong>Save <code>model-output.csv</code> and optional Python or R code.</li>
           </ol>
         </article>
 
         <article class="about-card">
           <h2>Use the hub's exact setup</h2>
           <p>The selector includes the 30 public hubs in the <a href="https://hubverse.io/community/hubs.html" target="_blank" rel="noreferrer">Hubverse directory</a>, grouped as active, training, model development, and archival entries (directory updated 31 August 2026). Private directory entries are deliberately omitted.</p>
-          <p>If a hub provides <code>hub-config/tasks.json</code> and <code>hub-config/target-data.json</code>, load one or both during mapping. The tool reads target IDs, locations, the configured date column, and observable-unit fields, then adjusts the form and checks.</p>
+          <p>If a hub provides <code>hub-config/tasks.json</code>, load it during mapping. The tool reads model-task groups, target IDs, task-ID fields, accepted output types, output-type IDs, and target-specific value rules, then adjusts the form and checks.</p>
           <p>Only fields required for the selected hub are exported. Unmapped source columns are removed automatically, and all recognized dates are written as ISO <strong>YYYY-MM-DD</strong>.</p>
           <p>A hub can still define additional rules that only its official validation workflow knows. Treat this browser check as preparation—not a replacement for final hub validation.</p>
         </article>
@@ -1343,7 +1343,7 @@
             <div><h3>Private by design</h3><p>All parsing, cleaning, checking, and file creation happen inside this browser tab. The HTML has no analytics, server calls, or external code dependencies.</p></div>
           </div>
           <div class="link-row">
-            <a class="button button-secondary" href="https://docs.hubverse.io/en/latest/user-guide/target-data.html" target="_blank" rel="noreferrer">Read Hubverse target-data guidance
+            <a class="button button-secondary" href="https://docs.hubverse.io/en/latest/user-guide/model-output.html" target="_blank" rel="noreferrer">Read Hubverse model-output guidance
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4h6v6M20 4l-9 9"></path><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"></path></svg>
             </a>
             <button class="button button-quiet" type="button" id="aboutStartButton">Start preparing data</button>
@@ -1447,44 +1447,44 @@
 
       const PROFILE_BLUEPRINTS = {
         flusight: {
-          key: 'flusight', name: 'CDC FluSight Forecast Hub', shortName: 'FluSight', dateField: 'target_end_date', weekday: 6,
-          targetRequired: true, observableUnit: ['target_end_date','target','location'], locationScheme: 'us_fips', allowedLocations: US_CODES, locationLabels: US_LABELS,
+          key: 'flusight', name: 'CDC FluSight Forecast Hub', shortName: 'FluSight', dateField: 'reference_date', weekday: 6,
+          targetRequired: true, observableUnit: ['reference_date','target','horizon','location','target_end_date','output_type','output_type_id'], taskFields:['reference_date','target','horizon','location','target_end_date'], locationScheme: 'us_fips', allowedLocations: US_CODES, locationLabels: US_LABELS,
           snapshot: 'Built-in profile snapshot · September 2026',
           targets: [
             {id:'wk flu hosp rate change', label:'Weekly flu hospitalization rate change', type:'text'},
-            {id:'wk inc flu hosp', label:'Weekly incident flu hospitalizations', type:'integer'},
+            {id:'wk inc flu hosp', label:'Weekly incident flu hospitalizations', type:'number'},
             {id:'peak inc flu hosp', label:'Peak incident flu hospitalizations', type:'number'},
             {id:'peak week inc flu hosp', label:'Peak week of incident flu hospitalizations', type:'date'},
             {id:'wk inc flu prop ed visits', label:'Weekly proportion of ED visits due to flu', type:'proportion'}
           ]
         },
         covid: {
-          key: 'covid', name: 'CDC COVID-19 Forecast Hub', shortName: 'COVID-19', dateField: 'target_end_date', weekday: 6,
-          targetRequired: true, observableUnit: ['target_end_date','target','location'], locationScheme: 'us_fips', allowedLocations: US_CODES, locationLabels: US_LABELS,
+          key: 'covid', name: 'CDC COVID-19 Forecast Hub', shortName: 'COVID-19', dateField: 'reference_date', weekday: 6,
+          targetRequired: true, observableUnit: ['reference_date','target','horizon','location','target_end_date','output_type','output_type_id'], taskFields:['reference_date','target','horizon','location','target_end_date'], locationScheme: 'us_fips', allowedLocations: US_CODES, locationLabels: US_LABELS,
           snapshot: 'Built-in profile snapshot · September 2026',
           targets: [
-            {id:'wk inc covid hosp', label:'Weekly incident COVID-19 hospitalizations', type:'integer'},
+            {id:'wk inc covid hosp', label:'Weekly incident COVID-19 hospitalizations', type:'number'},
             {id:'wk inc covid prop ed visits', label:'Weekly proportion of ED visits due to COVID-19', type:'proportion'}
           ]
         },
         rsv: {
-          key: 'rsv', name: 'CDC RSV Forecast Hub', shortName: 'RSV', dateField: 'target_end_date', weekday: 6,
-          targetRequired: true, observableUnit: ['target_end_date','target','location'], locationScheme: 'us_fips', allowedLocations: US_CODES, locationLabels: US_LABELS,
+          key: 'rsv', name: 'CDC RSV Forecast Hub', shortName: 'RSV', dateField: 'reference_date', weekday: 6,
+          targetRequired: true, observableUnit: ['reference_date','target','horizon','location','target_end_date','output_type','output_type_id'], taskFields:['reference_date','target','horizon','location','target_end_date'], locationScheme: 'us_fips', allowedLocations: US_CODES, locationLabels: US_LABELS,
           snapshot: 'Built-in profile snapshot · September 2026',
           targets: [
-            {id:'wk inc rsv hosp', label:'Weekly incident RSV hospitalizations', type:'integer'},
+            {id:'wk inc rsv hosp', label:'Weekly incident RSV hospitalizations', type:'number'},
             {id:'wk inc rsv prop ed visits', label:'Weekly proportion of ED visits due to RSV', type:'proportion'}
           ]
         },
         generic: {
-          key: 'generic', name: 'Generic Hubverse hub', shortName: 'Generic Hubverse', dateField: 'target_end_date', weekday: null,
-          targetRequired: true, observableUnit: ['target_end_date','target','location'], locationScheme: 'custom', allowedLocations: null, locationLabels: {},
+          key: 'generic', name: 'Generic Hubverse hub', shortName: 'Generic Hubverse', dateField: 'reference_date', weekday: null,
+          targetRequired: true, observableUnit: ['reference_date','target','location','output_type','output_type_id'], taskFields:['reference_date','target','location'], locationScheme: 'custom', allowedLocations: null, locationLabels: {},
           snapshot: 'Flexible profile · confirm target IDs with the hub', targets: []
         },
         custom: {
-          key: 'custom', name: 'Custom hub configuration', shortName: 'Custom hub', dateField: 'target_end_date', weekday: null,
-          targetRequired: true, observableUnit: ['target_end_date','target','location'], locationScheme: 'custom', allowedLocations: null, locationLabels: {},
-          snapshot: 'Upload tasks.json and/or target-data.json below', targets: []
+          key: 'custom', name: 'Custom hub configuration', shortName: 'Custom hub', dateField: 'reference_date', weekday: null,
+          targetRequired: true, observableUnit: ['reference_date','target','location','output_type','output_type_id'], taskFields:['reference_date','target','location'], locationScheme: 'custom', allowedLocations: null, locationLabels: {},
+          snapshot: 'Upload tasks.json below', targets: []
         }
       };
 
@@ -1646,6 +1646,32 @@
         }
       };
 
+      const STANDARD_QUANTILE_IDS = ['0.01','0.025','0.05','0.1','0.15','0.2','0.25','0.3','0.35','0.4','0.45','0.5','0.55','0.6','0.65','0.7','0.75','0.8','0.85','0.9','0.95','0.975','0.99'];
+      const COMMON_FORECAST_FIELDS = ['reference_date','origin_date','forecast_date','target','horizon','location','target_end_date','target_date','age_group','scenario_id'];
+
+      // Compact model-task rules taken from the current public tasks.json files for the
+      // three CDC respiratory forecast hubs. Uploaded tasks.json files supersede these.
+      const EMBEDDED_MODEL_RULES = {
+        flusight: {
+          roundIdField:'reference_date', taskFields:['reference_date','target','horizon','location','target_end_date'], derivedTaskIds:['target_end_date'],
+          groups:[
+            {name:'Weekly hospitalization rate change',targetIds:['wk flu hosp rate change'],taskIds:{reference_date:{type:'date',allowAny:true},target:{allowed:['wk flu hosp rate change']},horizon:{allowed:['-1','0','1','2','3']},location:{allowed:US_CODES},target_end_date:{type:'date',allowAny:true}},outputTypes:{pmf:{ids:['large_decrease','decrease','stable','increase','large_increase'],requiredIds:['large_decrease','decrease','stable','increase','large_increase'],value:{type:'double',minimum:0,maximum:1}}}},
+            {name:'Weekly incident hospitalizations',targetIds:['wk inc flu hosp'],taskIds:{reference_date:{type:'date',allowAny:true},target:{allowed:['wk inc flu hosp']},horizon:{allowed:['-1','0','1','2','3']},location:{allowed:US_CODES},target_end_date:{type:'date',allowAny:true}},outputTypes:{quantile:{ids:STANDARD_QUANTILE_IDS,requiredIds:STANDARD_QUANTILE_IDS,isRequired:true,value:{type:'double',minimum:0}},sample:{idParams:{type:'character',minSamples:100,maxSamples:100,compoundTaskIdSet:['reference_date','location','target','target_end_date']},value:{type:'integer',minimum:0}}}},
+            {name:'Peak hospitalization size',targetIds:['peak inc flu hosp'],taskIds:{reference_date:{type:'date',allowAny:true},target:{allowed:['peak inc flu hosp']},horizon:{allowsBlank:true},location:{allowed:US_CODES},target_end_date:{allowsBlank:true}},outputTypes:{quantile:{ids:STANDARD_QUANTILE_IDS,requiredIds:STANDARD_QUANTILE_IDS,value:{type:'double',minimum:0}}}},
+            {name:'Peak hospitalization week',targetIds:['peak week inc flu hosp'],taskIds:{reference_date:{type:'date',allowAny:true},target:{allowed:['peak week inc flu hosp']},horizon:{allowsBlank:true},location:{allowed:US_CODES},target_end_date:{allowsBlank:true}},outputTypes:{pmf:{idType:'date',allowAnyId:true,value:{type:'double',minimum:0,maximum:1}}}},
+            {name:'Weekly influenza ED proportion',targetIds:['wk inc flu prop ed visits'],taskIds:{reference_date:{type:'date',allowAny:true},target:{allowed:['wk inc flu prop ed visits']},horizon:{allowed:['-1','0','1','2','3']},location:{allowed:US_CODES},target_end_date:{type:'date',allowAny:true}},outputTypes:{quantile:{ids:STANDARD_QUANTILE_IDS,requiredIds:STANDARD_QUANTILE_IDS,value:{type:'double',minimum:0,maximum:1}},sample:{idParams:{type:'character',minSamples:100,maxSamples:100,compoundTaskIdSet:['reference_date','location','target','target_end_date']},value:{type:'double',minimum:0,maximum:1}}}}
+          ]
+        },
+        covid: {
+          roundIdField:'reference_date', taskFields:['reference_date','target','horizon','location','target_end_date'], derivedTaskIds:['target_end_date'],
+          groups:[{name:'COVID-19 weekly targets',targetIds:['wk inc covid hosp','wk inc covid prop ed visits'],taskIds:{reference_date:{type:'date',allowAny:true},target:{allowed:['wk inc covid hosp','wk inc covid prop ed visits']},horizon:{allowed:['-1','0','1','2','3']},location:{allowed:US_CODES},target_end_date:{type:'date',allowAny:true}},outputTypes:{quantile:{ids:STANDARD_QUANTILE_IDS,requiredIds:STANDARD_QUANTILE_IDS,value:{type:'double',minimum:0}},sample:{idParams:{type:'character',minSamples:200,maxSamples:200,compoundTaskIdSet:['location','target']},value:{type:'double',minimum:0}}}}]
+        },
+        rsv: {
+          roundIdField:'reference_date', taskFields:['reference_date','target','horizon','location','target_end_date'], derivedTaskIds:['target_end_date'],
+          groups:[{name:'RSV weekly targets',targetIds:['wk inc rsv hosp','wk inc rsv prop ed visits'],taskIds:{reference_date:{type:'date',allowAny:true},target:{allowed:['wk inc rsv hosp','wk inc rsv prop ed visits']},horizon:{allowed:['-1','0','1','2','3']},location:{allowed:US_CODES},target_end_date:{type:'date',allowAny:true}},outputTypes:{quantile:{ids:STANDARD_QUANTILE_IDS,requiredIds:STANDARD_QUANTILE_IDS,value:{type:'double',minimum:0}},sample:{idParams:{type:'character',minSamples:200,maxSamples:200,compoundTaskIdSet:['location','target']},value:{type:'double',minimum:0}}}}]
+        }
+      };
+
       const HUB_REGISTRY = [
         {key:'wnvca', name:'West Nile Virus Forecasting Hub', shortName:'West Nile Virus', category:'Active', repository:'https://github.com/cdphmodeling/wnvca-2024'},
         {key:'variant-nowcast', name:'Variant Nowcast Hub', shortName:'Variant Nowcast', category:'Active', repository:'https://github.com/reichlab/variant-nowcast-hub'},
@@ -1688,7 +1714,7 @@
         }
         PROFILE_BLUEPRINTS[hub.key] = {
           key:hub.key, name:hub.name, shortName:hub.shortName, category:hub.category, access:hub.access || 'Public', repository:hub.repository || '',
-          dateField:'target_end_date', weekday:null, targetRequired:true, observableUnit:['target_end_date','target','location'],
+          dateField:'reference_date', weekday:null, targetRequired:true, observableUnit:['reference_date','target','location','output_type','output_type_id'], taskFields:['reference_date','target','location'],
           locationScheme:'custom', allowedLocations:null, locationLabels:{}, targets:[], requiresConfig:!EMBEDDED_HUB_CONFIGS[hub.key], builtInRules:false,
           snapshot:'Hubverse directory entry · load the current hub configuration for exact rules'
         };
@@ -1698,7 +1724,7 @@
 
       const state = {
         step: 1, highestStep: 1, sourceName: '', sourceKind: '', sourceMeta: {}, headers: [], rows: [], droppedBlankRows: 0,
-        hubKey: 'flusight', profile: null, configNames: [], extraMappings: {},
+        hubKey: 'flusight', profile: null, configNames: [], extraMappings: {}, taskMappings: {},
         targetValueMap: new Map(), targetRanges: [], locationCrosswalk: new Map(), customTargetsAdded: false, fixedTargetTouched: false,
         pendingWorkbook: null, transformed: [], columns: [], issues: [], issueFilter: 'all', csv: '', generatedCode: '', tourStep: 0
       };
@@ -1715,13 +1741,14 @@
         sourceSummary: $('#sourceSummary'), sourceName: $('#sourceName'), sourceDetails: $('#sourceDetails'), toStep2: $('#toStep2Button'),
         hubSelect: $('#hubSelect'), hubSummary: $('#hubSummary'), configFiles: $('#configFiles'), configLoaded: $('#configLoaded'),
         dateMap: $('#dateMap'), locationMap: $('#locationMap'), valueMap: $('#valueMap'), dateOutputName: $('#dateOutputName'), dateOutputCode: $('#dateOutputCode'),
+        outputTypeMap: $('#outputTypeMap'), fixedOutputType: $('#fixedOutputType'), fixedOutputTypeField: $('#fixedOutputTypeField'), outputTypeIdMap: $('#outputTypeIdMap'),
         mappingRowBadge: $('#mappingRowBadge'), configExtraFields: $('#configExtraFields'), dateStrategy: $('#dateStrategy'), valueType: $('#valueType'),
         allowMissing: $('#allowMissing'), sortOutput: $('#sortOutput'), generateCode: $('#generateCode'), codeLanguage: $('#codeLanguage'), codeLanguageField: $('#codeLanguageField'),
         sourcePreviewTable: $('#sourcePreviewTable'), assignmentHubBadge: $('#assignmentHubBadge'), targetRequiredControls: $('#targetRequiredControls'),
         targetNotRequired: $('#targetNotRequired'), targetAssignmentMode: $('#targetAssignmentMode'), targetFixedControls: $('#targetFixedControls'), targetFixedSelect: $('#targetFixedSelect'), targetFixedHelp: $('#targetFixedHelp'),
         targetColumnControls: $('#targetColumnControls'), targetSourceColumn: $('#targetSourceColumn'), targetValueMap: $('#targetValueMap'),
         targetRangeControls: $('#targetRangeControls'), targetRangeList: $('#targetRangeList'), customTargetId: $('#customTargetId'), customTargetType: $('#customTargetType'),
-        customTargetWarning: $('#customTargetWarning'), locationSummaryTitle: $('#locationSummaryTitle'), locationSummaryDetail: $('#locationSummaryDetail'),
+        customTargetWarning: $('#customTargetWarning'), taskRulesSummary: $('#taskRulesSummary'), locationSummaryTitle: $('#locationSummaryTitle'), locationSummaryDetail: $('#locationSummaryDetail'),
         locationCrosswalkBody: $('#locationCrosswalkBody'), crosswalkPaste: $('#crosswalkPaste'), crosswalkFile: $('#crosswalkFile'),
         validationBanner: $('#validationBanner'), issueList: $('#issueList'), outputPreviewTable: $('#outputPreviewTable'), statRows: $('#statRows'),
         statLocations: $('#statLocations'), statErrors: $('#statErrors'), statDates: $('#statDates'), allIssueCount: $('#allIssueCount'),
@@ -2110,7 +2137,7 @@
         state.rows = dataset.rows;
         state.droppedBlankRows = dataset.dropped || 0;
         state.transformed = []; state.columns = []; state.issues = []; state.csv = ''; state.generatedCode = '';
-        state.targetValueMap = new Map(); state.targetRanges = []; state.locationCrosswalk = new Map(); state.fixedTargetTouched = false;
+        state.targetValueMap = new Map(); state.targetRanges = []; state.locationCrosswalk = new Map(); state.extraMappings = {}; state.taskMappings = {}; state.fixedTargetTouched = false;
         state.highestStep = 1;
         updateSourceSummary();
         populateMappingControls();
@@ -2133,10 +2160,12 @@
 
       function findBestHeader(kind, exclude = []) {
         const candidates = {
-          date:['targetenddate','targetdate','date','weekending','weekenddate','observationdate','periodend','time'],
+          date:['referencedate','origindate','forecastdate','targetenddate','targetdate','date','weekending','weekenddate','observationdate','periodend','time'],
           location:['location','locationid','loc','fips','statefips','geoid','geo','geography','state','region'],
-          value:['observation','value','observedvalue','count','rate','proportion','measurement','estimate','total'],
-          target:['target','targetid','outcome','indicator','measure','metric','signal']
+          value:['prediction','forecastvalue','predictedvalue','observation','value','observedvalue','count','rate','proportion','measurement','estimate','total'],
+          target:['target','targetid','outcome','indicator','measure','metric','signal'],
+          output_type:['outputtype','predictiontype','forecasttype','type'],
+          output_type_id:['outputtypeid','quantile','quantilelevel','probabilitylevel','sampleid','draw','category','bin']
         }[kind] || [normalizeHeader(kind)];
         const usable = state.headers.filter(header => !exclude.includes(header));
         for (const candidate of candidates) {
@@ -2168,6 +2197,7 @@
         fillSourceSelect(elements.targetSourceColumn, findBestHeader('target', [date, location, value]));
         elements.mappingRowBadge.textContent = state.rows.length.toLocaleString() + ' source rows';
         renderExtraMappings();
+        renderPredictionControls();
       }
 
       function renderSourcePreview() {
@@ -2194,7 +2224,7 @@
           const tr = document.createElement('tr');
           tr.innerHTML = '<td>' + rowNumber + '</td><td><input type="text" data-manual="date" placeholder="Any date format" aria-label="Date for row ' + rowNumber + '"></td>' +
             '<td><input type="text" data-manual="location" placeholder="Location" aria-label="Location for row ' + rowNumber + '"></td>' +
-            '<td><input type="text" data-manual="value" placeholder="Observed value" aria-label="Value for row ' + rowNumber + '"></td>';
+            '<td><input type="text" data-manual="value" placeholder="Prediction value" aria-label="Prediction value for row ' + rowNumber + '"></td>';
           elements.manualBody.appendChild(tr);
         }
       }
@@ -2210,7 +2240,7 @@
       function clearSource() {
         state.sourceName = ''; state.sourceKind = ''; state.sourceMeta = {}; state.headers = []; state.rows = []; state.droppedBlankRows = 0;
         state.transformed = []; state.columns = []; state.issues = []; state.csv = ''; state.generatedCode = ''; state.highestStep = 1;
-        state.targetValueMap = new Map(); state.targetRanges = []; state.locationCrosswalk = new Map(); state.fixedTargetTouched = false;
+        state.targetValueMap = new Map(); state.targetRanges = []; state.locationCrosswalk = new Map(); state.extraMappings = {}; state.taskMappings = {}; state.fixedTargetTouched = false;
         elements.sourceFile.value = ''; elements.pasteInput.value = ''; elements.sourceSummary.hidden = true; elements.toStep2.disabled = true;
         $$('.step-button').forEach(button => button.disabled = Number(button.dataset.step) > 1);
         showToast('Source data removed.');
@@ -2278,7 +2308,7 @@
         const registryOptions = groups.map(category => {
           const hubs = HUB_REGISTRY.filter(hub => hub.category === category);
           const options = hubs.map(hub => {
-            const suffix = EMBEDDED_HUB_CONFIGS[hub.key] ? ' — embedded JSON' : '';
+            const suffix = EMBEDDED_MODEL_RULES[hub.key] ? ' — embedded model rules' : (EMBEDDED_HUB_CONFIGS[hub.key] ? ' — embedded hub JSON' : '');
             return '<option value="' + escapeHtml(hub.key) + '"' + (hub.key === selected ? ' selected' : '') + '>' + escapeHtml(hub.name + suffix) + '</option>';
           }).join('');
           return '<optgroup label="' + escapeHtml(category + ' hubs (' + hubs.length + ')') + '">' + options + '</optgroup>';
@@ -2291,17 +2321,47 @@
       function profileClone(key) {
         const profile = clone(PROFILE_BLUEPRINTS[key] || PROFILE_BLUEPRINTS.generic);
         const embedded = EMBEDDED_HUB_CONFIGS[key];
-        if (!embedded) return profile;
-        const extracted = extractHubConfiguration(embedded.configs.map((config, index) => ({name:embedded.files[index] || ('embedded-' + (index + 1) + '.json'), config})));
-        if (extracted.dateField) profile.dateField = extracted.dateField;
-        if (extracted.observableUnit && extracted.observableUnit.length) {
-          profile.observableUnit = extracted.observableUnit.map(String);
-          profile.targetRequired = profile.observableUnit.includes('target');
+        const extracted = embedded ? extractHubConfiguration(embedded.configs.map((config, index) => ({name:embedded.files[index] || ('embedded-' + (index + 1) + '.json'), config}))) : emptyExtractedConfiguration();
+        applyExtractedBasics(profile, extracted);
+        const modelRules = EMBEDDED_MODEL_RULES[key];
+        if (modelRules) applyModelRules(profile, modelRules, true);
+        else if (extracted.modelTaskGroups.length) applyModelRules(profile, extracted, true);
+        else {
+          profile.modelTaskGroups = [];
+          profile.outputRulesVerified = false;
+          profile.taskFields = profile.taskFields || [profile.dateField,'target','location'];
         }
+        const omitVersionField = ['as','of'].join('_');
+        profile.taskFields = profile.taskFields.filter(field => field !== omitVersionField && !['output_type','output_type_id','value','observation'].includes(field));
+        profile.observableUnit = profile.taskFields.concat(['output_type','output_type_id']);
+        profile.targetRequired = profile.taskFields.includes('target');
+        profile.additionalFields = profile.taskFields.filter(field => ![profile.dateField,'target','location'].includes(field));
+        if (embedded) {
+          profile.weekday = embedded.weekday;
+          profile.embeddedConfig = true;
+          profile.embeddedFiles = embedded.files.slice();
+          profile.requiresConfig = false;
+          profile.builtInRules = true;
+          profile.snapshot = (profile.outputRulesVerified ? 'Embedded target-specific model rules' : 'Embedded target/location snapshot') + ' · ' + embedded.files.map(file => file.split('/').pop()).join(' + ') + ' · checked ' + embedded.checked;
+        }
+        return profile;
+      }
+
+      function inferTargetType(id, metadata = {}) {
+        // The observed target type does not determine model-output value type.
+        // That rule comes from task.output_type[...].value in tasks.json.
+        return 'number';
+      }
+
+      function emptyExtractedConfiguration() {
+        return {targetIds:[],locationIds:[],targetMetadata:new Map(),observableUnit:null,dateField:'',roundIdField:'',taskFields:[],modelTaskGroups:[],derivedTaskIds:[],outputTypeIdDatatype:'auto'};
+      }
+
+      function applyExtractedBasics(profile, extracted) {
         if (extracted.targetIds.length) {
           profile.targets = extracted.targetIds.map(id => {
             const metadata = extracted.targetMetadata.get(id) || {};
-            return {id, label:normalizeText(metadata.target_name || metadata.name || metadata.description || id), type:inferTargetType(id, metadata)};
+            return {id,label:normalizeText(metadata.target_name || metadata.name || metadata.description || id),type:inferTargetType(id, metadata),targetType:normalizeText(metadata.target_type || metadata.value_type || '')};
           });
         }
         if (extracted.locationIds.length) {
@@ -2309,52 +2369,37 @@
           profile.locationScheme = extracted.locationIds.every(id => US_CODES.includes(id)) ? 'us_fips' : 'configured';
           profile.locationLabels = profile.locationScheme === 'us_fips' ? US_LABELS : {};
         }
-        const omitVersionField = ['as','of'].join('_');
-        profile.observableUnit = profile.observableUnit.filter(field => field !== omitVersionField);
-        profile.additionalFields = profile.observableUnit.filter(field => ![profile.dateField,'target','location','observation'].includes(field));
-        profile.weekday = embedded.weekday;
-        profile.embeddedConfig = true;
-        profile.embeddedFiles = embedded.files.slice();
-        profile.requiresConfig = false;
-        profile.builtInRules = true;
-        profile.snapshot = 'Embedded JSON snapshot · ' + embedded.files.map(file => file.split('/').pop()).join(' + ') + ' · checked ' + embedded.checked;
-        return profile;
       }
 
-      function inferTargetType(id, metadata = {}) {
-        const explicit = String(metadata.value_type || metadata.type || metadata.target_type || metadata.output_type || '').toLowerCase();
-        if (/integer|count|discrete/.test(explicit)) return 'integer';
-        if (/proportion|probability/.test(explicit)) return 'proportion';
-        if (/date/.test(explicit)) return 'date';
-        if (/categor|ordinal|string|text/.test(explicit)) return 'text';
-        if (/number|double|float|numeric|continuous/.test(explicit)) return 'number';
-        const text = (String(id) + ' ' + String(metadata.target_name || metadata.description || '')).toLowerCase();
-        if (/peak week|target date| date\b| week of/.test(text)) return 'date';
-        if (/prop(?:ortion)?|probability|percentage/.test(text)) return 'proportion';
-        if (/rate change|trend|category|level/.test(text)) return 'text';
-        if (/\binc\b|incident|admission|hospitalization|\bcount\b/.test(text)) return 'integer';
-        return 'number';
+      function applyModelRules(profile, rules, verified) {
+        profile.modelTaskGroups = clone(rules.groups || rules.modelTaskGroups || []);
+        profile.taskFields = clone(rules.taskFields || []);
+        profile.derivedTaskIds = clone(rules.derivedTaskIds || []);
+        profile.outputTypeIdDatatype = rules.outputTypeIdDatatype || 'auto';
+        if (rules.roundIdField && profile.taskFields.includes(rules.roundIdField)) profile.dateField = rules.roundIdField;
+        else if (!profile.taskFields.includes(profile.dateField)) profile.dateField = profile.taskFields.find(field => /(?:^|_)(?:reference|origin|forecast)?_?date$/.test(field)) || profile.taskFields[0] || profile.dateField;
+        profile.outputRulesVerified = Boolean(verified && profile.modelTaskGroups.length);
       }
 
       function applyHubProfile(key) {
         state.hubKey = key;
         state.profile = profileClone(key);
         state.configNames = [];
-        state.targetValueMap = new Map(); state.targetRanges = []; state.locationCrosswalk = new Map(); state.customTargetsAdded = false; state.fixedTargetTouched = false;
+        state.targetValueMap = new Map(); state.targetRanges = []; state.locationCrosswalk = new Map(); state.taskMappings = {}; state.customTargetsAdded = false; state.fixedTargetTouched = false;
         elements.configFiles.value = ''; elements.configLoaded.hidden = true;
         elements.dateOutputName.value = state.profile.dateField;
         elements.dateOutputCode.textContent = state.profile.dateField;
-        renderHubSummary(); renderExtraMappings(); renderTargetControls(); refreshLocationCrosswalk(true);
+        renderHubSummary(); renderExtraMappings(); renderPredictionControls(); renderTargetControls(); refreshLocationCrosswalk(true);
       }
 
       function renderHubSummary() {
         if (!state.profile) return;
-        const targetText = state.profile.targetRequired ? (state.profile.targets.length ? state.profile.targets.length + ' configured target' + (state.profile.targets.length === 1 ? '' : 's') : 'targets added in Step 3') : 'target not in observable unit';
+        const targetText = state.profile.targetRequired ? (state.profile.targets.length ? state.profile.targets.length + ' configured target' + (state.profile.targets.length === 1 ? '' : 's') : 'targets added in Step 3') : 'target encoded by other task IDs';
         const locationText = state.profile.allowedLocations ? state.profile.allowedLocations.length + ' allowed locations' : 'custom location IDs';
-        const rulesText = state.configNames.length ? 'local config loaded' : (state.profile.embeddedConfig ? 'embedded JSON snapshot' : (state.profile.requiresConfig ? 'config recommended' : 'flexible rules'));
+        const rulesText = state.profile.outputRulesVerified ? ((state.profile.modelTaskGroups || []).length + ' target-specific task group' + ((state.profile.modelTaskGroups || []).length === 1 ? '' : 's')) : (state.configNames.length ? 'config has no model_tasks' : 'tasks.json recommended');
         const repository = state.profile.repository ? '<a class="hub-repository" href="' + escapeHtml(state.profile.repository) + '" target="_blank" rel="noopener noreferrer">Hub repository ↗</a>' : '';
         const configSources = state.profile.embeddedConfig && !state.configNames.length && state.profile.repository ? '<div class="hub-config-sources"><span>Snapshot sources:</span>' + state.profile.embeddedFiles.map(file => '<a href="' + escapeHtml(state.profile.repository + '/blob/main/' + file) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(file.split('/').pop()) + ' ↗</a>').join('<span aria-hidden="true">·</span>') + '</div>' : '';
-        const configNote = state.profile.requiresConfig && !state.configNames.length ? '<div class="hub-config-note"><strong>No public JSON snapshot is embedded for this hub.</strong> Add its current <code>tasks.json</code> and/or <code>target-data.json</code> below, or enter the exact target IDs and location crosswalk in the next step.</div>' : (state.profile.embeddedConfig && !state.configNames.length ? '<div class="hub-config-note"><strong>The offline snapshot is already active.</strong> You can optionally upload newer hub JSON files below to override it for this session.</div>' : '');
+        const configNote = state.profile.outputRulesVerified ? '<div class="hub-config-note"><strong>Target-specific grouping is active.</strong> Duplicate checks include every task ID plus <code>output_type</code> and <code>output_type_id</code>. A newer local <code>tasks.json</code> can override this snapshot.</div>' : '<div class="hub-config-note"><strong>Exact model-output rules need the current <code>tasks.json</code>.</strong> Basic targets and locations may be available, but this tool will avoid guessing target/output-specific integer or range requirements until that file is loaded.</div>';
         elements.hubSummary.innerHTML = '<div class="hub-summary-line"><strong>' + escapeHtml(state.profile.name) + '</strong>' + repository + '</div><span>' + escapeHtml(state.profile.snapshot || '') + '</span>' + configSources + '<div class="hub-tags"><span class="hub-tag">' + escapeHtml(state.profile.category || 'Flexible') + '</span><span class="hub-tag">' + escapeHtml(rulesText) + '</span><span class="hub-tag">date: ' + escapeHtml(state.profile.dateField) + '</span><span class="hub-tag">' + escapeHtml(targetText) + '</span><span class="hub-tag">' + escapeHtml(locationText) + '</span>' + (state.profile.weekday === 6 ? '<span class="hub-tag">weekly Saturday dates</span>' : '') + '</div>' + configNote;
         elements.assignmentHubBadge.textContent = state.profile.shortName || state.profile.name;
       }
@@ -2371,12 +2416,62 @@
         return [];
       }
 
+      function normalizeTaskIdRule(rule, field) {
+        if (rule === null || rule === undefined) return {allowed:[],allowsBlank:true,type:/date$/i.test(field) ? 'date' : ''};
+        if (['string','number','boolean'].includes(typeof rule)) return {allowed:[String(rule)],allowsBlank:false,type:/date$/i.test(field) ? 'date' : ''};
+        const required = rule && typeof rule === 'object' ? primitiveValues(rule.required) : [];
+        const optional = rule && typeof rule === 'object' ? primitiveValues(rule.optional) : [];
+        const allowed = Array.from(new Set(required.concat(optional).map(String)));
+        return {allowed,required:required.map(String),optional:optional.map(String),allowsBlank:!required.length && !optional.length,allowAny:!('required' in rule) && !('optional' in rule),type:/date$/i.test(field) ? 'date' : ''};
+      }
+
+      function normalizeValueRule(rule) {
+        const source = rule && typeof rule === 'object' ? rule : {};
+        return {
+          type:normalizeText(source.type || source.datatype || 'number').toLowerCase(),
+          minimum:Number.isFinite(Number(source.minimum)) ? Number(source.minimum) : null,
+          maximum:Number.isFinite(Number(source.maximum)) ? Number(source.maximum) : null,
+          exclusiveMinimum:Number.isFinite(Number(source.exclusiveMinimum)) ? Number(source.exclusiveMinimum) : null,
+          exclusiveMaximum:Number.isFinite(Number(source.exclusiveMaximum)) ? Number(source.exclusiveMaximum) : null
+        };
+      }
+
+      function normalizeOutputTypeRule(name, rule) {
+        const source = rule && typeof rule === 'object' ? rule : {};
+        const idSource = source.output_type_id;
+        const requiredIds = idSource && typeof idSource === 'object' && !Array.isArray(idSource) ? primitiveValues(idSource.required).map(String) : primitiveValues(idSource).map(String);
+        const optionalIds = idSource && typeof idSource === 'object' && !Array.isArray(idSource) ? primitiveValues(idSource.optional).map(String) : [];
+        const ids = Array.from(new Set(requiredIds.concat(optionalIds)));
+        const params = source.output_type_id_params && typeof source.output_type_id_params === 'object' ? source.output_type_id_params : null;
+        return {
+          ids, requiredIds:Array.from(new Set(requiredIds)), optionalIds:Array.from(new Set(optionalIds)),
+          allowsBlankId:['mean','median'].includes(name) || (!ids.length && !params),
+          idType:normalizeText(params?.type || ''),
+          allowAnyId:Boolean(params),
+          idParams:params ? {
+            type:normalizeText(params.type || ''),
+            minSamples:Number.isFinite(Number(params.min_samples_per_task)) ? Number(params.min_samples_per_task) : null,
+            maxSamples:Number.isFinite(Number(params.max_samples_per_task)) ? Number(params.max_samples_per_task) : null,
+            maxLength:Number.isFinite(Number(params.max_length)) ? Number(params.max_length) : null,
+            compoundTaskIdSet:Array.isArray(params.compound_taskid_set) ? params.compound_taskid_set.map(String) : []
+          } : null,
+          isRequired:Boolean(source.is_required),
+          value:normalizeValueRule(source.value)
+        };
+      }
+
       function extractHubConfiguration(configs) {
+        const result = emptyExtractedConfiguration();
         const targetIds = new Set();
         const locationIds = new Set();
         const targetMetadata = new Map();
         const observableCandidates = [];
         const dateCandidates = [];
+        const selectedModelTasks = [];
+        const taskFields = [];
+        const derivedTaskIds = new Set();
+        let roundIdField = '';
+        let outputTypeIdDatatype = 'auto';
 
         function addTargetMetadata(entry, fallbackId = '') {
           if (!entry || typeof entry !== 'object') return;
@@ -2404,12 +2499,44 @@
             walk(value);
           });
         }
-        configs.forEach(item => walk(item.config));
+        configs.forEach(item => {
+          const config = item.config;
+          walk(config);
+          if (!config || typeof config !== 'object') return;
+          if (config.output_type_id_datatype) outputTypeIdDatatype = String(config.output_type_id_datatype);
+          primitiveValues(config.derived_task_ids).forEach(field => derivedTaskIds.add(field));
+          const rounds = Array.isArray(config.rounds) ? config.rounds.filter(round => round && Array.isArray(round.model_tasks)) : [];
+          const selectedRound = rounds[rounds.length - 1];
+          if (selectedRound) {
+            selectedModelTasks.push(...selectedRound.model_tasks);
+            if (selectedRound.round_id_from_variable && typeof selectedRound.round_id === 'string') roundIdField = selectedRound.round_id;
+          } else if (Array.isArray(config.model_tasks)) selectedModelTasks.push(...config.model_tasks);
+        });
+
+        const modelTaskGroups = selectedModelTasks.map((task, index) => {
+          const ids = task && typeof task.task_ids === 'object' ? task.task_ids : {};
+          const normalizedIds = {};
+          Object.entries(ids).forEach(([field, rule]) => {
+            if (field === ['as','of'].join('_')) return;
+            if (!taskFields.includes(field)) taskFields.push(field);
+            normalizedIds[field] = normalizeTaskIdRule(rule, field);
+          });
+          const metadata = Array.isArray(task.target_metadata) ? task.target_metadata : [];
+          metadata.forEach(entry => addTargetMetadata(entry));
+          const groupTargets = Array.from(new Set(primitiveValues(ids.target).concat(metadata.map(entry => normalizeText(entry.target_id)).filter(Boolean))));
+          const timeUnits = Array.from(new Set(metadata.map(entry => normalizeText(entry.time_unit)).filter(Boolean)));
+          const outputTypes = {};
+          Object.entries(task.output_type || {}).forEach(([name, rule]) => outputTypes[String(name).toLowerCase()] = normalizeOutputTypeRule(String(name).toLowerCase(), rule));
+          return {name:groupTargets.join(', ') || 'Model task ' + (index + 1),targetIds:groupTargets,taskIds:normalizedIds,outputTypes,timeUnit:timeUnits.length === 1 ? timeUnits[0] : ''};
+        });
         const observableUnit = observableCandidates.find(fields => fields.some(field => /location/i.test(field)) && fields.some(field => /date/i.test(field))) || observableCandidates[0] || null;
-        return {
-          targetIds:Array.from(targetIds).filter(Boolean), locationIds:Array.from(locationIds).filter(Boolean), targetMetadata,
-          observableUnit, dateField:normalizeText(dateCandidates[dateCandidates.length - 1] || '')
-        };
+        if (!roundIdField) roundIdField = taskFields.find(field => ['reference_date','origin_date','forecast_date'].includes(field)) || taskFields.find(field => /date$/i.test(field)) || '';
+        Object.assign(result, {
+          targetIds:Array.from(targetIds).filter(Boolean),locationIds:Array.from(locationIds).filter(Boolean),targetMetadata,
+          observableUnit,dateField:normalizeText(dateCandidates[dateCandidates.length - 1] || ''),roundIdField,taskFields,modelTaskGroups,groups:modelTaskGroups,
+          derivedTaskIds:Array.from(derivedTaskIds),outputTypeIdDatatype
+        });
+        return result;
       }
 
       async function readHubConfigs(files) {
@@ -2420,32 +2547,20 @@
           const extracted = extractHubConfiguration(configs);
           const profile = profileClone(state.hubKey);
           profile.snapshot = 'Overridden by local config: ' + configs.map(item => item.name).join(', ');
-          if (extracted.dateField) profile.dateField = extracted.dateField;
-          if (extracted.observableUnit && extracted.observableUnit.length) {
-            profile.observableUnit = extracted.observableUnit.map(String);
-            profile.targetRequired = profile.observableUnit.includes('target');
-          }
-          if (extracted.targetIds.length) {
-            profile.targets = extracted.targetIds.map(id => {
-              const metadata = extracted.targetMetadata.get(id) || {};
-              return {id, label:normalizeText(metadata.target_name || metadata.name || metadata.description || id), type:inferTargetType(id, metadata)};
-            });
-          }
-          if (extracted.locationIds.length) {
-            profile.allowedLocations = extracted.locationIds;
-            profile.locationScheme = extracted.locationIds.every(id => US_CODES.includes(id)) ? 'us_fips' : 'configured';
-            profile.locationLabels = profile.locationScheme === 'us_fips' ? US_LABELS : {};
-          }
+          applyExtractedBasics(profile, extracted);
+          if (extracted.modelTaskGroups.length) applyModelRules(profile, extracted, true);
           const omitVersionField = ['as','of'].join('_');
-          profile.observableUnit = profile.observableUnit.filter(field => field !== omitVersionField);
-          profile.additionalFields = profile.observableUnit.filter(field => ![profile.dateField,'target','location','observation'].includes(field));
+          profile.taskFields = (profile.taskFields || [profile.dateField,'target','location']).filter(field => field !== omitVersionField && !['output_type','output_type_id','value','observation'].includes(field));
+          profile.observableUnit = profile.taskFields.concat(['output_type','output_type_id']);
+          profile.targetRequired = profile.taskFields.includes('target');
+          profile.additionalFields = profile.taskFields.filter(field => ![profile.dateField,'target','location'].includes(field));
           state.profile = profile;
           state.configNames = configs.map(item => item.name);
-          state.targetValueMap = new Map(); state.targetRanges = []; state.locationCrosswalk = new Map(); state.customTargetsAdded = false; state.fixedTargetTouched = false;
+          state.targetValueMap = new Map(); state.targetRanges = []; state.locationCrosswalk = new Map(); state.taskMappings = {}; state.customTargetsAdded = false; state.fixedTargetTouched = false;
           elements.dateOutputName.value = profile.dateField; elements.dateOutputCode.textContent = profile.dateField;
           elements.configLoaded.hidden = false;
-          elements.configLoaded.innerHTML = '<strong>' + escapeHtml(configs.length + ' configuration file' + (configs.length === 1 ? '' : 's') + ' applied') + '</strong>' + escapeHtml(profile.targets.length + ' targets · ' + (profile.allowedLocations ? profile.allowedLocations.length + ' locations' : 'custom locations') + ' · date: ' + profile.dateField);
-          renderHubSummary(); renderExtraMappings(); renderTargetControls(); refreshLocationCrosswalk(true);
+          elements.configLoaded.innerHTML = '<strong>' + escapeHtml(configs.length + ' configuration file' + (configs.length === 1 ? '' : 's') + ' applied') + '</strong>' + escapeHtml(profile.targets.length + ' targets · ' + (profile.modelTaskGroups || []).length + ' task groups · ' + (profile.allowedLocations ? profile.allowedLocations.length + ' locations' : 'custom locations') + ' · round date: ' + profile.dateField);
+          renderHubSummary(); renderExtraMappings(); renderPredictionControls(); renderTargetControls(); refreshLocationCrosswalk(true);
           invalidateOutput();
           showToast('Hub configuration applied.', 'success');
         } catch (error) {
@@ -2456,20 +2571,53 @@
 
       function renderExtraMappings() {
         if (!state.profile) return;
-        const fields = state.profile.additionalFields || state.profile.observableUnit.filter(field => ![state.profile.dateField,'target','location','observation'].includes(field));
+        let fields = state.profile.additionalFields || (state.profile.taskFields || []).filter(field => ![state.profile.dateField,'target','location'].includes(field));
+        if (!state.profile.outputRulesVerified) {
+          const detected = COMMON_FORECAST_FIELDS.filter(field => ![state.profile.dateField,'target','location'].includes(field) && state.headers.some(header => normalizeHeader(header) === normalizeHeader(field)));
+          fields = Array.from(new Set(fields.concat(detected)));
+          state.profile.taskFields = Array.from(new Set([state.profile.dateField,'target','location'].concat(fields)));
+        }
         state.profile.additionalFields = fields;
         const previous = Object.assign({}, state.extraMappings);
         state.extraMappings = {};
         if (!fields.length) { elements.configExtraFields.innerHTML = ''; return; }
-        elements.configExtraFields.innerHTML = '<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line)"><h4>Other required hub fields</h4><p class="helper" style="margin:4px 0 12px">Only these configured observable-unit fields will be retained.</p><div class="mapping-list">' + fields.map(field => {
-          const selected = state.headers.includes(previous[field]) ? previous[field] : findBestHeader(field);
+        elements.configExtraFields.innerHTML = '<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line)"><h4>Target-specific task fields</h4><p class="helper" style="margin:4px 0 12px">These fields come from the hub model-task groups. A field may be blank only for targets where <code>tasks.json</code> marks it not applicable.</p><div class="mapping-list">' + fields.map(field => {
+          const canDerive = ['target_end_date','target_date'].includes(field) && ['reference_date','origin_date','forecast_date'].includes(state.profile.dateField) && fields.includes('horizon');
+          const guessed = findBestHeader(field);
+          const selected = state.headers.includes(previous[field]) || previous[field] === '__derive__' ? previous[field] : (guessed || (canDerive ? '__derive__' : ''));
           state.extraMappings[field] = selected;
-          return '<div class="mapping-row config-requirement" data-field="' + escapeHtml(field) + '"><div class="mapping-target"><code>' + escapeHtml(field) + '</code><small>Required by config</small></div><div class="mapping-arrow">←</div><select aria-label="Source column for ' + escapeHtml(field) + '"><option value="">Choose a source column…</option>' + state.headers.map(header => '<option value="' + escapeHtml(header) + '"' + (header === selected ? ' selected' : '') + '>' + escapeHtml(header) + '</option>').join('') + '</select></div>';
+          const deriveOption = canDerive ? '<option value="__derive__"' + (selected === '__derive__' ? ' selected' : '') + '>Derive from ' + escapeHtml(state.profile.dateField) + ' + horizon</option>' : '';
+          const required = fieldRequiredByAnyGroup(field);
+          return '<div class="mapping-row config-requirement" data-field="' + escapeHtml(field) + '"><div class="mapping-target"><code>' + escapeHtml(field) + '</code><small>' + (required ? 'Used by one or more target groups' : 'May be blank by target') + '</small></div><div class="mapping-arrow">←</div><select aria-label="Source column for ' + escapeHtml(field) + '"><option value="">Leave blank / not applicable</option>' + deriveOption + state.headers.map(header => '<option value="' + escapeHtml(header) + '"' + (header === selected ? ' selected' : '') + '>' + escapeHtml(header) + '</option>').join('') + '</select></div>';
         }).join('') + '</div></div>';
         $$('.config-requirement', elements.configExtraFields).forEach(row => {
           const field = row.dataset.field;
           $('select', row).addEventListener('change', event => { state.extraMappings[field] = event.target.value; invalidateOutput(); });
         });
+      }
+
+      function fieldRequiredByAnyGroup(field) {
+        const groups = state.profile?.modelTaskGroups || [];
+        return groups.some(group => group.taskIds?.[field] && !group.taskIds[field].allowsBlank);
+      }
+
+      function availableOutputTypes() {
+        const names = [];
+        (state.profile?.modelTaskGroups || []).forEach(group => Object.keys(group.outputTypes || {}).forEach(name => { if (!names.includes(name)) names.push(name); }));
+        return names.length ? names : ['quantile','mean','median','sample','pmf','cdf'];
+      }
+
+      function renderPredictionControls() {
+        if (!state.profile) return;
+        const previousTypeColumn = elements.outputTypeMap.value;
+        const previousIdColumn = elements.outputTypeIdMap.value;
+        const previousFixed = elements.fixedOutputType.value;
+        fillSourceSelect(elements.outputTypeMap, state.headers.includes(previousTypeColumn) ? previousTypeColumn : findBestHeader('output_type'), 'No source column — use one output type below');
+        fillSourceSelect(elements.outputTypeIdMap, state.headers.includes(previousIdColumn) ? previousIdColumn : findBestHeader('output_type_id'), 'Blank / not applicable');
+        const outputTypes = availableOutputTypes();
+        elements.fixedOutputType.innerHTML = outputTypes.map(name => '<option value="' + escapeHtml(name) + '"' + (name === previousFixed ? ' selected' : '') + '>' + escapeHtml(name) + '</option>').join('');
+        if (!elements.fixedOutputType.value) elements.fixedOutputType.value = outputTypes.includes('quantile') ? 'quantile' : outputTypes[0] || 'quantile';
+        elements.fixedOutputTypeField.hidden = Boolean(elements.outputTypeMap.value);
       }
 
       function validateMappingSetup() {
@@ -2478,10 +2626,11 @@
           if (row) state.extraMappings[field] = $('select', row).value;
         });
         const required = [elements.dateMap.value, elements.locationMap.value, elements.valueMap.value];
-        if (required.some(value => !value)) { showToast('Choose source columns for date, location, and observation.', 'error'); return false; }
-        if (new Set(required).size !== required.length) { showToast('Date, location, and observation must use different source columns.', 'error'); return false; }
-        const missingExtra = state.profile.additionalFields.filter(field => !state.extraMappings[field]);
+        if (required.some(value => !value)) { showToast('Choose source columns for date, location, and prediction value.', 'error'); return false; }
+        if (new Set(required).size !== required.length) { showToast('Date, location, and prediction value must use different source columns.', 'error'); return false; }
+        const missingExtra = state.profile.additionalFields.filter(field => fieldRequiredByAnyGroup(field) && !state.extraMappings[field]);
         if (missingExtra.length) { showToast('Map the required hub field' + (missingExtra.length === 1 ? '' : 's') + ': ' + missingExtra.join(', ') + '.', 'error'); return false; }
+        if (!elements.outputTypeMap.value && !elements.fixedOutputType.value) { showToast('Choose a source output_type column or one fixed output type.', 'error'); return false; }
         return true;
       }
 
@@ -2503,7 +2652,40 @@
       function updateTargetFixedHelp() {
         if (!elements.targetFixedHelp || !state.profile) return;
         const target = state.profile.targets.find(item => item.id === elements.targetFixedSelect.value);
-        elements.targetFixedHelp.textContent = target ? ((target.label && target.label !== target.id ? target.label + ' · ' : '') + 'Value type: ' + target.type) : (state.profile.targets.length ? 'Choose the exact target ID expected by the hub.' : 'No preset targets are loaded. Add one below or return to Step 2 and load the hub configuration.');
+        const groups = taskGroupsForTarget(target?.id || '');
+        const outputTypes = Array.from(new Set(groups.flatMap(group => Object.keys(group.outputTypes || {}))));
+        elements.targetFixedHelp.textContent = target ? ((target.label && target.label !== target.id ? target.label + ' · ' : '') + (outputTypes.length ? 'Accepted output types: ' + outputTypes.join(', ') : 'Load tasks.json for exact output rules.')) : (state.profile.targets.length ? 'Choose the exact target ID expected by the hub.' : 'No preset targets are loaded. Add one below or return to Step 2 and load the hub configuration.');
+      }
+
+      function taskGroupsForTarget(targetId) {
+        const groups = state.profile?.modelTaskGroups || [];
+        if (!targetId) return groups;
+        const matches = groups.filter(group => (group.targetIds || []).includes(targetId));
+        return matches.length ? matches : [];
+      }
+
+      function valueRuleDescription(rule) {
+        if (!rule) return 'value rule not specified';
+        const type = String(rule.type || 'number').toLowerCase();
+        const label = /integer|int/.test(type) ? 'whole-number value' : /double|float|number|numeric/.test(type) ? 'decimal or whole-number value' : type + ' value';
+        const limits = [];
+        if (rule.minimum !== null && rule.minimum !== undefined) limits.push('≥ ' + rule.minimum);
+        if (rule.maximum !== null && rule.maximum !== undefined) limits.push('≤ ' + rule.maximum);
+        return label + (limits.length ? ' (' + limits.join(', ') + ')' : '');
+      }
+
+      function renderTaskRulesSummary() {
+        if (!elements.taskRulesSummary || !state.profile) return;
+        const groups = state.profile.modelTaskGroups || [];
+        if (!groups.length) {
+          elements.taskRulesSummary.innerHTML = '<div class="hub-config-note"><strong>No target-specific model-task groups are loaded.</strong> Add the hub\'s current <code>tasks.json</code> in Step 2 for exact grouping and value checks. Until then, prediction values are treated as general numbers and are never forced to whole numbers.</div>';
+          return;
+        }
+        elements.taskRulesSummary.innerHTML = '<h4 style="margin:2px 0 0">Hub rules by target group</h4>' + groups.map(group => {
+          const fields = Object.entries(group.taskIds || {}).filter(([, rule]) => !rule.allowsBlank).map(([field]) => field);
+          const outputs = Object.entries(group.outputTypes || {}).map(([name, rule]) => '<span class="rule-chip">' + escapeHtml(name + ': ' + valueRuleDescription(rule.value)) + '</span>').join('');
+          return '<div class="task-rule"><div class="task-rule-head"><strong>' + escapeHtml((group.targetIds || []).join(', ') || group.name) + '</strong><span class="badge badge-neutral">' + escapeHtml(fields.length + ' task ID' + (fields.length === 1 ? '' : 's')) + '</span></div><p>Grouping fields: ' + escapeHtml(fields.join(', ') || 'configured task IDs') + '</p><p>' + (outputs || '<span class="rule-chip">No output rules found</span>') + '</p></div>';
+        }).join('');
       }
 
       function renderTargetControls() {
@@ -2512,7 +2694,7 @@
         elements.targetRequiredControls.hidden = !required;
         elements.targetNotRequired.hidden = required;
         elements.customTargetWarning.hidden = !state.customTargetsAdded || !['flusight','covid','rsv'].includes(state.hubKey);
-        if (!required) return;
+        if (!required) { renderTaskRulesSummary(); return; }
         const suggestedTargetColumn = elements.targetSourceColumn.value || findBestHeader('target', [elements.dateMap.value, elements.locationMap.value, elements.valueMap.value]);
         const sourceTargets = uniqueColumnValues(suggestedTargetColumn);
         const sourceSuggestion = sourceTargets.length === 1 ? bestTargetMatch(sourceTargets[0]) : '';
@@ -2524,6 +2706,7 @@
         updateTargetMode();
         renderTargetValueMap();
         renderTargetRanges();
+        renderTaskRulesSummary();
       }
 
       function updateTargetMode() {
@@ -2607,7 +2790,7 @@
         state.profile.targets.push({id, label:id, type:elements.customTargetType.value, custom:true});
         state.customTargetsAdded = true;
         elements.customTargetId.value = '';
-        renderHubSummary(); renderTargetControls();
+        renderHubSummary(); renderTargetControls(); renderTaskRulesSummary();
         showToast('Target added. Confirm that the destination hub accepts this exact ID.', 'success');
       }
 
@@ -2780,25 +2963,63 @@
         return Number.isFinite(number) ? {value:number,changed:cleaned !== raw} : {value:null,error:'not a valid number'};
       }
 
-      function parseObservation(value, type, allowMissing, dateStrategy) {
+      function parsePredictionValue(value, rule, fallbackType, allowMissing, dateStrategy, targetId, outputType) {
         const raw = normalizeText(value);
-        if (!raw) return allowMissing ? {value:'',warning:'Blank observation retained.'} : {value:'',error:'Observation is blank.'};
+        if (!raw) return allowMissing ? {value:'',warning:'Blank prediction value retained.'} : {value:'',error:'Prediction value is blank.'};
+        const configuredType = normalizeText(rule?.type || fallbackType || 'number').toLowerCase();
+        const type = /^(?:double|float|number|numeric|continuous)$/.test(configuredType) ? 'number' : /^(?:int|integer|discrete)$/.test(configuredType) ? 'integer' : /^(?:character|string)$/.test(configuredType) ? 'text' : configuredType;
         if (type === 'text') return {value:raw};
         if (type === 'date') {
           const parsed = parseDateValue(value, dateStrategy);
-          return parsed.value ? {value:parsed.value,warning:parsed.changed ? 'Date observation normalized to ' + parsed.value + '.' : ''} : {value:raw,error:'Observation is not a recognized date.'};
+          return parsed.value ? {value:parsed.value,warning:parsed.changed ? 'Date prediction normalized to ' + parsed.value + '.' : ''} : {value:raw,error:'Prediction value is not a recognized date.'};
         }
         if (type === 'logical') {
           const normalized = raw.toLowerCase();
           if (['true','t','yes','y','1'].includes(normalized)) return {value:'true',warning:normalized === 'true' ? '' : 'Logical value normalized to true.'};
           if (['false','f','no','n','0'].includes(normalized)) return {value:'false',warning:normalized === 'false' ? '' : 'Logical value normalized to false.'};
-          return {value:raw,error:'Observation must be true or false.'};
+          return {value:raw,error:'Prediction value must be true or false.'};
         }
         const parsed = parseNumber(value);
-        if (parsed.error) return {value:raw,error:'Observation is not a valid number.'};
-        if (type === 'integer' && !Number.isInteger(parsed.value)) return {value:parsed.value,error:'Observation must be a whole number.'};
-        if (type === 'proportion' && (parsed.value < 0 || parsed.value > 1)) return {value:parsed.value,error:'Proportion must be between 0 and 1.'};
+        if (parsed.error) return {value:raw,error:'Prediction value is not a valid number.'};
+        if (type === 'integer' && !Number.isInteger(parsed.value)) return {value:parsed.value,error:'The ' + (targetId || 'selected target') + ' + ' + (outputType || 'output type') + ' rule in tasks.json requires a whole-number value. Do not round automatically; verify or regenerate this forecast.'};
+        if (type === 'proportion' && (parsed.value < 0 || parsed.value > 1)) return {value:parsed.value,error:'Prediction proportion must be between 0 and 1.'};
+        if (rule?.minimum !== null && rule?.minimum !== undefined && parsed.value < Number(rule.minimum)) return {value:parsed.value,error:'Prediction value must be at least ' + rule.minimum + ' for this target and output type.'};
+        if (rule?.maximum !== null && rule?.maximum !== undefined && parsed.value > Number(rule.maximum)) return {value:parsed.value,error:'Prediction value must be at most ' + rule.maximum + ' for this target and output type.'};
+        if (rule?.exclusiveMinimum !== null && rule?.exclusiveMinimum !== undefined && parsed.value <= Number(rule.exclusiveMinimum)) return {value:parsed.value,error:'Prediction value must be greater than ' + rule.exclusiveMinimum + '.'};
+        if (rule?.exclusiveMaximum !== null && rule?.exclusiveMaximum !== undefined && parsed.value >= Number(rule.exclusiveMaximum)) return {value:parsed.value,error:'Prediction value must be less than ' + rule.exclusiveMaximum + '.'};
         return {value:parsed.value,warning:parsed.changed ? 'Thousands separators were removed.' : ''};
+      }
+
+      function blankLike(value) {
+        const text = normalizeText(value);
+        return !text || /^(?:na|none|null|nan)$/i.test(text);
+      }
+
+      function normalizeOutputTypeId(value, outputType, rule, dateStrategy) {
+        const raw = blankLike(value) ? '' : normalizeText(value);
+        if (['mean','median'].includes(outputType)) {
+          return raw ? {value:raw,error:'output_type_id must be blank for ' + outputType + ' rows.'} : {value:''};
+        }
+        if (!raw) return {value:'',error:'output_type_id is required for ' + outputType + ' rows.'};
+        if (outputType === 'quantile') {
+          const parsed = Number(raw);
+          if (!Number.isFinite(parsed) || parsed < 0 || parsed > 1) return {value:raw,error:'Quantile output_type_id must be a probability level from 0 to 1.'};
+          const canonical = String(parsed);
+          if (rule?.ids?.length && !rule.ids.map(String).includes(canonical)) return {value:canonical,error:'Quantile level ' + canonical + ' is not accepted for this target group.'};
+          return {value:canonical,warning:canonical !== raw ? 'Quantile ID normalized to ' + canonical + '; trailing zeros are not allowed by Hubverse validation.' : ''};
+        }
+        if (rule?.idType && /date/i.test(rule.idType)) {
+          const parsed = parseDateValue(raw, dateStrategy);
+          if (!parsed.value) return {value:raw,error:'output_type_id must be a valid date for this target group.'};
+          return {value:parsed.value,warning:parsed.changed ? 'Output type ID date normalized to ' + parsed.value + '.' : ''};
+        }
+        if (outputType === 'sample' && rule?.idParams) {
+          const kind = normalizeText(rule.idParams.type).toLowerCase();
+          if (/integer/.test(kind) && (!Number.isInteger(Number(raw)) || Number(raw) < 1)) return {value:raw,error:'Sample output_type_id must be a positive integer.'};
+          if (rule.idParams.maxLength && raw.length > rule.idParams.maxLength) return {value:raw,error:'Sample ID exceeds the configured maximum length of ' + rule.idParams.maxLength + '.'};
+        }
+        if (rule?.ids?.length && !rule.ids.map(String).includes(raw)) return {value:raw,error:'output_type_id “' + raw + '” is not accepted for this target group.'};
+        return {value:raw};
       }
 
       function targetForRow(row, rowIndex) {
@@ -2821,20 +3042,75 @@
         return elements.valueType.value === 'auto' ? 'number' : elements.valueType.value;
       }
 
+      function selectedOutputType(sourceRow) {
+        return normalizeText(elements.outputTypeMap.value ? sourceRow[elements.outputTypeMap.value] : elements.fixedOutputType.value).toLowerCase();
+      }
+
+      function taskGroupScore(group, targetId, output, outputType) {
+        if (targetId && group.targetIds?.length && !group.targetIds.includes(targetId)) return -Infinity;
+        if (outputType && Object.keys(group.outputTypes || {}).length && !group.outputTypes[outputType]) return -Infinity;
+        let score = 0;
+        for (const [field, rule] of Object.entries(group.taskIds || {})) {
+          const value = normalizeText(output[field]);
+          if (!value) score += rule.allowsBlank ? 1 : 0;
+          else if (rule.allowed?.length) {
+            if (!rule.allowed.map(String).includes(value)) return -Infinity;
+            score += 3;
+          }
+          else if (rule.allowAny) score += 2;
+          else score -= 4;
+        }
+        return score;
+      }
+
+      function selectTaskGroup(targetId, output, outputType) {
+        const groups = state.profile.modelTaskGroups || [];
+        let best = null, bestScore = -Infinity;
+        groups.forEach(group => {
+          const score = taskGroupScore(group, targetId, output, outputType);
+          if (score > bestScore) { best = group; bestScore = score; }
+        });
+        return bestScore === -Infinity ? null : best;
+      }
+
+      function deriveTaskDate(field, output, targetId) {
+        if (!['target_end_date','target_date'].includes(field)) return '';
+        const base = output[state.profile.dateField];
+        const horizon = Number(output.horizon);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(base) || !Number.isFinite(horizon)) return '';
+        const group = taskGroupsForTarget(targetId)[0];
+        const metadata = group?.timeUnit || (state.profile.weekday !== null ? 'week' : 'day');
+        const multiplier = metadata === 'week' ? 7 : metadata === 'month' ? null : 1;
+        const date = new Date(base + 'T00:00:00Z');
+        if (multiplier === null) date.setUTCMonth(date.getUTCMonth() + horizon);
+        else date.setUTCDate(date.getUTCDate() + horizon * multiplier);
+        return date.toISOString().slice(0,10);
+      }
+
+      function validateTaskGroupRow(group, output, rowIssue) {
+        if (!group) return;
+        Object.entries(group.taskIds || {}).forEach(([field, rule]) => {
+          const value = normalizeText(output[field]);
+          if (!value && !rule.allowsBlank) rowIssue('error','Missing task ID','“' + field + '” is required for this target group.','task-field');
+          else if (value && rule.allowsBlank && !rule.allowAny && !(rule.allowed || []).length) rowIssue('error','Task ID should be blank','“' + field + '” is not applicable for this target group.','task-field');
+          else if (value && rule.allowed?.length && !rule.allowed.map(String).includes(value)) rowIssue('error','Task ID value not accepted','“' + value + '” is not allowed in ' + field + ' for this target group.','task-field');
+        });
+      }
+
       function addIssue(issues, type, title, detail, rowNumber = null, code = '') {
         issues.push({type,title,detail,rowNumber,code});
       }
 
       function outputColumns() {
         const omittedVersionField = ['as','of'].join('_');
-        const unit = (state.profile.observableUnit || [state.profile.dateField,'target','location']).filter(field => field !== omittedVersionField);
+        const unit = (state.profile.taskFields || [state.profile.dateField,'target','location']).filter(field => field !== omittedVersionField && !['output_type','output_type_id','value','observation'].includes(field));
         const columns = [];
-        unit.forEach(field => { if (!columns.includes(field) && field !== 'observation') columns.push(field); });
+        unit.forEach(field => { if (!columns.includes(field)) columns.push(field); });
         if (!columns.includes(state.profile.dateField)) columns.unshift(state.profile.dateField);
         if (state.profile.targetRequired && !columns.includes('target')) columns.splice(1, 0, 'target');
         if (!columns.includes('location')) columns.splice(state.profile.targetRequired ? 2 : 1, 0, 'location');
         state.profile.additionalFields.forEach(field => { if (!columns.includes(field)) columns.push(field); });
-        columns.push('observation');
+        columns.push('output_type','output_type_id','value');
         return columns;
       }
 
@@ -2860,11 +3136,72 @@
         }
       }
 
+      function validatePredictionGroups(rows, columns, issues) {
+        const groupingColumns = columns.filter(column => !['output_type_id','value'].includes(column));
+        const buckets = new Map();
+        const taskColumns = columns.filter(column => !['output_type','output_type_id','value'].includes(column));
+        const taskBuckets = new Map();
+        rows.forEach(row => {
+          if (!row.__taskGroup) return;
+          const key = groupingColumns.map(column => normalizeText(row[column])).join('\u001F');
+          if (!buckets.has(key)) buckets.set(key, []);
+          buckets.get(key).push(row);
+          const taskKey = taskColumns.map(column => normalizeText(row[column])).join('\u001F');
+          if (!taskBuckets.has(taskKey)) taskBuckets.set(taskKey, []);
+          taskBuckets.get(taskKey).push(row);
+        });
+        const groupIssue = (row, title, detail, code) => {
+          const item = {type:'error',title,detail,rowNumber:row.__sourceRow,code};
+          issues.push(item); row.__issues.push(item);
+        };
+        taskBuckets.forEach(taskRows => {
+          const first = taskRows[0];
+          const requiredTypes = Object.entries(first.__taskGroup.outputTypes || {}).filter(([, rule]) => rule.isRequired).map(([name]) => name);
+          const presentTypes = new Set(taskRows.map(row => row.output_type));
+          const missingTypes = requiredTypes.filter(name => !presentTypes.has(name));
+          if (missingTypes.length) groupIssue(first, 'Required output type missing', 'This target/task group requires: ' + missingTypes.join(', ') + '.', 'output-type-required');
+        });
+        buckets.forEach(groupRows => {
+          const first = groupRows[0];
+          const outputType = first.output_type;
+          const rule = first.__taskGroup?.outputTypes?.[outputType];
+          if (!rule) return;
+          const ids = new Set(groupRows.map(row => normalizeText(row.output_type_id)));
+          const requiredIds = (rule.requiredIds || []).map(String);
+          const missingIds = requiredIds.filter(id => !ids.has(id));
+          if (missingIds.length) {
+            const preview = missingIds.slice(0,8).join(', ') + (missingIds.length > 8 ? ', …' : '');
+            groupIssue(first, 'Incomplete ' + outputType + ' group', 'This target/task group is missing required output_type_id value' + (missingIds.length === 1 ? '' : 's') + ': ' + preview + '.', 'output-group-incomplete');
+            return;
+          }
+          if (outputType === 'quantile') {
+            const ordered = groupRows.filter(row => !row.__issues.some(issue => issue.code === 'value' || issue.code === 'output-type-id')).sort((a,b) => Number(a.output_type_id) - Number(b.output_type_id));
+            for (let index = 1; index < ordered.length; index++) {
+              const previous = Number(ordered[index - 1].value), current = Number(ordered[index].value);
+              if (Number.isFinite(previous) && Number.isFinite(current) && current < previous) {
+                groupIssue(ordered[index], 'Crossing quantiles', 'The value at quantile ' + ordered[index].output_type_id + ' is below the value at quantile ' + ordered[index - 1].output_type_id + ' for the same target/task group.', 'quantile-order');
+                break;
+              }
+            }
+          } else if (outputType === 'pmf') {
+            const values = groupRows.filter(row => !row.__issues.some(issue => issue.code === 'value' || issue.code === 'output-type-id')).map(row => Number(row.value));
+            if (values.length === groupRows.length && values.every(Number.isFinite)) {
+              const total = values.reduce((sum, value) => sum + value, 0);
+              if (Math.abs(total - 1) > 1e-6) groupIssue(first, 'PMF probabilities do not sum to 1', 'Probabilities total ' + Number(total.toFixed(10)) + ' for this target/task group.', 'pmf-sum');
+            }
+          } else if (outputType === 'sample' && rule.idParams) {
+            const minimum = rule.idParams.minSamples, maximum = rule.idParams.maxSamples;
+            if (minimum !== null && minimum !== undefined && groupRows.length < Number(minimum)) groupIssue(first, 'Too few sample rows', 'This target/task group has ' + groupRows.length + ' samples; tasks.json requires at least ' + minimum + '.', 'sample-count');
+            else if (maximum !== null && maximum !== undefined && groupRows.length > Number(maximum)) groupIssue(first, 'Too many sample rows', 'This target/task group has ' + groupRows.length + ' samples; tasks.json permits at most ' + maximum + '.', 'sample-count');
+          }
+        });
+      }
+
       function validateAndTransform() {
         const issues = [];
         validateAssignmentSetup(issues);
         const dateSource = elements.dateMap.value, locationSource = elements.locationMap.value, valueSource = elements.valueMap.value;
-        if (!dateSource || !locationSource || !valueSource) addIssue(issues, 'error', 'Required mapping missing', 'Return to step 2 and map date, location, and observation.', null, 'mapping');
+        if (!dateSource || !locationSource || !valueSource) addIssue(issues, 'error', 'Required mapping missing', 'Return to step 2 and map date, location, and prediction value.', null, 'mapping');
         const columns = outputColumns();
         const transformed = [];
         const allowedTargets = new Set(state.profile.targets.map(target => target.id));
@@ -2904,33 +3241,73 @@
           }
 
           state.profile.additionalFields.forEach(field => {
-            output[field] = normalizeText(sourceRow[state.extraMappings[field]]);
-            if (!output[field]) rowIssue('error', 'Blank ' + field, 'This observable-unit field is required by the hub configuration.', 'extra-field');
+            const sourceColumn = state.extraMappings[field];
+            if (sourceColumn === '__derive__') { output[field] = ''; return; }
+            const raw = sourceColumn ? sourceRow[sourceColumn] : '';
+            if (/date$/i.test(field) && !blankLike(raw)) {
+              const parsed = parseDateValue(raw, elements.dateStrategy.value);
+              output[field] = parsed.value || normalizeText(raw);
+              if (!parsed.value) rowIssue('error', 'Invalid ' + field, 'Could not read “' + normalizeText(raw) + '” as a calendar date.', 'task-date');
+              else if (parsed.changed) rowIssue('warning', field + ' normalized', 'Converted to ' + parsed.value + '.', 'task-date-normalized');
+            } else output[field] = normalizeText(raw);
+          });
+          state.profile.additionalFields.forEach(field => {
+            if (state.extraMappings[field] === '__derive__') {
+              output[field] = deriveTaskDate(field, output, assigned.value);
+              if (!output[field]) rowIssue('error', 'Could not derive ' + field, 'A valid ' + state.profile.dateField + ' and numeric horizon are needed to derive this task date.', 'task-date-derived');
+            }
           });
 
-          const observation = parseObservation(sourceRow[valueSource], targetType(assigned.value), elements.allowMissing.checked, elements.dateStrategy.value);
-          output.observation = observation.value;
-          if (observation.error) rowIssue('error', 'Invalid observation', observation.error, 'observation');
-          else if (observation.warning) rowIssue('warning', 'Observation normalized', observation.warning, 'observation-normalized');
+          const outputType = selectedOutputType(sourceRow);
+          output.output_type = outputType;
+          if (!outputType) rowIssue('error', 'Missing output type', 'Map an output_type column or choose one fixed output type in Step 2.', 'output-type');
+          const taskGroup = selectTaskGroup(assigned.value, output, outputType);
+          output.__taskGroup = taskGroup;
+          if ((state.profile.modelTaskGroups || []).length && !taskGroup) rowIssue('error', 'No matching target/task group', 'The target, task-ID values, and output type on this row do not match one model task in the selected hub\'s tasks.json.', 'task-group');
+          else validateTaskGroupRow(taskGroup, output, rowIssue);
+
+          const outputRule = taskGroup?.outputTypes?.[outputType] || null;
+          const rawOutputTypeId = elements.outputTypeIdMap.value ? sourceRow[elements.outputTypeIdMap.value] : '';
+          const normalizedId = normalizeOutputTypeId(rawOutputTypeId, outputType, outputRule, elements.dateStrategy.value);
+          output.output_type_id = normalizedId.value;
+          if (normalizedId.error) rowIssue('error', 'Invalid output type ID', normalizedId.error, 'output-type-id');
+          else if (normalizedId.warning) rowIssue('warning', 'Output type ID normalized', normalizedId.warning, 'output-type-id-normalized');
+
+          const fallbackType = elements.valueType.value === 'auto' ? 'number' : elements.valueType.value;
+          const prediction = parsePredictionValue(sourceRow[valueSource], outputRule?.value, fallbackType, elements.allowMissing.checked, elements.dateStrategy.value, assigned.value, outputType);
+          output.value = prediction.value;
+          if (prediction.error) rowIssue('error', 'Invalid prediction value', prediction.error, 'value');
+          else if (prediction.warning) rowIssue('warning', 'Prediction value normalized', prediction.warning, 'value-normalized');
           transformed.push(output);
         });
 
         if (state.droppedBlankRows) addIssue(issues, 'warning', 'Blank rows ignored', state.droppedBlankRows + ' completely blank source row' + (state.droppedBlankRows === 1 ? ' was' : 's were') + ' not included.', null, 'blank-rows');
         if (ambiguousDates && elements.dateStrategy.value === 'auto') addIssue(issues, 'warning', 'Automatic date preference used', ambiguousDates + ' ambiguous date' + (ambiguousDates === 1 ? ' was' : 's were') + ' interpreted as month/day/year. Choose day/month/year in step 2 if needed.', null, 'date-preference');
 
-        const keyColumns = columns.filter(column => column !== 'observation');
+        const keyColumns = columns.filter(column => column !== 'value');
         const duplicateMap = new Map();
         transformed.forEach(row => {
           const key = keyColumns.map(column => normalizeText(row[column])).join('\u001F');
-          if (keyColumns.some(column => !normalizeText(row[column]))) return;
-          if (duplicateMap.has(key)) {
-            const item = {type:'error',title:'Duplicate observable unit',detail:'Matches data row ' + duplicateMap.get(key) + ' across ' + keyColumns.join(', ') + '.',rowNumber:row.__sourceRow,code:'duplicate'};
-            issues.push(item); row.__issues.push(item);
-          } else duplicateMap.set(key, row.__sourceRow);
+          if (!duplicateMap.has(key)) duplicateMap.set(key, []);
+          duplicateMap.get(key).push(row);
         });
+        duplicateMap.forEach(matchingRows => {
+          if (matchingRows.length < 2) return;
+          const rowNumbers = matchingRows.map(row => row.__sourceRow).join(', ');
+          matchingRows.forEach(row => {
+            const item = {type:'error',title:'Duplicate prediction',detail:'Data rows ' + rowNumbers + ' have the same task IDs, output_type, and output_type_id. Quantile levels are distinct because output_type_id is part of this key.',rowNumber:row.__sourceRow,code:'duplicate'};
+            issues.push(item); row.__issues.push(item);
+          });
+        });
+
+        validatePredictionGroups(transformed, columns, issues);
 
         if (elements.sortOutput.checked) transformed.sort((first, second) => {
           for (const column of keyColumns) {
+            if (column === 'output_type_id' && first.output_type === second.output_type && ['quantile','sample'].includes(first.output_type)) {
+              const firstNumber = Number(first[column]), secondNumber = Number(second[column]);
+              if (Number.isFinite(firstNumber) && Number.isFinite(secondNumber) && firstNumber !== secondNumber) return firstNumber - secondNumber;
+            }
             const comparison = normalizeText(first[column]).localeCompare(normalizeText(second[column]), undefined, {numeric:true});
             if (comparison) return comparison;
           }
@@ -2997,14 +3374,17 @@
           input_file:state.sourceMeta.isFile ? state.sourceName : 'source.csv', source_kind:state.sourceKind, extension:state.sourceMeta.extension || '.csv',
           sheet_name:state.sourceMeta.sheetName || null, header_row:Number(state.sourceMeta.headerRow || 1), date_column:elements.dateMap.value,
           location_column:elements.locationMap.value, value_column:elements.valueMap.value, date_field:state.profile.dateField,
+          output_type_column:elements.outputTypeMap.value || null, fixed_output_type:elements.outputTypeMap.value ? null : elements.fixedOutputType.value,
+          output_type_id_column:elements.outputTypeIdMap.value || null,
           date_strategy:elements.dateStrategy.value, allow_missing:elements.allowMissing.checked, sort_output:elements.sortOutput.checked,
           weekday:state.profile.weekday, target_required:state.profile.targetRequired, target_mode:elements.targetAssignmentMode.value,
           fixed_target:elements.targetFixedSelect.value, target_column:elements.targetSourceColumn.value, target_map:targetMap,
           target_ranges:state.targetRanges.map(range => ({start:Number(range.start),end:Number(range.end),target:range.target})),
-          target_types:Object.fromEntries(state.profile.targets.map(target => [target.id,target.type || 'number'])),
           fallback_type:elements.valueType.value === 'auto' ? 'number' : elements.valueType.value,
           location_map:locationMap, allowed_locations:state.profile.allowedLocations || null, extra_mappings:state.extraMappings,
-          output_columns:state.columns, unit_columns:state.columns.filter(column => column !== 'observation')
+          task_fields:state.profile.taskFields || [], output_rules_verified:Boolean(state.profile.outputRulesVerified),
+          task_groups:clone(state.profile.modelTaskGroups || []),
+          output_columns:state.columns, unit_columns:state.columns.filter(column => column !== 'value')
         };
       }
 
@@ -3132,19 +3512,115 @@ def assigned_target(row, row_number):
     return matches[0]
 
 
-def parse_observation(value, target):
-    kind = CONFIG["target_types"].get(target, CONFIG["fallback_type"])
+def task_group_score(group, target, record, output_type):
+    targets = group.get("targetIds") or []
+    if target and targets and target not in targets:
+        return None
+    output_types = group.get("outputTypes") or {}
+    if output_types and output_type not in output_types:
+        return None
+    score = 0
+    for field, rule in (group.get("taskIds") or {}).items():
+        value = text_value(record.get(field, ""))
+        allowed = [str(item) for item in (rule.get("allowed") or [])]
+        if value and allowed:
+            if value not in allowed:
+                return None
+            score += 3
+        elif value and rule.get("allowAny"):
+            score += 2
+        elif not value and rule.get("allowsBlank"):
+            score += 1
+    return score
+
+
+def select_task_group(target, record, output_type):
+    candidates = []
+    for index, group in enumerate(CONFIG.get("task_groups") or []):
+        score = task_group_score(group, target, record, output_type)
+        if score is not None:
+            candidates.append((score, index, group))
+    return max(candidates, key=lambda item: item[0]) if candidates else (None, None, None)
+
+
+def validate_task_group(group, record):
+    if group is None:
+        if CONFIG.get("output_rules_verified"):
+            raise ValueError("target, task IDs, and output_type do not match a configured model task")
+        return
+    for field, rule in (group.get("taskIds") or {}).items():
+        value = text_value(record.get(field, ""))
+        allowed = [str(item) for item in (rule.get("allowed") or [])]
+        if not value and not rule.get("allowsBlank", False):
+            raise ValueError(f"task ID {field!r} is required for this target group")
+        if value and allowed and value not in allowed:
+            raise ValueError(f"{value!r} is not allowed in task ID {field!r}")
+        if value and rule.get("allowsBlank") and not rule.get("allowAny") and not allowed:
+            raise ValueError(f"task ID {field!r} is not applicable for this target group")
+
+
+def normalize_output_type_id(value, output_type, rule):
+    raw = text_value(value)
+    if raw.lower() in {"na", "none", "null", "nan"}:
+        raw = ""
+    if output_type in {"mean", "median"}:
+        if raw:
+            raise ValueError(f"output_type_id must be blank for {output_type} rows")
+        return ""
+    if not raw:
+        raise ValueError(f"output_type_id is required for {output_type} rows")
+    rule = rule or {}
+    if output_type == "quantile":
+        try:
+            number = float(raw)
+        except ValueError as error:
+            raise ValueError("quantile output_type_id must be numeric from 0 to 1") from error
+        if not 0 <= number <= 1:
+            raise ValueError("quantile output_type_id must be from 0 to 1")
+        raw = format(number, ".15g")
+    elif "date" in text_value(rule.get("idType")).lower():
+        parsed = parse_date(raw)
+        if not parsed:
+            raise ValueError("output_type_id must be a valid date")
+        raw = parsed
+    elif output_type == "sample":
+        params = rule.get("idParams") or {}
+        if "integer" in text_value(params.get("type")).lower():
+            try:
+                number = float(raw)
+            except ValueError as error:
+                raise ValueError("sample output_type_id must be a positive integer") from error
+            if not number.is_integer() or number < 1:
+                raise ValueError("sample output_type_id must be a positive integer")
+            raw = str(int(number))
+        if params.get("maxLength") is not None and len(raw) > int(params["maxLength"]):
+            raise ValueError(f"sample output_type_id exceeds the maximum length of {params['maxLength']}")
+    allowed = [str(item) for item in (rule.get("ids") or [])]
+    if allowed and raw not in allowed:
+        raise ValueError(f"output_type_id {raw!r} is not accepted for this target group")
+    return raw
+
+
+def parse_prediction(value, value_rule, target, output_type):
+    value_rule = value_rule or {}
+    kind = text_value(value_rule.get("type") or CONFIG["fallback_type"]).lower()
+    if kind in {"double", "float", "number", "numeric", "continuous"}:
+        kind = "number"
+    elif kind in {"int", "integer", "discrete"}:
+        kind = "integer"
+    elif kind in {"character", "string"}:
+        kind = "text"
     text = text_value(value)
     if not text:
         if CONFIG["allow_missing"]:
             return ""
-        raise ValueError("blank observation")
+        raise ValueError("blank prediction value")
     if kind == "text":
         return text
     if kind == "date":
         parsed = parse_date(value)
         if not parsed:
-            raise ValueError("observation is not a recognized date")
+            raise ValueError("prediction value is not a recognized date")
         return parsed
     if kind == "logical":
         lowered = text.lower()
@@ -3152,17 +3628,85 @@ def parse_observation(value, target):
             return "true"
         if lowered in {"false", "f", "no", "n", "0"}:
             return "false"
-        raise ValueError("observation must be true or false")
+        raise ValueError("prediction value must be true or false")
     cleaned = re.sub(r",(?=\\d{3}(?:\\D|$))", "", text)
     try:
         number = float(cleaned)
     except ValueError as error:
-        raise ValueError("observation is not numeric") from error
+        raise ValueError("prediction value is not numeric") from error
     if kind == "integer" and not number.is_integer():
-        raise ValueError("observation must be a whole number")
+        raise ValueError(f"{target or 'target'} + {output_type} requires a whole-number value; do not round automatically")
     if kind == "proportion" and not 0 <= number <= 1:
         raise ValueError("proportion must be between 0 and 1")
+    minimum = value_rule.get("minimum")
+    maximum = value_rule.get("maximum")
+    exclusive_minimum = value_rule.get("exclusiveMinimum")
+    exclusive_maximum = value_rule.get("exclusiveMaximum")
+    if minimum is not None and number < float(minimum):
+        raise ValueError(f"prediction value must be at least {minimum}")
+    if maximum is not None and number > float(maximum):
+        raise ValueError(f"prediction value must be at most {maximum}")
+    if exclusive_minimum is not None and number <= float(exclusive_minimum):
+        raise ValueError(f"prediction value must be greater than {exclusive_minimum}")
+    if exclusive_maximum is not None and number >= float(exclusive_maximum):
+        raise ValueError(f"prediction value must be less than {exclusive_maximum}")
     return int(number) if number.is_integer() else number
+
+
+def derive_task_date(base_date, horizon, target):
+    try:
+        time_unit = next((group.get("timeUnit") for group in CONFIG.get("task_groups", []) if target in (group.get("targetIds") or []) and group.get("timeUnit")), None)
+        if time_unit == "month":
+            return (pd.Timestamp(base_date) + pd.DateOffset(months=int(float(horizon)))).date().isoformat()
+        units = 7 if time_unit == "week" or (not time_unit and CONFIG.get("weekday") is not None) else 1
+        return (pd.Timestamp(base_date) + pd.to_timedelta(float(horizon) * units, unit="D")).date().isoformat()
+    except (TypeError, ValueError):
+        return None
+
+
+def validate_prediction_groups(records):
+    buckets = {}
+    grouping = [field for field in CONFIG["output_columns"] if field not in {"output_type_id", "value"}]
+    task_grouping = [field for field in CONFIG["output_columns"] if field not in {"output_type", "output_type_id", "value"}]
+    task_buckets = {}
+    for record in records:
+        index = record.get("__group_index")
+        if index is None:
+            continue
+        key = tuple(text_value(record.get(field, "")) for field in grouping)
+        buckets.setdefault((index, key), []).append(record)
+        task_key = tuple(text_value(record.get(field, "")) for field in task_grouping)
+        task_buckets.setdefault((index, task_key), []).append(record)
+    for (index, _), rows in task_buckets.items():
+        output_types = CONFIG["task_groups"][index].get("outputTypes") or {}
+        required = [name for name, rule in output_types.items() if rule.get("isRequired")]
+        present = {row["output_type"] for row in rows}
+        missing = [name for name in required if name not in present]
+        if missing:
+            raise ValueError(f"required output type missing from a target/task group: {', '.join(missing)}")
+    for (index, _), rows in buckets.items():
+        group = CONFIG["task_groups"][index]
+        output_type = rows[0]["output_type"]
+        rule = (group.get("outputTypes") or {}).get(output_type) or {}
+        ids = {text_value(row["output_type_id"]) for row in rows}
+        missing = [str(item) for item in (rule.get("requiredIds") or []) if str(item) not in ids]
+        if missing:
+            raise ValueError(f"incomplete {output_type} group; missing required output_type_id values: {', '.join(missing[:8])}")
+        if output_type == "quantile":
+            ordered = sorted(rows, key=lambda row: float(row["output_type_id"]))
+            if any(float(current["value"]) < float(previous["value"]) for previous, current in zip(ordered, ordered[1:])):
+                raise ValueError("crossing quantile values found within a target/task group")
+        elif output_type == "pmf":
+            total = sum(float(row["value"]) for row in rows)
+            if abs(total - 1) > 1e-6:
+                raise ValueError(f"PMF probabilities total {total:g}, not 1, within a target/task group")
+        elif output_type == "sample":
+            params = rule.get("idParams") or {}
+            minimum, maximum = params.get("minSamples"), params.get("maxSamples")
+            if minimum is not None and len(rows) < int(minimum):
+                raise ValueError(f"sample group has {len(rows)} rows; at least {minimum} are required")
+            if maximum is not None and len(rows) > int(maximum):
+                raise ValueError(f"sample group has {len(rows)} rows; at most {maximum} are allowed")
 
 
 def prepare(source):
@@ -3188,10 +3732,32 @@ def prepare(source):
                     raise ValueError("target is not assigned")
                 record["target"] = target
             for field, source_column in CONFIG["extra_mappings"].items():
-                record[field] = text_value(row[source_column])
-                if not record[field]:
-                    raise ValueError(f"required field {field!r} is blank")
-            record["observation"] = parse_observation(row[CONFIG["value_column"]], target)
+                if source_column == "__derive__":
+                    record[field] = ""
+                    continue
+                raw = row[source_column] if source_column else ""
+                if field.endswith("date") and text_value(raw):
+                    record[field] = parse_date(raw)
+                    if not record[field]:
+                        raise ValueError(f"task ID {field!r} is not a recognized date")
+                else:
+                    record[field] = text_value(raw)
+            for field, source_column in CONFIG["extra_mappings"].items():
+                if source_column == "__derive__":
+                    record[field] = derive_task_date(record[CONFIG["date_field"]], record.get("horizon"), target)
+                    if not record[field]:
+                        raise ValueError(f"could not derive task date {field!r}")
+            output_type = text_value(row[CONFIG["output_type_column"]] if CONFIG.get("output_type_column") else CONFIG.get("fixed_output_type")).lower()
+            if not output_type:
+                raise ValueError("output_type is blank")
+            record["output_type"] = output_type
+            _, group_index, group = select_task_group(target, record, output_type)
+            validate_task_group(group, record)
+            output_rule = ((group or {}).get("outputTypes") or {}).get(output_type) or {}
+            raw_id = row[CONFIG["output_type_id_column"]] if CONFIG.get("output_type_id_column") else ""
+            record["output_type_id"] = normalize_output_type_id(raw_id, output_type, output_rule)
+            record["value"] = parse_prediction(row[CONFIG["value_column"]], output_rule.get("value"), target, output_type)
+            record["__group_index"] = group_index
             output_rows.append(record)
         except (KeyError, TypeError, ValueError) as error:
             errors.append(f"Data row {position}: {error}")
@@ -3199,10 +3765,11 @@ def prepare(source):
         preview = "\\n".join(errors[:20])
         suffix = f"\\n...and {len(errors) - 20} more" if len(errors) > 20 else ""
         raise ValueError(f"Preparation stopped with {len(errors)} error(s):\\n{preview}{suffix}")
-    output = pd.DataFrame(output_rows, columns=CONFIG["output_columns"])
+    validate_prediction_groups(output_rows)
+    output = pd.DataFrame(output_rows)[CONFIG["output_columns"]]
     duplicated = output.duplicated(subset=CONFIG["unit_columns"], keep=False)
     if duplicated.any():
-        raise ValueError(f"{int(duplicated.sum())} rows have duplicate observable-unit keys")
+        raise ValueError(f"{int(duplicated.sum())} rows are duplicate predictions; the key includes all task IDs, output_type, and output_type_id")
     if CONFIG["sort_output"]:
         output = output.sort_values(CONFIG["unit_columns"], kind="stable")
     return output
@@ -3210,8 +3777,8 @@ def prepare(source):
 
 input_path = Path(CONFIG["input_file"])
 prepared = prepare(read_source(input_path))
-prepared.to_csv("time-series.csv", index=False, encoding="utf-8", lineterminator="\\n")
-print(f"Wrote {len(prepared):,} rows to time-series.csv")
+prepared.to_csv("model-output.csv", index=False, encoding="utf-8", lineterminator="\\n")
+print(f"Wrote {len(prepared):,} rows to model-output.csv")
 `;
       }
 
@@ -3347,32 +3914,201 @@ assigned_target <- function(row, row_number) {
   CONFIG$target_ranges[[which(matches)[1]]]$target
 }
 
-parse_observation <- function(value, target) {
-  kind <- lookup(CONFIG$target_types, target)
+list_values <- function(value) {
+  if (is.null(value) || !length(value)) return(character())
+  vapply(value, text_value, character(1))
+}
+
+task_group_score <- function(group, target, record, output_type) {
+  targets <- list_values(group$targetIds)
+  if (target != "" && length(targets) && !target %in% targets) return(NA_real_)
+  output_types <- group$outputTypes
+  if (!is.null(output_types) && length(output_types) && is.null(output_types[[output_type]])) return(NA_real_)
+  score <- 0
+  task_ids <- group$taskIds
+  if (is.null(task_ids)) return(score)
+  for (field in names(task_ids)) {
+    rule <- task_ids[[field]]
+    value <- text_value(record[[field]])
+    allowed <- list_values(rule$allowed)
+    if (value != "" && length(allowed)) {
+      if (!value %in% allowed) return(NA_real_)
+      score <- score + 3
+    } else if (value != "" && isTRUE(rule$allowAny)) {
+      score <- score + 2
+    } else if (value == "" && isTRUE(rule$allowsBlank)) {
+      score <- score + 1
+    }
+  }
+  score
+}
+
+select_task_group <- function(target, record, output_type) {
+  groups <- CONFIG$task_groups
+  if (is.null(groups) || !length(groups)) return(list(index = NULL, group = NULL))
+  best_index <- NULL
+  best_score <- -Inf
+  for (index in seq_along(groups)) {
+    score <- task_group_score(groups[[index]], target, record, output_type)
+    if (!is.na(score) && score > best_score) {
+      best_score <- score
+      best_index <- index
+    }
+  }
+  if (is.null(best_index)) list(index = NULL, group = NULL) else list(index = best_index, group = groups[[best_index]])
+}
+
+validate_task_group <- function(group, record) {
+  if (is.null(group)) {
+    if (isTRUE(CONFIG$output_rules_verified)) stop("target, task IDs, and output_type do not match a configured model task")
+    return(invisible(NULL))
+  }
+  task_ids <- group$taskIds
+  if (is.null(task_ids)) return(invisible(NULL))
+  for (field in names(task_ids)) {
+    rule <- task_ids[[field]]
+    value <- text_value(record[[field]])
+    allowed <- list_values(rule$allowed)
+    if (value == "" && !isTRUE(rule$allowsBlank)) stop(paste("task ID", shQuote(field), "is required for this target group"))
+    if (value != "" && length(allowed) && !value %in% allowed) stop(paste(shQuote(value), "is not allowed in task ID", shQuote(field)))
+    if (value != "" && isTRUE(rule$allowsBlank) && !isTRUE(rule$allowAny) && !length(allowed)) stop(paste("task ID", shQuote(field), "is not applicable for this target group"))
+  }
+}
+
+normalize_output_type_id <- function(value, output_type, rule) {
+  raw <- text_value(value)
+  if (tolower(raw) %in% c("na", "none", "null", "nan")) raw <- ""
+  if (output_type %in% c("mean", "median")) {
+    if (raw != "") stop(paste("output_type_id must be blank for", output_type, "rows"))
+    return("")
+  }
+  if (raw == "") stop(paste("output_type_id is required for", output_type, "rows"))
+  if (is.null(rule)) rule <- list()
+  if (output_type == "quantile") {
+    number <- suppressWarnings(as.numeric(raw))
+    if (is.na(number) || number < 0 || number > 1) stop("quantile output_type_id must be numeric from 0 to 1")
+    raw <- format(number, scientific = FALSE, trim = TRUE, digits = 15)
+  } else if (grepl("date", tolower(text_value(rule$idType)), fixed = TRUE)) {
+    parsed <- parse_date_value(raw)
+    if (is.na(parsed)) stop("output_type_id must be a valid date")
+    raw <- parsed
+  } else if (output_type == "sample") {
+    params <- rule$idParams
+    if (!is.null(params) && grepl("integer", tolower(text_value(params$type)), fixed = TRUE)) {
+      number <- suppressWarnings(as.numeric(raw))
+      if (is.na(number) || number < 1 || number != trunc(number)) stop("sample output_type_id must be a positive integer")
+      raw <- as.character(as.integer(number))
+    }
+    if (!is.null(params$maxLength) && nchar(raw) > as.integer(params$maxLength)) stop(paste("sample output_type_id exceeds the maximum length of", params$maxLength))
+  }
+  allowed <- list_values(rule$ids)
+  if (length(allowed) && !raw %in% allowed) stop(paste("output_type_id", shQuote(raw), "is not accepted for this target group"))
+  raw
+}
+
+parse_prediction <- function(value, value_rule, target, output_type) {
+  if (is.null(value_rule)) value_rule <- list()
+  kind <- tolower(text_value(value_rule$type))
   if (kind == "") kind <- CONFIG$fallback_type
+  if (kind %in% c("double", "float", "number", "numeric", "continuous")) {
+    kind <- "number"
+  } else if (kind %in% c("int", "integer", "discrete")) {
+    kind <- "integer"
+  } else if (kind %in% c("character", "string")) {
+    kind <- "text"
+  }
   text <- text_value(value)
   if (text == "") {
     if (isTRUE(CONFIG$allow_missing)) return("")
-    stop("blank observation")
+    stop("blank prediction value")
   }
   if (kind == "text") return(text)
   if (kind == "date") {
     parsed <- parse_date_value(value)
-    if (is.na(parsed)) stop("observation is not a recognized date")
+    if (is.na(parsed)) stop("prediction value is not a recognized date")
     return(parsed)
   }
   if (kind == "logical") {
     lowered <- tolower(text)
     if (lowered %in% c("true", "t", "yes", "y", "1")) return("true")
     if (lowered %in% c("false", "f", "no", "n", "0")) return("false")
-    stop("observation must be true or false")
+    stop("prediction value must be true or false")
   }
   cleaned <- gsub(",(?=[0-9]{3}(?:[^0-9]|$))", "", text, perl = TRUE)
   number <- suppressWarnings(as.numeric(cleaned))
-  if (is.na(number)) stop("observation is not numeric")
-  if (kind == "integer" && number != trunc(number)) stop("observation must be a whole number")
+  if (is.na(number)) stop("prediction value is not numeric")
+  if (kind == "integer" && number != trunc(number)) stop(paste(target, "+", output_type, "requires a whole-number value; do not round automatically"))
   if (kind == "proportion" && (number < 0 || number > 1)) stop("proportion must be between 0 and 1")
+  if (!is.null(value_rule$minimum) && number < as.numeric(value_rule$minimum)) stop(paste("prediction value must be at least", value_rule$minimum))
+  if (!is.null(value_rule$maximum) && number > as.numeric(value_rule$maximum)) stop(paste("prediction value must be at most", value_rule$maximum))
+  if (!is.null(value_rule$exclusiveMinimum) && number <= as.numeric(value_rule$exclusiveMinimum)) stop(paste("prediction value must be greater than", value_rule$exclusiveMinimum))
+  if (!is.null(value_rule$exclusiveMaximum) && number >= as.numeric(value_rule$exclusiveMaximum)) stop(paste("prediction value must be less than", value_rule$exclusiveMaximum))
   as.character(number)
+}
+
+derive_task_date <- function(base_date, horizon, target) {
+  time_unit <- ""
+  for (group in CONFIG$task_groups) {
+    if (target %in% list_values(group$targetIds) && text_value(group$timeUnit) != "") {
+      time_unit <- text_value(group$timeUnit)
+      break
+    }
+  }
+  number <- suppressWarnings(as.numeric(text_value(horizon)))
+  if (is.na(number)) return(NA_character_)
+  if (time_unit == "month") {
+    parsed <- suppressWarnings(as.Date(base_date) %m+% months(number))
+  } else {
+    units <- if (time_unit == "week" || (time_unit == "" && !is.null(CONFIG$weekday))) 7 else 1
+    parsed <- suppressWarnings(as.Date(base_date) + number * units)
+  }
+  if (is.na(parsed)) NA_character_ else format(parsed, "%Y-%m-%d")
+}
+
+validate_prediction_groups <- function(records) {
+  grouping <- setdiff(unlist(CONFIG$output_columns), c("output_type_id", "value"))
+  task_grouping <- setdiff(unlist(CONFIG$output_columns), c("output_type", "output_type_id", "value"))
+  buckets <- list()
+  task_buckets <- list()
+  for (record in records) {
+    index <- record[["__group_index"]]
+    if (is.null(index)) next
+    key <- paste(c(index, vapply(grouping, function(field) text_value(record[[field]]), character(1))), collapse = "\u001f")
+    buckets[[key]] <- c(buckets[[key]], list(record))
+    task_key <- paste(c(index, vapply(task_grouping, function(field) text_value(record[[field]]), character(1))), collapse = "\u001f")
+    task_buckets[[task_key]] <- c(task_buckets[[task_key]], list(record))
+  }
+  for (rows in task_buckets) {
+    index <- rows[[1]][["__group_index"]]
+    output_types <- CONFIG$task_groups[[index]]$outputTypes
+    required <- names(output_types)[vapply(output_types, function(rule) isTRUE(rule$isRequired), logical(1))]
+    present <- unique(vapply(rows, function(row) row$output_type, character(1)))
+    missing <- setdiff(required, present)
+    if (length(missing)) stop(paste("required output type missing from a target/task group:", paste(missing, collapse = ", ")))
+  }
+  for (rows in buckets) {
+    index <- rows[[1]][["__group_index"]]
+    group <- CONFIG$task_groups[[index]]
+    output_type <- rows[[1]]$output_type
+    rule <- group$outputTypes[[output_type]]
+    if (is.null(rule)) next
+    ids <- unique(vapply(rows, function(row) text_value(row$output_type_id), character(1)))
+    required <- list_values(rule$requiredIds)
+    missing <- setdiff(required, ids)
+    if (length(missing)) stop(paste("incomplete", output_type, "group; missing required output_type_id values:", paste(head(missing, 8), collapse = ", ")))
+    if (output_type == "quantile") {
+      order_index <- order(as.numeric(vapply(rows, function(row) row$output_type_id, character(1))))
+      values <- as.numeric(vapply(rows[order_index], function(row) text_value(row$value), character(1)))
+      if (length(values) > 1 && any(diff(values) < 0, na.rm = TRUE)) stop("crossing quantile values found within a target/task group")
+    } else if (output_type == "pmf") {
+      total <- sum(as.numeric(vapply(rows, function(row) text_value(row$value), character(1))))
+      if (abs(total - 1) > 1e-6) stop(paste("PMF probabilities total", format(total), "not 1 within a target/task group"))
+    } else if (output_type == "sample") {
+      params <- rule$idParams
+      if (!is.null(params$minSamples) && length(rows) < as.integer(params$minSamples)) stop(paste("sample group has", length(rows), "rows; at least", params$minSamples, "are required"))
+      if (!is.null(params$maxSamples) && length(rows) > as.integer(params$maxSamples)) stop(paste("sample group has", length(rows), "rows; at most", params$maxSamples, "are allowed"))
+    }
+  }
 }
 
 prepare <- function(source) {
@@ -3397,25 +4133,49 @@ prepare <- function(source) {
         record$target <- target
       }
       for (field in names(CONFIG$extra_mappings)) {
-        record[[field]] <- text_value(row[[CONFIG$extra_mappings[[field]]]][[1]])
-        if (record[[field]] == "") stop(paste("required field", shQuote(field), "is blank"))
+        source_column <- CONFIG$extra_mappings[[field]]
+        if (source_column == "__derive__") {
+          record[[field]] <- ""
+          next
+        }
+        raw <- if (source_column == "") "" else row[[source_column]][[1]]
+        if (grepl("date$", field) && text_value(raw) != "") {
+          record[[field]] <- parse_date_value(raw)
+          if (is.na(record[[field]])) stop(paste("task ID", shQuote(field), "is not a recognized date"))
+        } else record[[field]] <- text_value(raw)
       }
-      record$observation <- parse_observation(row[[CONFIG$value_column]][[1]], target)
+      for (field in names(CONFIG$extra_mappings)) {
+        if (CONFIG$extra_mappings[[field]] == "__derive__") {
+          record[[field]] <- derive_task_date(record[[CONFIG$date_field]], record$horizon, target)
+          if (is.na(record[[field]])) stop(paste("could not derive task date", shQuote(field)))
+        }
+      }
+      output_type <- tolower(text_value(if (is.null(CONFIG$output_type_column)) CONFIG$fixed_output_type else row[[CONFIG$output_type_column]][[1]]))
+      if (output_type == "") stop("output_type is blank")
+      record$output_type <- output_type
+      selected <- select_task_group(target, record, output_type)
+      validate_task_group(selected$group, record)
+      output_rule <- if (is.null(selected$group)) list() else selected$group$outputTypes[[output_type]]
+      raw_id <- if (is.null(CONFIG$output_type_id_column)) "" else row[[CONFIG$output_type_id_column]][[1]]
+      record$output_type_id <- normalize_output_type_id(raw_id, output_type, output_rule)
+      record$value <- parse_prediction(row[[CONFIG$value_column]][[1]], output_rule$value, target, output_type)
+      record[["__group_index"]] <- selected$index
       records[[position]] <- record
     }, error = function(error) errors <<- c(errors, paste0("Data row ", position, ": ", conditionMessage(error))))
   }
   if (length(errors)) stop(paste(c(paste("Preparation stopped with", length(errors), "error(s):"), head(errors, 20)), collapse = "\\n"))
+  validate_prediction_groups(records)
   output <- do.call(rbind.data.frame, c(records, stringsAsFactors = FALSE))
   output <- output[, unlist(CONFIG$output_columns), drop = FALSE]
   unit <- unlist(CONFIG$unit_columns)
-  if (any(duplicated(output[, unit, drop = FALSE]))) stop("Duplicate observable-unit keys found.")
+  if (any(duplicated(output[, unit, drop = FALSE]))) stop("Duplicate predictions found; the key includes all task IDs, output_type, and output_type_id.")
   if (isTRUE(CONFIG$sort_output)) output <- output[do.call(order, output[, unit, drop = FALSE]), , drop = FALSE]
   output
 }
 
 prepared <- prepare(read_source(CONFIG$input_file))
-readr::write_csv(prepared, "time-series.csv", na = "")
-message(sprintf("Wrote %s rows to time-series.csv", format(nrow(prepared), big.mark = ",")))
+readr::write_csv(prepared, "model-output.csv", na = "")
+message(sprintf("Wrote %s rows to model-output.csv", format(nrow(prepared), big.mark = ",")))
 `;
       }
 
@@ -3444,8 +4204,8 @@ message(sprintf("Wrote %s rows to time-series.csv", format(nrow(prepared), big.m
 
       function downloadCsv() {
         if (!state.csv) { showToast('Run the data checks first.', 'error'); return; }
-        downloadBlob(state.csv, 'time-series.csv', 'text/csv;charset=utf-8');
-        showToast('time-series.csv downloaded.', 'success');
+        downloadBlob(state.csv, 'model-output.csv', 'text/csv;charset=utf-8');
+        showToast('model-output.csv downloaded.', 'success');
       }
 
       async function copyText(text, successMessage) {
@@ -3469,6 +4229,7 @@ message(sprintf("Wrote %s rows to time-series.csv", format(nrow(prepared), big.m
         clearSource();
         elements.allowMissing.checked = false; elements.sortOutput.checked = true; elements.generateCode.checked = false;
         elements.codeLanguage.value = 'python'; elements.codeLanguageField.hidden = true; elements.dateStrategy.value = 'auto'; elements.valueType.value = 'auto';
+        elements.outputTypeMap.value = ''; elements.outputTypeIdMap.value = ''; elements.fixedOutputType.value = 'quantile'; elements.fixedOutputTypeField.hidden = false;
         elements.targetAssignmentMode.value = 'fixed'; elements.crosswalkPaste.value = ''; elements.hubSelect.value = 'flusight';
         applyHubProfile('flusight'); setInputMode('upload'); goToStep(1);
       }
@@ -3477,7 +4238,7 @@ message(sprintf("Wrote %s rows to time-series.csv", format(nrow(prepared), big.m
         {title:'Bring in almost any table',description:'Start with modern Excel, CSV, TSV, JSON, pasted spreadsheet data, or a few manually entered rows.',bullets:['Excel worksheet and header-row selection included','All data stay in this browser']},
         {title:'Choose the destination hub',description:'Choose one of the 30 public hubs, then connect the date, location, and value columns. Embedded JSON rules load automatically where available.',bullets:['Hubs grouped by active, training, development, and archival status','All dates become YYYY-MM-DD']},
         {title:'Assign rows precisely',description:'Use one target, map a source target column, or assign targets by row range. Then review or import a location crosswalk.',bullets:['Add custom targets when needed','Unnecessary columns are removed']},
-        {title:'Check, download, and automate',description:'Resolve plain-language errors, download time-series.csv, and optionally save Python or R code that repeats the same transformation.',bullets:['Duplicate observable units are blocked','Official hub validation is still recommended']}
+        {title:'Check, download, and automate',description:'Resolve plain-language errors, download model-output.csv, and optionally save Python or R code that repeats the same transformation.',bullets:['Prediction keys include quantile or sample IDs','Official hub validation is still recommended']}
       ];
 
       function renderTour() {
@@ -3520,9 +4281,10 @@ message(sprintf("Wrote %s rows to time-series.csv", format(nrow(prepared), big.m
       $('#useManualButton').addEventListener('click', useManualRows);
       $('#clearSourceButton').addEventListener('click', clearSource);
       $('#sampleButton').addEventListener('click', () => {
-        const sample = 'week_ending,state,reported_count,target_name\n08/01/2026,Alabama,125,wk inc flu hosp\n08/08/2026,AL,137,wk inc flu hosp\n08/01/2026,Alaska,48,wk inc flu hosp\n08/08/2026,02,53,wk inc flu hosp';
+        const exampleValues = [104.2,107.8,110.3,114.6,117.1,119.4,121.3,123.6,125.2,127.8,130.1,132.7,135.4,138.2,141.1,144.3,147.9,151.8,156.2,161.4,168.9,176.6,185.3];
+        const sample = 'reference_date,state,horizon,output_type,quantile,prediction,target\n' + STANDARD_QUANTILE_IDS.map((quantile, index) => ['2026-08-01','Alabama','1','quantile',quantile,exampleValues[index],'wk inc flu hosp'].join(',')).join('\n');
         elements.pasteInput.value = sample; setInputMode('paste');
-        const dataset = parseDelimitedDataset(sample); dataset.meta = {extension:'.csv',headerRow:1,isFile:false}; setSourceData(dataset, 'Example FluSight observations');
+        const dataset = parseDelimitedDataset(sample); dataset.meta = {extension:'.csv',headerRow:1,isFile:false}; setSourceData(dataset, 'Example FluSight quantile forecast');
       });
 
       elements.sheetSelect.addEventListener('change', () => {
@@ -3539,6 +4301,9 @@ message(sprintf("Wrote %s rows to time-series.csv", format(nrow(prepared), big.m
       elements.hubSelect.addEventListener('change', event => { applyHubProfile(event.target.value); invalidateOutput(); });
       elements.configFiles.addEventListener('change', event => readHubConfigs(Array.from(event.target.files)));
       [elements.dateMap,elements.valueMap].forEach(control => control.addEventListener('change', invalidateOutput));
+      elements.outputTypeMap.addEventListener('change', () => { elements.fixedOutputTypeField.hidden = Boolean(elements.outputTypeMap.value); invalidateOutput(); });
+      elements.fixedOutputType.addEventListener('change', invalidateOutput);
+      elements.outputTypeIdMap.addEventListener('change', invalidateOutput);
       elements.locationMap.addEventListener('change', () => { state.locationCrosswalk = new Map(); refreshLocationCrosswalk(true); invalidateOutput(); });
       elements.dateStrategy.addEventListener('change', invalidateOutput);
       elements.valueType.addEventListener('change', invalidateOutput);
