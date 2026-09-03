@@ -369,7 +369,7 @@
 
     .tool-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1.45fr) minmax(270px, .55fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 22px;
     }
 
@@ -385,6 +385,8 @@
       position: relative;
       overflow: hidden;
       padding: 34px;
+      display: flex;
+      flex-direction: column;
     }
 
     .tool-card::before {
@@ -466,11 +468,16 @@
       font-weight: 700;
     }
 
+    .card-actions { margin-top: auto; }
+
     .future-card {
+      grid-column: 1 / -1;
       padding: 31px;
       display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 22px;
       background:
         linear-gradient(145deg, rgba(82,45,128,.035), rgba(245,102,0,.045)),
         #fff;
@@ -481,7 +488,8 @@
       height: 46px;
       display: grid;
       place-items: center;
-      margin-bottom: 52px;
+      flex: 0 0 auto;
+      margin-bottom: 0;
       border: 1px dashed #ab9abf;
       border-radius: 15px;
       color: var(--purple);
@@ -564,6 +572,8 @@
     }
 
     .offline-steps li > span { min-width: 0; }
+
+    .download-list { display: grid; gap: 16px; }
 
     .download-card {
       padding: 28px;
@@ -686,6 +696,7 @@
       .hero-inner { padding-block: 72px; }
       .hero-panel { max-width: 560px; }
       .tool-grid { grid-template-columns: 1fr; }
+      .future-card { grid-column: auto; flex-direction: column; align-items: flex-start; gap: 0; }
       .future-card .plus { margin-bottom: 24px; }
     }
 
@@ -814,6 +825,29 @@
             </div>
           </article>
 
+          <article class="tool-card">
+            <div class="tool-top">
+              <div class="tool-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 5h16v14H4z"/><path d="M4 10h16M9 5v14"/><path d="m13 14 2 2 4-4"/>
+                </svg>
+              </div>
+              <span class="badge">Beta</span>
+            </div>
+            <h3>Hubverse Data Preparation</h3>
+            <p class="tool-description">Turn Excel, CSV, TSV, JSON, pasted, or manually entered data into a ready-to-review Hubverse <code>target-data/time-series.csv</code>. Match columns, assign targets, map locations, review checks, and optionally download reusable Python or R transformation code.</p>
+            <ul class="feature-list" aria-label="Data preparation tool features">
+              <li>Common file formats</li>
+              <li>Public hub profiles</li>
+              <li>Target and location mapping</li>
+              <li>Python and R workflows</li>
+            </ul>
+            <div class="card-actions">
+              <a class="button button-dark" href="./tools/data-preparation/">Open tool <span aria-hidden="true">→</span></a>
+              <a class="button button-light" href="./offline/Hubverse-Data-Preparation.html" download="Hubverse-Data-Preparation.html">Download standalone HTML</a>
+            </div>
+          </article>
+
           <aside class="future-card">
             <span class="plus" aria-hidden="true">+</span>
             <div>
@@ -853,14 +887,23 @@
           </ol>
           <p style="margin:18px 0 0;color:#625b6c;font-size:.86rem">If your browser opens the HTML instead of saving it, right-click the download button and choose <strong>Save link as</strong>.</p>
         </div>
-        <aside class="download-card" aria-label="Download the Model Metadata Generator">
-          <div class="file-row">
-            <span class="file-icon" aria-hidden="true">HTML</span>
-            <div><strong>Model Metadata Generator</strong><span>Self-contained offline tool</span></div>
-          </div>
-          <a class="button button-dark" href="./offline/Hubverse-Metadata-Generator.html" download="Hubverse-Metadata-Generator.html">Download offline HTML</a>
-          <p class="privacy-note">Your entries are processed locally in your browser.</p>
-        </aside>
+        <div class="download-list">
+          <aside class="download-card" aria-label="Download the Model Metadata Generator">
+            <div class="file-row">
+              <span class="file-icon" aria-hidden="true">HTML</span>
+              <div><strong>Model Metadata Generator</strong><span>Self-contained offline tool</span></div>
+            </div>
+            <a class="button button-dark" href="./offline/Hubverse-Metadata-Generator.html" download="Hubverse-Metadata-Generator.html">Download offline HTML</a>
+          </aside>
+          <aside class="download-card" aria-label="Download Hubverse Data Preparation">
+            <div class="file-row">
+              <span class="file-icon" aria-hidden="true">HTML</span>
+              <div><strong>Hubverse Data Preparation</strong><span>Self-contained offline tool</span></div>
+            </div>
+            <a class="button button-dark" href="./offline/Hubverse-Data-Preparation.html" download="Hubverse-Data-Preparation.html">Download offline HTML</a>
+          </aside>
+          <p class="privacy-note">Your data and entries are processed locally in your browser.</p>
+        </div>
       </div>
     </section>
 

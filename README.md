@@ -4,6 +4,11 @@ The Hubverse Support Toolkit is a collection of browser-based utilities from DMA
 
 The toolkit is currently in beta testing. Generated files should always be checked against the selected hub's current instructions and official validation process before submission. Feedback and possible errors can be sent to [ambleic@clemson.edu](mailto:ambleic@clemson.edu?subject=Hubverse%20Support%20Toolkit%20feedback).
 
+## Included tools
+
+- **Model Metadata Generator:** Creates hub-specific model metadata YAML through a guided form.
+- **Hubverse Data Preparation:** Converts Excel, CSV, TSV, JSON, pasted, or manually entered data into Hubverse target time-series data, with target and location mapping plus optional Python or R transformation code.
+
 ## Publish with GitHub Pages
 
 This repository is deliberately organized so GitHub Pages publishes only the website files in `docs/`.
@@ -26,11 +31,14 @@ Hubverse-Support-Toolkit/
 │   ├── index.html                # Toolkit homepage
 │   ├── .nojekyll
 │   ├── tools/
-│   │   └── metadata-generator/
-│   │       └── index.html        # Online tool
+│   │   ├── metadata-generator/
+│   │   │   └── index.html        # Online metadata tool
+│   │   └── data-preparation/
+│   │       └── index.html        # Online data-preparation tool
 │   └── offline/
 │       ├── README.txt
-│       └── Hubverse-Metadata-Generator.html
+│       ├── Hubverse-Metadata-Generator.html
+│       └── Hubverse-Data-Preparation.html
 └── project/                      # Not published by GitHub Pages
 ```
 
