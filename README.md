@@ -58,6 +58,12 @@ Standalone tool files are available in `docs/offline/` and from the download but
 
 No installation or local web server is required. Each tool's application code, styles, and embedded content are contained inside its HTML file. Links to external documentation still require an internet connection.
 
+Every hosted page is visibly labeled **Online version**, while each standalone download is labeled **Offline version**. "Processed in your browser" describes privacy, not connectivity: the hosted metadata and data tools make limited internet requests for current public hub files, while the offline versions do not make those live checks.
+
+The hosted Model Metadata Generator checks the selected hub's current public schema when the tool opens or the hub selection changes. If that check is unavailable, it falls back to the bundled snapshot. Standalone HTML downloads remain fully offline and use bundled schema snapshots; re-download the tool after a hub changes its schema, or upload the hub's current `model-metadata-schema.json` in the generator.
+
+The hosted Data Preparation Tool likewise checks the selected hub's current public `hub-config/tasks.json` and `hub-config/target-data.json` files, then falls back to its bundled profile if the check is unavailable. Its standalone HTML remains fully offline; re-download it after hub configuration changes or upload the current JSON files manually.
+
 ## Add another tool
 
 For each future standalone tool:

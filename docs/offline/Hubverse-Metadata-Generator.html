@@ -509,13 +509,13 @@
     <section class="page page-build" data-page="build">
       <div class="hero">
         <div>
-          <p class="eyebrow">No-code YAML generator</p>
+          <p class="eyebrow">Offline version · No-code YAML generator</p>
           <h1>Model metadata, ready for your hub.</h1>
-          <p class="hero-copy">Choose a hub, complete its required fields, and download a correctly named <code>.yml</code> file—without touching code.</p>
+          <p class="hero-copy">Choose a hub, complete its required fields, and download a correctly named <code>.yml</code> file—without touching code. This offline version makes no internet requests and uses bundled schema snapshots; your form entries stay on this device.</p>
         </div>
-        <span class="privacy-pill" title="No form data is transmitted or stored by this tool">
+        <span class="privacy-pill" title="No internet connection or automatic live schema check">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0v3m-11 0h12v10H6V10Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 14v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-          Runs privately in your browser
+          Offline version · Bundled schemas
         </span>
       </div>
 
@@ -525,7 +525,7 @@
             <div class="panel-head">
               <span class="step-label"><span class="step-number">1</span>Select a schema</span>
               <h2 class="panel-title" id="hub-heading">Which hub are you submitting to?</h2>
-              <p class="panel-subtitle">Each preset uses that hub’s own public metadata rules.</p>
+              <p class="panel-subtitle">Each preset uses a bundled snapshot of that hub’s public metadata rules. Re-download this file or upload the current schema after a hub changes its rules.</p>
             </div>
             <div class="panel-body">
               <div class="hub-selector-grid">
@@ -539,6 +539,7 @@
                 </button>
               </div>
               <div class="hub-meta" id="hub-meta"></div>
+              <div class="callout" style="margin-top:12px"><strong>Offline schema notice:</strong> Built-in hub schemas are snapshots. If a hub changes its metadata schema, re-download this tool for the newest bundled version or upload the hub’s current <code>model-metadata-schema.json</code>.</div>
               <div class="upload-panel" id="upload-panel" hidden>
                 <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-controls="schema-file" aria-label="Upload a model metadata JSON schema">
                   <div>
@@ -774,24 +775,6 @@
         );
       }
 
-      function humanAiSchema() {
-        const c = coreProperties({ abbrMax: 25, contributorRequired: [], includeTwitter: true, licenses: CDC_LICENSES });
-        return makeSchema(
-          "SISMID Human–AI Forecasting Challenge model metadata",
-          "Metadata schema for the SISMID Human–AI Influenza Forecasting Mini-Challenge sandbox.",
-          {
-            team_name: c.team_name, team_abbr: c.team_abbr, model_name: c.model_name, model_abbr: c.model_abbr,
-            model_contributors: c.model_contributors, website_url: c.website_url, repo_url: c.repo_url,
-            license: c.license, citation: c.citation,
-            methods: { type: "string", description: "A brief description of the methods used by the model." },
-            designated_model: { type: "boolean", description: "Whether the model is eligible for inclusion in a hub ensemble and public visualization. A team may designate up to two models." },
-            ensemble_of_hub_models: { type: "boolean", description: "Whether the model is an ensemble of other hub models." }
-          },
-          ["team_abbr", "model_abbr", "designated_model"],
-          true
-        );
-      }
-
       function fluSightSchema() {
         const c = coreProperties({ contributorRequired: ["name", "affiliation", "email"], licenses: CDC_LICENSES });
         return makeSchema(
@@ -812,6 +795,24 @@
           },
           ["team_name", "team_abbr", "model_name", "model_abbr", "model_contributors", "license", "designated_model", "data_inputs", "methods", "methods_long", "ensemble_of_models", "ensemble_of_hub_models", "website_url"],
           false
+        );
+      }
+
+      function humanAiSchema() {
+        const c = coreProperties({ abbrMax: 25, contributorRequired: [], includeTwitter: true, licenses: CDC_LICENSES });
+        return makeSchema(
+          "SISMID Human–AI Forecasting Challenge model metadata",
+          "Metadata schema for the SISMID Human–AI Influenza Forecasting Mini-Challenge sandbox.",
+          {
+            team_name: c.team_name, team_abbr: c.team_abbr, model_name: c.model_name, model_abbr: c.model_abbr,
+            model_contributors: c.model_contributors, website_url: c.website_url, repo_url: c.repo_url,
+            license: c.license, citation: c.citation,
+            methods: { type: "string", description: "A brief description of the methods used by the model." },
+            designated_model: { type: "boolean", description: "Whether the model is eligible for inclusion in a hub ensemble and public visualization. A team may designate up to two models." },
+            ensemble_of_hub_models: { type: "boolean", description: "Whether the model is an ensemble of other hub models." }
+          },
+          ["team_abbr", "model_abbr", "designated_model"],
+          true
         );
       }
 
@@ -934,11 +935,10 @@
 
       const PRESETS = [
         {
-          id: "human-ai-sandbox", group: "Featured", name: "SISMID Human–AI Teaming Forecast Challenge",
-          shortName: "SISMID Human–AI Teaming Forecast Challenge Sandbox",
-          description: "Educational influenza forecasting sandbox for the SISMID Human–AI Teaming lab.",
-          source: "https://github.com/bleicham/Human-AI-Forecasting-Challenge-Sandbox/blob/main/hub-config/model-metadata-schema.json",
-          schema: humanAiSchema()
+          id: "flusight", group: "Featured", name: "CDC FluSight Forecast Hub",
+          shortName: "CDC FluSight Forecast Hub", description: "U.S. collaborative influenza hospitalization forecasting hub.",
+          source: "https://github.com/cdcepi/FluSight-forecast-hub/blob/main/hub-config/model-metadata-schema.json",
+          schema: fluSightSchema()
         },
         {
           id: "hubverse-reference", group: "Reference", name: "Hubverse reference schema",
@@ -948,10 +948,11 @@
           schema: referenceSchema()
         },
         {
-          id: "flusight", group: "Forecast hubs", name: "CDC FluSight Forecast Hub",
-          shortName: "CDC FluSight Forecast Hub", description: "U.S. collaborative influenza hospitalization forecasting hub.",
-          source: "https://github.com/cdcepi/FluSight-forecast-hub/blob/main/hub-config/model-metadata-schema.json",
-          schema: fluSightSchema()
+          id: "human-ai-sandbox", group: "Training hubs", name: "SISMID Human–AI Teaming Forecast Challenge",
+          shortName: "SISMID Human–AI Teaming Forecast Challenge Sandbox",
+          description: "Educational influenza forecasting sandbox for the SISMID Human–AI Teaming lab.",
+          source: "https://github.com/bleicham/Human-AI-Forecasting-Challenge-Sandbox/blob/main/hub-config/model-metadata-schema.json",
+          schema: humanAiSchema()
         },
         {
           id: "covid-forecast", group: "Forecast hubs", name: "CDC COVID-19 Forecast Hub",
