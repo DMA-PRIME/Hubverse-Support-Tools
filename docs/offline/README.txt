@@ -27,7 +27,7 @@ upload the current JSON files manually in the tool.
 
 These tools are in beta testing. Always compare generated files with your hub's
 current instructions and official validation process before submission.
-The Submission Guide is being actively validated, and its screenshots are being
-updated. Confirm its instructions against the selected hub before submitting.
+The Submission Guide is still undergoing review and testing. Confirm its
+instructions against the selected hub before submitting.
 
 Feedback: ambleic@clemson.edu

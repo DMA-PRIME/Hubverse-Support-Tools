@@ -8,7 +8,7 @@ The toolkit is currently in beta testing. Generated files should always be check
 
 - **Model Metadata Generator:** Creates hub-specific model metadata YAML through a guided form.
 - **Hubverse Data Preparation:** Converts Excel, CSV, TSV, JSON, pasted, or manually entered data into Hubverse target time-series data, with target and location mapping plus optional Python or R transformation code.
-- **Hubverse Submission Guide:** Teaches the GitHub submission process from the beginning, creates personalized file paths and filenames, and provides a safe rehearsal of website, GitHub Desktop, and command-line routes. This guide is in beta; its instructions are being validated and its screenshots are being updated.
+- **Hubverse Submission Guide:** Teaches the GitHub submission process from the beginning, creates personalized file paths and filenames, and provides guided website, GitHub Desktop, and Windows/macOS command-line pathways. This guide is in beta and is still undergoing review and testing.
 
 ## Publish with GitHub Pages
 

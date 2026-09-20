@@ -590,14 +590,16 @@
       margin-bottom: 21px;
     }
 
-    .file-icon {
+    .file-row .file-icon {
       width: 48px;
       height: 55px;
       display: grid;
       place-items: center;
       border-radius: 10px 10px 13px 13px;
-      color: #fff;
-      background: linear-gradient(150deg, var(--orange-dark), #7f2f00);
+      color: var(--purple-dark);
+      background: var(--orange);
+      border: 2px solid var(--orange-dark);
+      box-shadow: 0 5px 12px rgba(173, 63, 0, .2);
       font-size: 0.65rem;
       font-weight: 900;
       letter-spacing: .06em;
@@ -857,7 +859,7 @@
               <span class="badge">Beta</span>
             </div>
             <h3>Hubverse Submission Guide</h3>
-            <p class="tool-description">Learn the Hubverse GitHub submission workflow step by step—from preparing a fork and branch to adding files, opening a pull request, and understanding automated checks. Choose the GitHub website, GitHub Desktop, or detailed command-line walkthroughs for Windows and macOS. This guide is in beta; we are actively validating the instructions and updating the screenshots.</p>
+            <p class="tool-description">Learn the Hubverse GitHub submission workflow step by step—from creating or updating your fork and branch to adding files, opening a pull request, and reviewing automated checks. Choose a guided pathway for the GitHub website, GitHub Desktop, or the command line, with Windows and macOS instructions where they differ. This guide is in beta and is still undergoing review and testing.</p>
             <ul class="feature-list" aria-label="Submission guide features">
               <li>GitHub from zero</li>
               <li>Personalized file paths</li>
