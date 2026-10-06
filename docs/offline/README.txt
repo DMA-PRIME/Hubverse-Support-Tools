@@ -21,9 +21,11 @@ The Model Metadata Generator's built-in hub schemas are offline snapshots. If a
 hub changes its metadata schema, re-download the tool for the newest bundled
 version or upload the hub's current model-metadata-schema.json in the generator.
 
-The Data Preparation Tool's built-in hub configurations are also offline
-snapshots. Re-download after a hub changes tasks.json or target-data.json, or
-upload the current JSON files manually in the tool.
+The Forecast Preparation Tool's built-in hub configurations are also offline
+snapshots. Re-download after a hub changes tasks.json, or upload the current
+tasks.json manually in the tool. The formatter preserves Hubverse model-output
+representation fields and warns when valid reference or target dates do not
+match the hub's configured or expected forecast schedule.
 
 These tools are in beta testing. Always compare generated files with your hub's
 current instructions and official validation process before submission.

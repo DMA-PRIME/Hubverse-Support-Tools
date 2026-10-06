@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Prepare Hubverse-compatible target time-series data without coding. Runs entirely in your browser.">
-  <title>Hubverse Data Prep</title>
+  <meta name="description" content="Prepare and validate Hubverse-compatible forecast model-output files without coding. Runs entirely in your browser.">
+  <title>Hubverse Forecast Prep</title>
   <style>
     :root {
       --ink: #172033;
@@ -791,14 +791,14 @@
   <a class="skip-link" href="#mainContent">Skip to content</a>
 
   <header class="topbar">
-    <a class="brand" href="#" aria-label="Hubverse Data Prep home" id="brandHome">
+    <a class="brand" href="#" aria-label="Hubverse Forecast Prep home" id="brandHome">
       <span class="brand-mark" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
           <circle cx="12" cy="5" r="2.4"></circle><circle cx="5" cy="17.5" r="2.4"></circle><circle cx="19" cy="17.5" r="2.4"></circle>
           <path d="M10.8 7.1 6.3 15.4M13.2 7.1l4.5 8.3M7.5 17.5h9"></path>
         </svg>
       </span>
-      <span><span class="brand-name">Hubverse Data Prep</span><span class="brand-kicker">Target data, made submission-ready</span></span>
+      <span><span class="brand-name">Hubverse Forecast Prep</span><span class="brand-kicker">Model output, made submission-ready</span></span>
     </a>
 
     <nav class="topnav" aria-label="Main navigation">
@@ -822,9 +822,9 @@
     <section id="prepareView" class="shell" aria-labelledby="pageTitle">
       <div class="hero">
         <div>
-          <p class="eyebrow">Offline version · No-code target data preparation</p>
-          <h1 id="pageTitle">Turn ordinary files into hub-ready data.</h1>
-          <p class="hero-copy">Choose a hub, map your date, location, and value columns, assign targets, and export a clean <strong>time-series.csv</strong> plus optional reusable Python or R code. This offline version makes no internet requests and uses bundled hub profiles; your uploaded data stays on this device.</p>
+          <p class="eyebrow">Offline version · No-code forecast preparation</p>
+          <h1 id="pageTitle">Turn forecast files into hub-ready model output.</h1>
+          <p class="hero-copy">Choose a hub, map the forecast task and representation columns, verify every forecast unit, and export a clean submission-ready CSV plus optional reusable Python or R code. This offline version makes no internet requests and uses bundled hub profiles; your uploaded forecast stays on this device.</p>
         </div>
         <div class="hero-badge">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7 9 18l-5-5"></path></svg>
@@ -836,7 +836,7 @@
         <div class="stepper" aria-label="Progress">
           <button class="step-button active" type="button" data-step="1" aria-current="step"><span class="step-number">1</span><span class="step-label">Data</span></button>
           <button class="step-button" type="button" data-step="2" disabled><span class="step-number">2</span><span class="step-label">Hub &amp; fields</span></button>
-          <button class="step-button" type="button" data-step="3" disabled><span class="step-number">3</span><span class="step-label">Targets &amp; places</span></button>
+          <button class="step-button" type="button" data-step="3" disabled><span class="step-number">3</span><span class="step-label">Tasks &amp; places</span></button>
           <button class="step-button" type="button" data-step="4" disabled><span class="step-number">4</span><span class="step-label">Check</span></button>
           <button class="step-button" type="button" data-step="5" disabled><span class="step-number">5</span><span class="step-label">Export</span></button>
         </div>
@@ -844,8 +844,8 @@
         <section class="step-panel" id="step1" aria-labelledby="step1Title">
           <div class="panel-heading">
             <div>
-              <h2 id="step1Title">Add your source data</h2>
-              <p class="section-copy">Upload Excel, CSV, TSV, JSON, or text data; paste from a spreadsheet; or type rows directly. Headers can have any names.</p>
+              <h2 id="step1Title">Add your forecast file</h2>
+              <p class="section-copy">Upload an Excel, CSV, TSV, JSON, or text forecast; paste it from a spreadsheet; or enter forecast rows directly. Existing Hubverse headers are recognized automatically.</p>
             </div>
             <button class="button button-quiet" type="button" id="sampleButton">Use example data</button>
           </div>
@@ -874,7 +874,7 @@
           <div class="input-mode" id="pasteMode" hidden>
             <div class="input-card">
               <label class="field-label" for="pasteInput">Paste rows with a header</label>
-              <textarea class="textarea" id="pasteInput" spellcheck="false" placeholder="date,location,value&#10;2026-08-01,01,125&#10;2026-08-08,01,137"></textarea>
+              <textarea class="textarea" id="pasteInput" spellcheck="false" placeholder="reference_date,target,horizon,target_end_date,location,output_type,output_type_id,value&#10;2026-09-12,wk inc flu hosp,1,2026-09-19,US,quantile,0.5,12"></textarea>
               <div class="input-footer">
                 <span class="helper">Comma-, tab-, semicolon-, and pipe-separated data are detected automatically.</span>
                 <button class="button button-primary" type="button" id="parsePasteButton">Use pasted data</button>
@@ -886,7 +886,7 @@
             <div class="input-card">
               <div class="manual-wrap">
                 <table class="manual-table">
-                  <thead><tr><th>#</th><th>Date</th><th>Location</th><th>Value</th></tr></thead>
+                  <thead><tr><th>#</th><th>Reference date</th><th>Target</th><th>Horizon</th><th>Target end date</th><th>Location</th><th>Output type</th><th>Output type ID</th><th>Value</th></tr></thead>
                   <tbody id="manualBody"></tbody>
                 </table>
               </div>
@@ -906,7 +906,7 @@
           </div>
 
           <div class="panel-actions">
-            <span class="helper">Required: one date column, one location column, and one observed value column.</span>
+            <span class="helper">Required: forecast task fields plus <code>output_type</code>, <code>output_type_id</code>, and <code>value</code>.</span>
             <div class="panel-actions-right">
               <button class="button button-primary button-lg" type="button" id="toStep2Button" disabled>Choose hub &amp; map columns
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
@@ -927,9 +927,9 @@
           <div class="setup-flow">
             <div class="card card-soft flow-card">
               <div class="card-heading" data-step-label="1">
-                <div><h3>Choose the destination hub</h3><p>The profile controls valid targets, locations, dates, and output columns.</p></div>
+                <div><h3>Choose the destination hub</h3><p>The profile controls valid forecast task IDs, output types, locations, dates, and output columns.</p></div>
               </div>
-              <button class="info-tip" type="button" aria-label="About hub profiles">i<span class="info-tip-text" role="tooltip">Choose the hub that will receive this file. Built-in rules are marked; all other hubs can load their current local configuration files.</span></button>
+              <button class="info-tip" type="button" aria-label="About hub profiles">i<span class="info-tip-text" role="tooltip">Choose the destination hub. Built-in forecast rules are marked; you can load a current tasks.json file manually when needed.</span></button>
               <div class="field">
                 <label for="hubSelect">Hub <span class="badge badge-neutral">30 public hubs</span></label>
                 <select id="hubSelect">
@@ -939,18 +939,18 @@
               </div>
               <div class="hub-summary" id="hubSummary"></div>
               <div class="field" style="margin-top:14px">
-                <label for="configFiles">Current hub configuration <span class="helper">(recommended when prompted)</span></label>
+                <label for="configFiles">Current forecast configuration <span class="helper">(recommended when prompted)</span></label>
                 <input id="configFiles" type="file" multiple accept=".json,application/json">
-                <small>Select <code>tasks.json</code> and/or <code>target-data.json</code>. They are read locally and override the selected profile.</small>
+                <small>Select the hub's <code>tasks.json</code>. It is read locally and overrides the selected forecast profile.</small>
               </div>
               <div class="config-loaded" id="configLoaded" hidden></div>
             </div>
 
             <div class="card flow-card">
               <div class="card-heading" data-step-label="2">
-                <div><h3>Match the three source columns</h3><p>Each output field must come from one source column.</p></div>
+                <div><h3>Match the forecast columns</h3><p>Map each Hubverse model-output field to its source column.</p></div>
               </div>
-              <button class="info-tip" type="button" aria-label="About column matching">i<span class="info-tip-text" role="tooltip">Pick the original columns containing the date, location, and observed value. Their source names can be anything.</span></button>
+              <button class="info-tip" type="button" aria-label="About column matching">i<span class="info-tip-text" role="tooltip">Pick the source columns containing the forecast date, location, representation, and predicted value. Their source names can be anything.</span></button>
               <div class="mapping-list">
                 <div class="mapping-row">
                   <div class="mapping-target"><code id="dateOutputCode">target_end_date</code><small>Date</small></div>
@@ -963,15 +963,25 @@
                   <select id="locationMap" aria-label="Source column for location"></select>
                 </div>
                 <div class="mapping-row">
-                  <div class="mapping-target"><code>observation</code><small>Observed value</small></div>
+                  <div class="mapping-target"><code>output_type</code><small>Forecast representation</small></div>
                   <div class="mapping-arrow" aria-hidden="true">←</div>
-                  <select id="valueMap" aria-label="Source column for observed value"></select>
+                  <select id="outputTypeMap" aria-label="Source column for output type"></select>
+                </div>
+                <div class="mapping-row">
+                  <div class="mapping-target"><code>output_type_id</code><small>Quantile, sample, or category ID</small></div>
+                  <div class="mapping-arrow" aria-hidden="true">←</div>
+                  <select id="outputTypeIdMap" aria-label="Source column for output type ID"></select>
+                </div>
+                <div class="mapping-row">
+                  <div class="mapping-target"><code>value</code><small>Forecast value</small></div>
+                  <div class="mapping-arrow" aria-hidden="true">←</div>
+                  <select id="valueMap" aria-label="Source column for forecast value"></select>
                 </div>
               </div>
               <div class="field" style="margin-top:17px">
-                <label for="dateOutputName">Output date column</label>
+                <label for="dateOutputName">Primary forecast date column</label>
                 <input id="dateOutputName" type="text" value="target_end_date" autocomplete="off" readonly>
-                <small>Set by the hub profile or uploaded target-data configuration.</small>
+                <small>Set by the selected hub's <code>tasks.json</code> configuration.</small>
               </div>
               <div id="configExtraFields"></div>
             </div>
@@ -1005,10 +1015,10 @@
                   <option value="dmy">Day / month / year</option>
                   <option value="ymd">Year / month / day</option>
                 </select>
-                <small>All valid dates are exported as YYYY-MM-DD.</small>
+                <small>All valid dates are exported as YYYY-MM-DD. Dates outside the hub’s configured or expected forecast schedule produce warnings; unreadable dates remain errors.</small>
               </div>
               <div class="field">
-                <label for="valueType">Fallback observation type</label>
+                <label for="valueType">Fallback forecast value type</label>
                 <select id="valueType">
                   <option value="auto">Automatic from the assigned target</option>
                   <option value="number">Number (whole or decimal)</option>
@@ -1025,11 +1035,11 @@
                 <div class="advanced-body">
                   <label class="option-toggle" style="padding-top:0">
                     <input id="allowMissing" type="checkbox">
-                    <span><strong>Allow blank observations</strong><span>Blank values will be retained and reported as warnings.</span></span>
+                    <span><strong>Allow blank forecast values</strong><span>Blank values will be retained and reported as warnings.</span></span>
                   </label>
                   <label class="option-toggle">
                     <input id="sortOutput" type="checkbox" checked>
-                    <span><strong>Sort the final file</strong><span>Orders rows by the hub's observable-unit fields.</span></span>
+                    <span><strong>Sort the final file</strong><span>Orders rows by the hub's forecast task fields, output type, and output type ID.</span></span>
                   </label>
                   <div class="split-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8h.01"></path></svg><span>Unmapped and non-required source columns are deliberately removed from the final file.</span></div>
                 </div>
@@ -1048,7 +1058,7 @@
               Back
             </button>
             <div class="panel-actions-right">
-              <button class="button button-primary button-lg" type="button" id="toStep3Button">Assign targets &amp; locations
+              <button class="button button-primary button-lg" type="button" id="toStep3Button">Assign tasks &amp; locations
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
               </button>
             </div>
@@ -1058,8 +1068,8 @@
         <section class="step-panel" id="step3" aria-labelledby="step3Title" hidden>
           <div class="panel-heading">
             <div>
-              <h2 id="step3Title">Assign targets and hub locations</h2>
-              <p class="section-copy">Choose how each source row receives a target, then translate source locations to the exact IDs accepted by the selected hub.</p>
+              <h2 id="step3Title">Assign forecast tasks and hub locations</h2>
+              <p class="section-copy">Choose how each forecast row receives a target, then translate source locations to the exact IDs accepted by the selected hub.</p>
             </div>
             <span class="badge badge-neutral" id="assignmentHubBadge">Hub profile</span>
           </div>
@@ -1069,7 +1079,7 @@
               <div class="card-heading" data-step-label="1">
                 <div><h3>Assign one target to every row</h3><p id="targetAssignmentCopy">Start with the simplest method, then use a source column or row ranges if the file contains several targets.</p></div>
               </div>
-              <button class="info-tip" type="button" aria-label="About target assignment">i<span class="info-tip-text" role="tooltip">A target describes what the observation measures. Assign one target to all rows, map a target column, or create non-overlapping row ranges.</span></button>
+              <button class="info-tip" type="button" aria-label="About target assignment">i<span class="info-tip-text" role="tooltip">A target identifies what the forecast predicts. Assign one target to all rows, map a target column, or create non-overlapping row ranges.</span></button>
               <div id="targetRequiredControls">
                 <div class="field">
                   <label for="targetAssignmentMode">How should targets be assigned?</label>
@@ -1116,7 +1126,7 @@
                 </div>
                 <div class="split-note" id="customTargetWarning" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4 3.7 19h16.6L12 4Z"></path><path d="M12 9v4M12 16h.01"></path></svg><span>Custom targets are accepted by this preparer but are not verified against the preset hub. Confirm the exact ID with the hub.</span></div>
               </div>
-              <div class="config-loaded" id="targetNotRequired" hidden><strong>No target field required</strong>The uploaded target-data configuration does not include <code>target</code> in its observable unit.</div>
+              <div class="config-loaded" id="targetNotRequired" hidden><strong>No target field required</strong>The selected forecast task configuration does not include a <code>target</code> task ID.</div>
             </div>
 
             <div class="card card-soft flow-card">
@@ -1221,18 +1231,18 @@
           <div class="success-stage">
             <div class="success-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 12 4.5 4.5L19 7"></path></svg></div>
             <h2 id="step5Title">Your Hubverse file is ready</h2>
-            <p>The cleaned target time-series data are packaged as a standards-friendly CSV. Download it now or copy the full CSV to your clipboard.</p>
+            <p>The cleaned forecast model output is packaged as a submission-ready CSV. Download it now or copy the full CSV to your clipboard.</p>
 
             <div class="download-card">
               <div class="file-row">
                 <span class="file-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h7l4 4v14H7V3Z"></path><path d="M14 3v5h5M9.5 13h5M9.5 16h5"></path></svg></span>
-                <span class="file-meta"><strong>time-series.csv</strong><span id="downloadMeta">0 rows · CSV</span></span>
+                <span class="file-meta"><strong>forecast-model-output.csv</strong><span id="downloadMeta">0 rows · CSV</span></span>
                 <span class="badge badge-neutral">UTF-8</span>
               </div>
               <div class="download-actions">
                 <button class="button button-primary button-lg" type="button" id="downloadButton">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4"></path><path d="M5 20h14"></path></svg>
-                  Download time-series.csv
+                  Download forecast CSV
                 </button>
                 <button class="button button-secondary button-lg" type="button" id="copyButton">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="11" height="12" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2"></path></svg>
@@ -1242,7 +1252,7 @@
               <div class="output-columns" id="outputColumns"><span class="output-columns-label">Columns included</span></div>
               <div class="placement-note">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8h.01"></path></svg>
-                <span>For a repository-based hub, this CSV normally belongs at <strong>target-data/time-series.csv</strong>. Your hub's instructions take precedence.</span>
+                <span>Rename and place this CSV according to the selected hub's <strong>model-output</strong> submission instructions. The hub's filename and directory rules take precedence.</span>
               </div>
             </div>
             <div id="generatedCodeSection" hidden>
@@ -1274,18 +1284,19 @@
     <section id="aboutView" class="shell about-view" hidden aria-labelledby="aboutTitle">
       <div class="about-hero">
         <p class="eyebrow">About this tool</p>
-        <h1 id="aboutTitle">A focused bridge from source data to Hubverse.</h1>
-        <p>Hubverse target time-series data use one row per observed unit. This standalone tool turns ordinary Excel, CSV, TSV, JSON, or pasted data into that structure and catches common formatting problems before submission.</p>
+        <h1 id="aboutTitle">A focused bridge from source forecasts to Hubverse.</h1>
+        <p>Hubverse forecast submissions use one row per model-output unit. This standalone tool turns ordinary Excel, CSV, TSV, JSON, or pasted forecasts into that structure and catches common formatting problems before submission.</p>
       </div>
 
       <div class="about-grid">
         <article class="about-card full">
           <h2>What each field means</h2>
           <div class="definition-list">
-            <div class="definition"><code>target_end_date</code><p>The date attached to the observed target. Hubs may use another configured name, such as <code>target_date</code>. Dates are exported in ISO <strong>YYYY-MM-DD</strong> format.</p></div>
+            <div class="definition"><code>task ID columns</code><p>The hub-specific columns that identify the forecast task, such as <code>reference_date</code>, <code>target</code>, <code>horizon</code>, <code>target_end_date</code>, and <code>location</code>.</p></div>
             <div class="definition"><code>location</code><p>The hub's identifier for the geographic unit, such as a FIPS code or a custom location ID. Values are kept as text so leading zeros are preserved.</p></div>
-            <div class="definition"><code>observation</code><p>The value that was observed for the specified date and location. It can be prepared as a number, integer, text category, or logical value.</p></div>
-            <div class="definition"><code>target</code><p>A hub task ID identifying the outcome. Assign one target to all rows, map target values from a source column, or assign targets to inclusive row ranges.</p></div>
+            <div class="definition"><code>output_type</code><p>The forecast representation, such as <code>mean</code>, <code>median</code>, <code>quantile</code>, <code>pmf</code>, or <code>sample</code>.</p></div>
+            <div class="definition"><code>output_type_id</code><p>The representation-specific identifier, such as a quantile probability, sample index, or probability-mass category.</p></div>
+            <div class="definition"><code>value</code><p>The submitted prediction for the specified task and output representation.</p></div>
           </div>
         </article>
 
@@ -1293,31 +1304,31 @@
           <h2>How preparation works</h2>
           <ol class="flow-list">
             <li><strong>Add data</strong>Upload Excel, CSV, TSV, JSON, text, paste, or manually enter rows.</li>
-            <li><strong>Choose a hub</strong>Apply a preset or load the hub's current configuration, then match fields.</li>
-            <li><strong>Assign rows</strong>Set targets and crosswalk source locations to hub IDs.</li>
+            <li><strong>Choose a hub</strong>Apply a bundled profile or load the hub's current <code>tasks.json</code>, then match fields.</li>
+            <li><strong>Assign tasks</strong>Set targets and crosswalk source locations to hub IDs.</li>
             <li><strong>Review checks</strong>Resolve invalid dates, missing values, and duplicates.</li>
-            <li><strong>Download</strong>Save <code>time-series.csv</code> and optional Python or R code.</li>
+            <li><strong>Download</strong>Save a formatted forecast CSV and optional Python or R code.</li>
           </ol>
         </article>
 
         <article class="about-card">
           <h2>Use the hub's exact setup</h2>
           <p>The selector includes the 30 public hubs in the <a href="https://hubverse.io/community/hubs.html" target="_blank" rel="noreferrer">Hubverse directory</a>, grouped as active, training, model development, and archival entries (directory updated 31 August 2026). Private directory entries are deliberately omitted.</p>
-          <p>If a hub provides <code>hub-config/tasks.json</code> and <code>hub-config/target-data.json</code>, load one or both during mapping. The tool reads target IDs, locations, the configured date column, and observable-unit fields, then adjusts the form and checks.</p>
-          <p>Only fields required for the selected hub are exported. Unmapped source columns are removed automatically, and all recognized dates are written as ISO <strong>YYYY-MM-DD</strong>.</p>
+          <p>If a hub provides <code>hub-config/tasks.json</code>, load it during mapping when you need rules newer than the bundled profile. The tool reads task-ID columns, target and location values, output types, output-type IDs, and value rules, then adjusts the form and checks.</p>
+          <p>Only forecast fields required for the selected hub are exported. The standard <code>output_type</code>, <code>output_type_id</code>, and <code>value</code> columns are always retained, and recognized task dates are written as ISO <strong>YYYY-MM-DD</strong>.</p>
           <p>A hub can still define additional rules that only its official validation workflow knows. Treat this browser check as preparation—not a replacement for final hub validation.</p>
         </article>
 
         <article class="about-card full">
           <div class="privacy-callout">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 5 6v5c0 4.5 2.8 8.5 7 10 4.2-1.5 7-5.5 7-10V6l-7-3Z"></path><path d="m9 12 2 2 4-4"></path></svg>
-            <div><h3>Private by design</h3><p>All parsing, cleaning, checking, and file creation happen inside this browser tab. The HTML has no analytics, server calls, or external code dependencies.</p></div>
+            <div><h3>Private by design</h3><p>All parsing, cleaning, checking, and file creation happen inside this browser tab. This offline HTML makes no automatic network requests and has no analytics or external code dependencies.</p></div>
           </div>
           <div class="link-row">
-            <a class="button button-secondary" href="https://docs.hubverse.io/en/latest/user-guide/target-data.html" target="_blank" rel="noreferrer">Read Hubverse target-data guidance
+            <a class="button button-secondary" href="https://docs.hubverse.io/en/latest/user-guide/model-output.html" target="_blank" rel="noreferrer">Read Hubverse model-output guidance
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4h6v6M20 4l-9 9"></path><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"></path></svg>
             </a>
-            <button class="button button-quiet" type="button" id="aboutStartButton">Start preparing data</button>
+            <button class="button button-quiet" type="button" id="aboutStartButton">Start preparing forecasts</button>
           </div>
         </article>
       </div>
@@ -1326,7 +1337,7 @@
 
   <dialog id="tourDialog" aria-labelledby="tourTitle">
     <div class="dialog-inner">
-      <div class="dialog-header"><strong>Hubverse Data Prep walkthrough</strong><button class="icon-button" type="button" id="closeTourButton" aria-label="Close walkthrough"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18"></path></svg></button></div>
+      <div class="dialog-header"><strong>Hubverse Forecast Prep walkthrough</strong><button class="icon-button" type="button" id="closeTourButton" aria-label="Close walkthrough"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18"></path></svg></button></div>
       <div class="tour-body">
         <div class="tour-visual" aria-hidden="true">
           <div class="mock-window">
@@ -1418,8 +1429,9 @@
 
       const PROFILE_BLUEPRINTS = {
         flusight: {
-          key: 'flusight', name: 'CDC FluSight Forecast Hub', shortName: 'FluSight', dateField: 'target_end_date', weekday: 6,
-          targetRequired: true, observableUnit: ['target_end_date','target','location'], locationScheme: 'us_fips', allowedLocations: US_CODES, locationLabels: US_LABELS,
+          key: 'flusight', name: 'CDC FluSight Forecast Hub', shortName: 'FluSight', dateField: 'reference_date', weekday: null,
+          targetRequired: true, observableUnit: ['reference_date','target','horizon','target_end_date','location'], locationScheme: 'us_fips', allowedLocations: US_CODES, locationLabels: US_LABELS,
+          outputTypes: ['mean','median','quantile','cdf','pmf','sample'], outputTypeIds: {},
           snapshot: 'Built-in profile snapshot · September 2026',
           targets: [
             {id:'wk flu hosp rate change', label:'Weekly flu hospitalization rate change', type:'text'},
@@ -1430,8 +1442,9 @@
           ]
         },
         covid: {
-          key: 'covid', name: 'CDC COVID-19 Forecast Hub', shortName: 'COVID-19', dateField: 'target_end_date', weekday: 6,
-          targetRequired: true, observableUnit: ['target_end_date','target','location'], locationScheme: 'us_fips', allowedLocations: US_CODES, locationLabels: US_LABELS,
+          key: 'covid', name: 'CDC COVID-19 Forecast Hub', shortName: 'COVID-19', dateField: 'reference_date', weekday: null,
+          targetRequired: true, observableUnit: ['reference_date','target','horizon','target_end_date','location'], locationScheme: 'us_fips', allowedLocations: US_CODES, locationLabels: US_LABELS,
+          outputTypes: ['mean','median','quantile','cdf','pmf','sample'], outputTypeIds: {},
           snapshot: 'Built-in profile snapshot · September 2026',
           targets: [
             {id:'wk inc covid hosp', label:'Weekly incident COVID-19 hospitalizations', type:'integer'},
@@ -1439,8 +1452,9 @@
           ]
         },
         rsv: {
-          key: 'rsv', name: 'CDC RSV Forecast Hub', shortName: 'RSV', dateField: 'target_end_date', weekday: 6,
-          targetRequired: true, observableUnit: ['target_end_date','target','location'], locationScheme: 'us_fips', allowedLocations: US_CODES, locationLabels: US_LABELS,
+          key: 'rsv', name: 'CDC RSV Forecast Hub', shortName: 'RSV', dateField: 'reference_date', weekday: null,
+          targetRequired: true, observableUnit: ['reference_date','target','horizon','target_end_date','location'], locationScheme: 'us_fips', allowedLocations: US_CODES, locationLabels: US_LABELS,
+          outputTypes: ['mean','median','quantile','cdf','pmf','sample'], outputTypeIds: {},
           snapshot: 'Built-in profile snapshot · September 2026',
           targets: [
             {id:'wk inc rsv hosp', label:'Weekly incident RSV hospitalizations', type:'integer'},
@@ -1448,19 +1462,21 @@
           ]
         },
         generic: {
-          key: 'generic', name: 'Generic Hubverse hub', shortName: 'Generic Hubverse', dateField: 'target_end_date', weekday: null,
-          targetRequired: true, observableUnit: ['target_end_date','target','location'], locationScheme: 'custom', allowedLocations: null, locationLabels: {},
+          key: 'generic', name: 'Generic Hubverse hub', shortName: 'Generic Hubverse', dateField: 'reference_date', weekday: null,
+          targetRequired: true, observableUnit: ['reference_date','target','horizon','target_end_date','location'], locationScheme: 'custom', allowedLocations: null, locationLabels: {},
+          outputTypes: ['mean','median','quantile','cdf','pmf','sample'], outputTypeIds: {},
           snapshot: 'Flexible profile · confirm target IDs with the hub', targets: []
         },
         custom: {
-          key: 'custom', name: 'Custom hub configuration', shortName: 'Custom hub', dateField: 'target_end_date', weekday: null,
-          targetRequired: true, observableUnit: ['target_end_date','target','location'], locationScheme: 'custom', allowedLocations: null, locationLabels: {},
-          snapshot: 'Upload tasks.json and/or target-data.json below', targets: []
+          key: 'custom', name: 'Custom hub configuration', shortName: 'Custom hub', dateField: 'reference_date', weekday: null,
+          targetRequired: true, observableUnit: ['reference_date','target','horizon','target_end_date','location'], locationScheme: 'custom', allowedLocations: null, locationLabels: {},
+          outputTypes: ['mean','median','quantile','cdf','pmf','sample'], outputTypeIds: {},
+          snapshot: 'Upload tasks.json below', targets: []
         }
       };
 
       // Compact, offline snapshots of the hub-config JSON fields this preparer uses.
-      // A locally uploaded tasks.json or target-data.json always replaces a snapshot.
+      // A locally uploaded tasks.json always replaces the bundled forecast snapshot.
       const EMBEDDED_HUB_CONFIGS = {
         wnvca: {
           checked:'3 September 2026', files:['hub-config/tasks.json'], weekday:null,
@@ -1487,7 +1503,7 @@
           },{observable_unit:['target_end_date','target','location'],date_col:'target_end_date'}]
         },
         'rsv-scenario': {
-          checked:'3 September 2026', files:['hub-config/tasks.json','hub-config/target-data.json'], weekday:null,
+          checked:'3 September 2026', files:['hub-config/tasks.json'], weekday:null,
           configs:[{
             task_ids:{
               target:{optional:['inc hosp','cum hosp','inc inf','cum inf','peak time hosp','peak size hosp']},
@@ -1528,7 +1544,7 @@
           },{observable_unit:['target_end_date','target','location'],date_col:'target_end_date'}]
         },
         flusight: {
-          checked:'3 September 2026', files:['hub-config/tasks.json','hub-config/target-data.json'], weekday:6,
+          checked:'3 September 2026', files:['hub-config/tasks.json'], weekday:6,
           configs:[{
             task_ids:{
               target:{optional:['wk flu hosp rate change','wk inc flu hosp','peak inc flu hosp','peak week inc flu hosp','wk inc flu prop ed visits']},
@@ -1544,7 +1560,7 @@
           },{observable_unit:['target_end_date','location','target'],date_col:'target_end_date'}]
         },
         'flu-metrocast': {
-          checked:'3 September 2026', files:['hub-config/tasks.json','hub-config/target-data.json'], weekday:6,
+          checked:'3 September 2026', files:['hub-config/tasks.json'], weekday:6,
           configs:[{
             task_ids:{target:{optional:['ILI ED visits','ILI ED visits pct','Flu ED visits pct']}},
             target_metadata:[
@@ -1555,7 +1571,7 @@
           },{observable_unit:['target_end_date','location','target'],date_col:'target_end_date'}]
         },
         covid: {
-          checked:'3 September 2026', files:['hub-config/tasks.json','hub-config/target-data.json'], weekday:6,
+          checked:'3 September 2026', files:['hub-config/tasks.json'], weekday:6,
           configs:[{
             task_ids:{target:{optional:['wk inc covid hosp','wk inc covid prop ed visits']},location:{optional:US_CODES}},
             target_metadata:[
@@ -1599,7 +1615,7 @@
           },{observable_unit:['target_end_date','target','location'],date_col:'target_end_date'}]
         },
         'metrocast-sandbox': {
-          checked:'3 September 2026', files:['hub-config/tasks.json','hub-config/target-data.json'], weekday:6,
+          checked:'3 September 2026', files:['hub-config/tasks.json'], weekday:6,
           configs:[{
             task_ids:{target:{optional:['ILI ED visits pct','Flu ED visits pct']}},
             target_metadata:[
@@ -1659,8 +1675,9 @@
         }
         PROFILE_BLUEPRINTS[hub.key] = {
           key:hub.key, name:hub.name, shortName:hub.shortName, category:hub.category, access:hub.access || 'Public', repository:hub.repository || '',
-          dateField:'target_end_date', weekday:null, targetRequired:true, observableUnit:['target_end_date','target','location'],
+          dateField:'reference_date', weekday:null, targetRequired:true, observableUnit:['reference_date','target','horizon','target_end_date','location'],
           locationScheme:'custom', allowedLocations:null, locationLabels:{}, targets:[], requiresConfig:!EMBEDDED_HUB_CONFIGS[hub.key], builtInRules:false,
+          outputTypes:['mean','median','quantile','cdf','pmf','sample'], outputTypeIds:{},
           snapshot:'Hubverse directory entry · load the current hub configuration for exact rules'
         };
       });
@@ -1669,7 +1686,7 @@
 
       const state = {
         step: 1, highestStep: 1, sourceName: '', sourceKind: '', sourceMeta: {}, headers: [], rows: [], droppedBlankRows: 0,
-        hubKey: 'flusight', profile: null, configNames: [], extraMappings: {},
+        hubKey: 'flusight', profile: null, configNames: [], configSource: '', configStatus: '', configBranch: 'main', configRequestCounter: 0, extraMappings: {},
         targetValueMap: new Map(), targetRanges: [], locationCrosswalk: new Map(), customTargetsAdded: false, fixedTargetTouched: false,
         pendingWorkbook: null, transformed: [], columns: [], issues: [], issueFilter: 'all', csv: '', generatedCode: '', tourStep: 0
       };
@@ -1685,7 +1702,7 @@
         sourceFile: $('#sourceFile'), dropzone: $('#dropzone'), pasteInput: $('#pasteInput'), manualBody: $('#manualBody'),
         sourceSummary: $('#sourceSummary'), sourceName: $('#sourceName'), sourceDetails: $('#sourceDetails'), toStep2: $('#toStep2Button'),
         hubSelect: $('#hubSelect'), hubSummary: $('#hubSummary'), configFiles: $('#configFiles'), configLoaded: $('#configLoaded'),
-        dateMap: $('#dateMap'), locationMap: $('#locationMap'), valueMap: $('#valueMap'), dateOutputName: $('#dateOutputName'), dateOutputCode: $('#dateOutputCode'),
+        dateMap: $('#dateMap'), locationMap: $('#locationMap'), outputTypeMap: $('#outputTypeMap'), outputTypeIdMap: $('#outputTypeIdMap'), valueMap: $('#valueMap'), dateOutputName: $('#dateOutputName'), dateOutputCode: $('#dateOutputCode'),
         mappingRowBadge: $('#mappingRowBadge'), configExtraFields: $('#configExtraFields'), dateStrategy: $('#dateStrategy'), valueType: $('#valueType'),
         allowMissing: $('#allowMissing'), sortOutput: $('#sortOutput'), generateCode: $('#generateCode'), codeLanguage: $('#codeLanguage'), codeLanguageField: $('#codeLanguageField'),
         sourcePreviewTable: $('#sourcePreviewTable'), assignmentHubBadge: $('#assignmentHubBadge'), targetRequiredControls: $('#targetRequiredControls'),
@@ -2073,7 +2090,7 @@
       }
 
       function setSourceData(dataset, sourceName, meta = {}) {
-        if (!dataset || dataset.headers.length < 3) throw new Error('At least three columns are needed: date, location, and value.');
+        if (!dataset || dataset.headers.length < 5) throw new Error('A forecast needs task columns plus output_type, output_type_id, and value.');
         state.sourceName = sourceName || 'Source data';
         state.sourceKind = dataset.kind || 'data';
         state.sourceMeta = Object.assign({}, dataset.meta || {}, meta);
@@ -2104,9 +2121,11 @@
 
       function findBestHeader(kind, exclude = []) {
         const candidates = {
-          date:['targetenddate','targetdate','date','weekending','weekenddate','observationdate','periodend','time'],
+          date:['referencedate','origindate','forecastdate','targetenddate','targetdate','date','weekending','weekenddate','periodend','time'],
           location:['location','locationid','loc','fips','statefips','geoid','geo','geography','state','region'],
-          value:['observation','value','observedvalue','count','rate','proportion','measurement','estimate','total'],
+          outputType:['outputtype','type','predictiontype','forecasttype','representation'],
+          outputTypeId:['outputtypeid','typeid','quantile','quantilelevel','probability','sampleid','sampleindex','category'],
+          value:['value','prediction','forecast','forecastvalue','estimate','predictedvalue'],
           target:['target','targetid','outcome','indicator','measure','metric','signal']
         }[kind] || [normalizeHeader(kind)];
         const usable = state.headers.filter(header => !exclude.includes(header));
@@ -2132,11 +2151,15 @@
       function populateMappingControls() {
         const date = findBestHeader('date');
         const location = findBestHeader('location', [date]);
-        const value = findBestHeader('value', [date, location]);
+        const outputType = findBestHeader('outputType', [date, location]);
+        const outputTypeId = findBestHeader('outputTypeId', [date, location, outputType]);
+        const value = findBestHeader('value', [date, location, outputType, outputTypeId]);
         fillSourceSelect(elements.dateMap, date);
         fillSourceSelect(elements.locationMap, location);
+        fillSourceSelect(elements.outputTypeMap, outputType);
+        fillSourceSelect(elements.outputTypeIdMap, outputTypeId);
         fillSourceSelect(elements.valueMap, value);
-        fillSourceSelect(elements.targetSourceColumn, findBestHeader('target', [date, location, value]));
+        fillSourceSelect(elements.targetSourceColumn, findBestHeader('target', [date, location, outputType, outputTypeId, value]));
         elements.mappingRowBadge.textContent = state.rows.length.toLocaleString() + ' source rows';
         renderExtraMappings();
       }
@@ -2163,9 +2186,14 @@
         for (let index = 0; index < count; index++) {
           const rowNumber = start + index + 1;
           const tr = document.createElement('tr');
-          tr.innerHTML = '<td>' + rowNumber + '</td><td><input type="text" data-manual="date" placeholder="Any date format" aria-label="Date for row ' + rowNumber + '"></td>' +
+          tr.innerHTML = '<td>' + rowNumber + '</td><td><input type="text" data-manual="reference_date" placeholder="YYYY-MM-DD" aria-label="Reference date for row ' + rowNumber + '"></td>' +
+            '<td><input type="text" data-manual="target" placeholder="Target" aria-label="Target for row ' + rowNumber + '"></td>' +
+            '<td><input type="text" data-manual="horizon" placeholder="Horizon" aria-label="Horizon for row ' + rowNumber + '"></td>' +
+            '<td><input type="text" data-manual="target_end_date" placeholder="YYYY-MM-DD" aria-label="Target end date for row ' + rowNumber + '"></td>' +
             '<td><input type="text" data-manual="location" placeholder="Location" aria-label="Location for row ' + rowNumber + '"></td>' +
-            '<td><input type="text" data-manual="value" placeholder="Observed value" aria-label="Value for row ' + rowNumber + '"></td>';
+            '<td><input type="text" data-manual="output_type" placeholder="quantile" aria-label="Output type for row ' + rowNumber + '"></td>' +
+            '<td><input type="text" data-manual="output_type_id" placeholder="0.5" aria-label="Output type ID for row ' + rowNumber + '"></td>' +
+            '<td><input type="text" data-manual="value" placeholder="Forecast value" aria-label="Value for row ' + rowNumber + '"></td>';
           elements.manualBody.appendChild(tr);
         }
       }
@@ -2173,7 +2201,7 @@
       function useManualRows() {
         const values = $$('tr', elements.manualBody).map(tr => $$('input', tr).map(input => input.value)).filter(row => row.some(value => value.trim()));
         if (!values.length) { showToast('Enter at least one row.', 'error'); return; }
-        const dataset = matrixToDataset([['date','location','value'], ...values], 1, 'manual entry');
+        const dataset = matrixToDataset([['reference_date','target','horizon','target_end_date','location','output_type','output_type_id','value'], ...values], 1, 'manual entry');
         dataset.meta = {extension:'.csv', headerRow:1, isFile:false};
         setSourceData(dataset, 'Manually entered data');
       }
@@ -2263,9 +2291,10 @@
         const profile = clone(PROFILE_BLUEPRINTS[key] || PROFILE_BLUEPRINTS.generic);
         const embedded = EMBEDDED_HUB_CONFIGS[key];
         if (!embedded) return profile;
-        const extracted = extractHubConfiguration(embedded.configs.map((config, index) => ({name:embedded.files[index] || ('embedded-' + (index + 1) + '.json'), config})));
-        if (extracted.dateField) profile.dateField = extracted.dateField;
-        if (extracted.observableUnit && extracted.observableUnit.length) {
+        const embeddedForecastConfigs = embedded.configs.map((config, index) => ({name:embedded.files[index] || ('embedded-' + (index + 1) + '.json'), config})).filter(item => /tasks\.json$/i.test(item.name));
+        const extracted = extractHubConfiguration(embeddedForecastConfigs);
+        if (extracted.dateField && extracted.observableUnit && extracted.observableUnit.some(field => /date/i.test(field))) profile.dateField = extracted.dateField;
+        if (extracted.observableUnit && extracted.observableUnit.some(field => /date/i.test(field))) {
           profile.observableUnit = extracted.observableUnit.map(String);
           profile.targetRequired = profile.observableUnit.includes('target');
         }
@@ -2280,15 +2309,19 @@
           profile.locationScheme = extracted.locationIds.every(id => US_CODES.includes(id)) ? 'us_fips' : 'configured';
           profile.locationLabels = profile.locationScheme === 'us_fips' ? US_LABELS : {};
         }
+        if (extracted.outputTypes.length) profile.outputTypes = extracted.outputTypes;
+        profile.outputTypeIds = Object.assign({}, profile.outputTypeIds || {}, extracted.outputTypeIds || {});
+        profile.outputValueTypes = Object.assign({}, profile.outputValueTypes || {}, extracted.outputValueTypes || {});
+        profile.taskValues = Object.assign({}, profile.taskValues || {}, extracted.taskValues || {});
         const omitVersionField = ['as','of'].join('_');
         profile.observableUnit = profile.observableUnit.filter(field => field !== omitVersionField);
-        profile.additionalFields = profile.observableUnit.filter(field => ![profile.dateField,'target','location','observation'].includes(field));
+        profile.additionalFields = profile.observableUnit.filter(field => ![profile.dateField,'target','location','output_type','output_type_id','value'].includes(field));
         profile.weekday = embedded.weekday;
         profile.embeddedConfig = true;
-        profile.embeddedFiles = embedded.files.slice();
+        profile.embeddedFiles = embedded.files.filter(file => /tasks\.json$/i.test(file));
         profile.requiresConfig = false;
         profile.builtInRules = true;
-        profile.snapshot = 'Embedded JSON snapshot · ' + embedded.files.map(file => file.split('/').pop()).join(' + ') + ' · checked ' + embedded.checked;
+        profile.snapshot = 'Embedded forecast rules · tasks.json · checked ' + embedded.checked;
         return profile;
       }
 
@@ -2308,9 +2341,10 @@
       }
 
       function applyHubProfile(key) {
+        state.configRequestCounter += 1;
         state.hubKey = key;
         state.profile = profileClone(key);
-        state.configNames = [];
+        state.configNames = []; state.configSource = ''; state.configStatus = ''; state.configBranch = 'main';
         state.targetValueMap = new Map(); state.targetRanges = []; state.locationCrosswalk = new Map(); state.customTargetsAdded = false; state.fixedTargetTouched = false;
         elements.configFiles.value = ''; elements.configLoaded.hidden = true;
         elements.dateOutputName.value = state.profile.dateField;
@@ -2320,13 +2354,16 @@
 
       function renderHubSummary() {
         if (!state.profile) return;
-        const targetText = state.profile.targetRequired ? (state.profile.targets.length ? state.profile.targets.length + ' configured target' + (state.profile.targets.length === 1 ? '' : 's') : 'targets added in Step 3') : 'target not in observable unit';
+        const targetText = state.profile.targetRequired ? (state.profile.targets.length ? state.profile.targets.length + ' configured target' + (state.profile.targets.length === 1 ? '' : 's') : 'targets added in Step 3') : 'target not in forecast task IDs';
         const locationText = state.profile.allowedLocations ? state.profile.allowedLocations.length + ' allowed locations' : 'custom location IDs';
-        const rulesText = state.configNames.length ? 'local config loaded' : (state.profile.embeddedConfig ? 'embedded JSON snapshot' : (state.profile.requiresConfig ? 'config recommended' : 'flexible rules'));
+        const outputTypeText = (state.profile.outputTypes || []).length ? state.profile.outputTypes.join(', ') : 'output types from source';
+        const rulesText = state.configNames.length ? (state.configSource === 'live' ? 'current public config' : 'local config loaded') : (state.profile.embeddedConfig ? 'embedded JSON snapshot' : (state.profile.requiresConfig ? 'config recommended' : 'flexible rules'));
         const repository = state.profile.repository ? '<a class="hub-repository" href="' + escapeHtml(state.profile.repository) + '" target="_blank" rel="noopener noreferrer">Hub repository ↗</a>' : '';
-        const configSources = state.profile.embeddedConfig && !state.configNames.length && state.profile.repository ? '<div class="hub-config-sources"><span>Snapshot sources:</span>' + state.profile.embeddedFiles.map(file => '<a href="' + escapeHtml(state.profile.repository + '/blob/main/' + file) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(file.split('/').pop()) + ' ↗</a>').join('<span aria-hidden="true">·</span>') + '</div>' : '';
-        const configNote = state.profile.requiresConfig && !state.configNames.length ? '<div class="hub-config-note"><strong>No public JSON snapshot is embedded for this hub.</strong> Add its current <code>tasks.json</code> and/or <code>target-data.json</code> below, or enter the exact target IDs and location crosswalk in the next step.</div>' : (state.profile.embeddedConfig && !state.configNames.length ? '<div class="hub-config-note"><strong>The offline snapshot is already active.</strong> You can optionally upload newer hub JSON files below to override it for this session.</div>' : '');
-        elements.hubSummary.innerHTML = '<div class="hub-summary-line"><strong>' + escapeHtml(state.profile.name) + '</strong>' + repository + '</div><span>' + escapeHtml(state.profile.snapshot || '') + '</span>' + configSources + '<div class="hub-tags"><span class="hub-tag">' + escapeHtml(state.profile.category || 'Flexible') + '</span><span class="hub-tag">' + escapeHtml(rulesText) + '</span><span class="hub-tag">date: ' + escapeHtml(state.profile.dateField) + '</span><span class="hub-tag">' + escapeHtml(targetText) + '</span><span class="hub-tag">' + escapeHtml(locationText) + '</span>' + (state.profile.weekday === 6 ? '<span class="hub-tag">weekly Saturday dates</span>' : '') + '</div>' + configNote;
+        const sourceFiles = state.configSource === 'live' ? state.configNames : (state.profile.embeddedFiles || []);
+        const sourceLabel = state.configSource === 'live' ? 'Current public sources:' : 'Snapshot sources:';
+        const configSources = sourceFiles.length && state.profile.repository ? '<div class="hub-config-sources"><span>' + sourceLabel + '</span>' + sourceFiles.map(file => '<a href="' + escapeHtml(state.profile.repository + '/blob/' + state.configBranch + '/hub-config/' + file.split('/').pop()) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(file.split('/').pop()) + ' ↗</a>').join('<span aria-hidden="true">·</span>') + '</div>' : '';
+        const configNote = state.profile.requiresConfig && !state.configNames.length ? '<div class="hub-config-note"><strong>No public forecast snapshot is embedded for this hub.</strong> Add its current <code>tasks.json</code>, or enter the exact target IDs and location crosswalk in the next step.</div>' : (state.profile.embeddedConfig && !state.configNames.length ? '<div class="hub-config-note"><strong>The bundled offline forecast snapshot is active.</strong> You can upload a newer <code>tasks.json</code> below to override it for this session.</div>' : '');
+        elements.hubSummary.innerHTML = '<div class="hub-summary-line"><strong>' + escapeHtml(state.profile.name) + '</strong>' + repository + '</div><span>' + escapeHtml(state.profile.snapshot || '') + '</span>' + configSources + '<div class="hub-tags"><span class="hub-tag">' + escapeHtml(state.profile.category || 'Flexible') + '</span><span class="hub-tag">' + escapeHtml(rulesText) + '</span><span class="hub-tag">date: ' + escapeHtml(state.profile.dateField) + '</span><span class="hub-tag">' + escapeHtml(targetText) + '</span><span class="hub-tag">' + escapeHtml(locationText) + '</span><span class="hub-tag">outputs: ' + escapeHtml(outputTypeText) + '</span>' + (state.profile.weekday === 6 ? '<span class="hub-tag">weekly Saturday dates</span>' : '') + '</div>' + configNote;
         elements.assignmentHubBadge.textContent = state.profile.shortName || state.profile.name;
       }
 
@@ -2348,6 +2385,19 @@
         const targetMetadata = new Map();
         const observableCandidates = [];
         const dateCandidates = [];
+        const taskFields = new Set();
+        const outputTypes = new Set();
+        const outputTypeIds = {};
+        const outputValueTypes = {};
+        const taskValues = {};
+
+        function addTaskValues(field, specification) {
+          const name = String(field);
+          taskFields.add(name);
+          const values = primitiveValues(specification);
+          if (!values.length) return;
+          taskValues[name] = Array.from(new Set([...(taskValues[name] || []), ...values]));
+        }
 
         function addTargetMetadata(entry, fallbackId = '') {
           if (!entry || typeof entry !== 'object') return;
@@ -2369,30 +2419,60 @@
               else if (value && typeof value === 'object') Object.entries(value).forEach(([id, entry]) => addTargetMetadata(entry, id));
             }
             if (normalized === 'task_ids' && value && typeof value === 'object') {
+              Object.entries(value).forEach(([field, specification]) => addTaskValues(field, specification));
               primitiveValues(value.target).forEach(id => targetIds.add(id));
               primitiveValues(value.location).forEach(id => locationIds.add(id));
+            }
+            if (normalized === 'round_id' && value && typeof value === 'object' && !Array.isArray(value)) {
+              Object.entries(value).forEach(([field, specification]) => addTaskValues(field, specification));
+            }
+            if (normalized === 'output_types' && value && typeof value === 'object' && !Array.isArray(value)) {
+              Object.entries(value).forEach(([outputType, specification]) => {
+                outputTypes.add(String(outputType));
+                if (!specification || typeof specification !== 'object') return;
+                const idSpecification = specification.output_type_id || specification.type_id || {};
+                const ids = primitiveValues(idSpecification);
+                outputTypeIds[outputType] = Array.from(new Set([...(outputTypeIds[outputType] || []), ...ids]));
+                const valueSpecification = specification.value || {};
+                const declaredType = normalizeText(valueSpecification.type || valueSpecification.datatype || valueSpecification.value_type || '');
+                if (declaredType) outputValueTypes[outputType] = declaredType;
+              });
             }
             walk(value);
           });
         }
         configs.forEach(item => walk(item.config));
-        const observableUnit = observableCandidates.find(fields => fields.some(field => /location/i.test(field)) && fields.some(field => /date/i.test(field))) || observableCandidates[0] || null;
+        const configuredTasks = Array.from(taskFields);
+        const observableUnit = configuredTasks.length ? configuredTasks : (observableCandidates.find(fields => fields.some(field => /location/i.test(field)) && fields.some(field => /date/i.test(field))) || observableCandidates[0] || null);
+        const datePriority = ['reference_date','origin_date','forecast_date','target_end_date','target_date'];
+        const configuredDate = datePriority.find(field => configuredTasks.includes(field)) || configuredTasks.find(field => /date/i.test(field));
         return {
           targetIds:Array.from(targetIds).filter(Boolean), locationIds:Array.from(locationIds).filter(Boolean), targetMetadata,
-          observableUnit, dateField:normalizeText(dateCandidates[dateCandidates.length - 1] || '')
+          observableUnit, dateField:normalizeText(configuredDate || dateCandidates[dateCandidates.length - 1] || ''),
+          outputTypes:Array.from(outputTypes), outputTypeIds, outputValueTypes, taskValues
         };
       }
 
-      async function readHubConfigs(files) {
+      async function readHubConfigs(files, options = {}) {
         if (!files || !files.length) return;
+        const source = options.source || 'local';
+        const expectedHubKey = options.hubKey || state.hubKey;
+        if (source === 'local') state.configRequestCounter += 1;
         try {
           const configs = [];
-          for (const file of files) configs.push({name:file.name, config:JSON.parse((await file.text()).replace(/^\uFEFF/, ''))});
+          for (const file of files) {
+            if (!/tasks\.json$/i.test(file.name)) continue;
+            configs.push({name:file.name, config:JSON.parse((await file.text()).replace(/^\uFEFF/, ''))});
+          }
+          if (!configs.length) throw new Error('Select the hub’s tasks.json forecast configuration.');
+          if (state.hubKey !== expectedHubKey || (options.requestId && options.requestId !== state.configRequestCounter)) return false;
           const extracted = extractHubConfiguration(configs);
-          const profile = profileClone(state.hubKey);
-          profile.snapshot = 'Overridden by local config: ' + configs.map(item => item.name).join(', ');
-          if (extracted.dateField) profile.dateField = extracted.dateField;
-          if (extracted.observableUnit && extracted.observableUnit.length) {
+          const profile = profileClone(expectedHubKey);
+          profile.snapshot = source === 'live'
+            ? 'Current public hub configuration · checked ' + new Intl.DateTimeFormat(undefined, {year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}).format(new Date())
+            : 'Overridden by local config: ' + configs.map(item => item.name).join(', ');
+          if (extracted.dateField && extracted.observableUnit && extracted.observableUnit.some(field => /date/i.test(field))) profile.dateField = extracted.dateField;
+          if (extracted.observableUnit && extracted.observableUnit.some(field => /date/i.test(field))) {
             profile.observableUnit = extracted.observableUnit.map(String);
             profile.targetRequired = profile.observableUnit.includes('target');
           }
@@ -2407,32 +2487,86 @@
             profile.locationScheme = extracted.locationIds.every(id => US_CODES.includes(id)) ? 'us_fips' : 'configured';
             profile.locationLabels = profile.locationScheme === 'us_fips' ? US_LABELS : {};
           }
+          if (extracted.outputTypes.length) profile.outputTypes = extracted.outputTypes;
+          profile.outputTypeIds = Object.assign({}, profile.outputTypeIds || {}, extracted.outputTypeIds || {});
+          profile.outputValueTypes = Object.assign({}, profile.outputValueTypes || {}, extracted.outputValueTypes || {});
+          profile.taskValues = Object.assign({}, profile.taskValues || {}, extracted.taskValues || {});
           const omitVersionField = ['as','of'].join('_');
           profile.observableUnit = profile.observableUnit.filter(field => field !== omitVersionField);
-          profile.additionalFields = profile.observableUnit.filter(field => ![profile.dateField,'target','location','observation'].includes(field));
+          profile.additionalFields = profile.observableUnit.filter(field => ![profile.dateField,'target','location','output_type','output_type_id','value'].includes(field));
           state.profile = profile;
           state.configNames = configs.map(item => item.name);
+          state.configSource = source;
+          state.configStatus = source === 'live' ? 'live' : 'local';
+          state.configBranch = options.branch || 'main';
           state.targetValueMap = new Map(); state.targetRanges = []; state.locationCrosswalk = new Map(); state.customTargetsAdded = false; state.fixedTargetTouched = false;
           elements.dateOutputName.value = profile.dateField; elements.dateOutputCode.textContent = profile.dateField;
           elements.configLoaded.hidden = false;
-          elements.configLoaded.innerHTML = '<strong>' + escapeHtml(configs.length + ' configuration file' + (configs.length === 1 ? '' : 's') + ' applied') + '</strong>' + escapeHtml(profile.targets.length + ' targets · ' + (profile.allowedLocations ? profile.allowedLocations.length + ' locations' : 'custom locations') + ' · date: ' + profile.dateField);
+          elements.configLoaded.innerHTML = '<strong>' + escapeHtml((source === 'live' ? 'Current public configuration' : configs.length + ' configuration file' + (configs.length === 1 ? '' : 's')) + ' applied') + '</strong>' + escapeHtml(profile.targets.length + ' targets · ' + (profile.allowedLocations ? profile.allowedLocations.length + ' locations' : 'custom locations') + ' · date: ' + profile.dateField);
           renderHubSummary(); renderExtraMappings(); renderTargetControls(); refreshLocationCrosswalk(true);
           invalidateOutput();
-          showToast('Hub configuration applied.', 'success');
+          if (!options.silent) showToast(source === 'live' ? 'Current public hub configuration loaded.' : 'Hub configuration applied.', 'success');
+          return true;
         } catch (error) {
+          if (source === 'live') throw error;
           elements.configFiles.value = ''; elements.configLoaded.hidden = true;
           showToast('The hub configuration could not be used: ' + (error.message || 'invalid JSON'), 'error');
+          return false;
+        }
+      }
+
+      function githubRepositoryParts(repository) {
+        const match = String(repository || '').match(/^https:\/\/github\.com\/([^/]+)\/([^/#?]+)/);
+        return match ? {owner:match[1], repo:match[2].replace(/\.git$/, '')} : null;
+      }
+
+      async function refreshHubConfiguration(hubKey, announce) {
+        const blueprint = PROFILE_BLUEPRINTS[hubKey];
+        const parts = githubRepositoryParts(blueprint && blueprint.repository);
+        if (!parts) return;
+        const requestId = ++state.configRequestCounter;
+        state.configStatus = 'checking';
+        renderHubSummary();
+        const controller = typeof AbortController === 'function' ? new AbortController() : null;
+        const timeout = controller ? setTimeout(() => controller.abort(), 10000) : null;
+        try {
+          let configs = [];
+          let configBranch = 'main';
+          for (const branch of ['main','master']) {
+            const candidates = await Promise.all(['tasks.json'].map(async name => {
+              try {
+                const url = 'https://raw.githubusercontent.com/' + parts.owner + '/' + parts.repo + '/' + branch + '/hub-config/' + name;
+                const response = await fetch(url, {cache:'no-store', signal:controller ? controller.signal : undefined});
+                if (!response.ok) return null;
+                return {name, config:await response.json()};
+              } catch (_) { return null; }
+            }));
+            configs = candidates.filter(Boolean);
+            if (configs.length) { configBranch = branch; break; }
+          }
+          if (!configs.length) throw new Error('No public hub configuration files were available.');
+          if (requestId !== state.configRequestCounter || state.hubKey !== hubKey) return;
+          const files = configs.map(item => ({name:item.name, text:async () => JSON.stringify(item.config)}));
+          await readHubConfigs(files, {source:'live', hubKey, requestId, branch:configBranch, silent:!announce});
+        } catch (_) {
+          if (requestId !== state.configRequestCounter || state.hubKey !== hubKey) return;
+          state.configStatus = 'fallback';
+          state.configSource = '';
+          renderHubSummary();
+          if (announce) showToast('The current hub configuration could not be checked. The bundled profile is still active.', 'error');
+        } finally {
+          if (timeout) clearTimeout(timeout);
         }
       }
 
       function renderExtraMappings() {
         if (!state.profile) return;
-        const fields = state.profile.additionalFields || state.profile.observableUnit.filter(field => ![state.profile.dateField,'target','location','observation'].includes(field));
+        const fields = state.profile.additionalFields || state.profile.observableUnit.filter(field => ![state.profile.dateField,'target','location','output_type','output_type_id','value'].includes(field));
         state.profile.additionalFields = fields;
         const previous = Object.assign({}, state.extraMappings);
         state.extraMappings = {};
         if (!fields.length) { elements.configExtraFields.innerHTML = ''; return; }
-        elements.configExtraFields.innerHTML = '<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line)"><h4>Other required hub fields</h4><p class="helper" style="margin:4px 0 12px">Only these configured observable-unit fields will be retained.</p><div class="mapping-list">' + fields.map(field => {
+        elements.configExtraFields.innerHTML = '<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line)"><h4>Other required forecast task fields</h4><p class="helper" style="margin:4px 0 12px">These configured task-ID columns will be retained before the model-output representation columns.</p><div class="mapping-list">' + fields.map(field => {
           const selected = state.headers.includes(previous[field]) ? previous[field] : findBestHeader(field);
           state.extraMappings[field] = selected;
           return '<div class="mapping-row config-requirement" data-field="' + escapeHtml(field) + '"><div class="mapping-target"><code>' + escapeHtml(field) + '</code><small>Required by config</small></div><div class="mapping-arrow">←</div><select aria-label="Source column for ' + escapeHtml(field) + '"><option value="">Choose a source column…</option>' + state.headers.map(header => '<option value="' + escapeHtml(header) + '"' + (header === selected ? ' selected' : '') + '>' + escapeHtml(header) + '</option>').join('') + '</select></div>';
@@ -2448,9 +2582,9 @@
           const row = $$('.config-requirement', elements.configExtraFields).find(item => item.dataset.field === field);
           if (row) state.extraMappings[field] = $('select', row).value;
         });
-        const required = [elements.dateMap.value, elements.locationMap.value, elements.valueMap.value];
-        if (required.some(value => !value)) { showToast('Choose source columns for date, location, and observation.', 'error'); return false; }
-        if (new Set(required).size !== required.length) { showToast('Date, location, and observation must use different source columns.', 'error'); return false; }
+        const required = [elements.dateMap.value, elements.locationMap.value, elements.outputTypeMap.value, elements.outputTypeIdMap.value, elements.valueMap.value];
+        if (required.some(value => !value)) { showToast('Choose source columns for the primary date, location, output_type, output_type_id, and value.', 'error'); return false; }
+        if (new Set(required).size !== required.length) { showToast('The primary date, location, output_type, output_type_id, and value must use different source columns.', 'error'); return false; }
         const missingExtra = state.profile.additionalFields.filter(field => !state.extraMappings[field]);
         if (missingExtra.length) { showToast('Map the required hub field' + (missingExtra.length === 1 ? '' : 's') + ': ' + missingExtra.join(', ') + '.', 'error'); return false; }
         return true;
@@ -2484,7 +2618,7 @@
         elements.targetNotRequired.hidden = required;
         elements.customTargetWarning.hidden = !state.customTargetsAdded || !['flusight','covid','rsv'].includes(state.hubKey);
         if (!required) return;
-        const suggestedTargetColumn = elements.targetSourceColumn.value || findBestHeader('target', [elements.dateMap.value, elements.locationMap.value, elements.valueMap.value]);
+        const suggestedTargetColumn = elements.targetSourceColumn.value || findBestHeader('target', [elements.dateMap.value, elements.locationMap.value, elements.outputTypeMap.value, elements.outputTypeIdMap.value, elements.valueMap.value]);
         const sourceTargets = uniqueColumnValues(suggestedTargetColumn);
         const sourceSuggestion = sourceTargets.length === 1 ? bestTargetMatch(sourceTargets[0]) : '';
         const fixed = elements.targetFixedSelect.value;
@@ -2743,6 +2877,44 @@
         return {value:'',changed:false,error:'unrecognized date format'};
       }
 
+      function nextWeekdayIso(weekday, from = new Date()) {
+        if (!Number.isInteger(weekday)) return '';
+        const date = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+        date.setDate(date.getDate() + ((weekday - date.getDay() + 7) % 7));
+        return String(date.getFullYear()).padStart(4, '0') + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+      }
+
+      function addDaysToIso(iso, days) {
+        const date = new Date(iso + 'T00:00:00Z');
+        if (Number.isNaN(date.valueOf()) || !Number.isFinite(Number(days))) return '';
+        date.setUTCDate(date.getUTCDate() + Number(days));
+        return date.toISOString().slice(0,10);
+      }
+
+      function configuredDateValues(field) {
+        const values = (state.profile.taskValues && state.profile.taskValues[field]) || [];
+        return Array.from(new Set(values.map(value => parseDateValue(value, 'auto').value).filter(Boolean)));
+      }
+
+      function dateScheduleWarning(rowIssue, field, iso, primary = false) {
+        const configuredDates = configuredDateValues(field);
+        const label = field.replace(/_/g, ' ');
+        if (configuredDates.length) {
+          if (!configuredDates.includes(iso)) {
+            const shown = configuredDates.slice(0,6).join(', ') + (configuredDates.length > 6 ? ', …' : '');
+            rowIssue('warning', label.charAt(0).toUpperCase() + label.slice(1) + ' is outside the configured hub dates', 'Found ' + iso + '; the selected tasks.json expects ' + shown + '.', 'date-config');
+          }
+          return;
+        }
+        if (state.profile.weekday === null || state.profile.weekday === undefined) return;
+        if (primary && field === 'reference_date') {
+          const expected = nextWeekdayIso(state.profile.weekday);
+          if (expected && iso !== expected) rowIssue('warning', 'Reference date differs from the upcoming hub date', 'Found ' + iso + '; the next expected ' + (state.profile.weekday === 6 ? 'Saturday' : 'hub weekday') + ' is ' + expected + '.', 'reference-date-schedule');
+        } else if (new Date(iso + 'T00:00:00Z').getUTCDay() !== state.profile.weekday) {
+          rowIssue('warning', label.charAt(0).toUpperCase() + label.slice(1) + ' is outside the hub cadence', 'Found ' + iso + '; this hub profile expects ' + (state.profile.weekday === 6 ? 'Saturday' : 'weekday ' + state.profile.weekday) + ' dates.', 'weekday');
+        }
+      }
+
       function parseNumber(value) {
         const raw = normalizeText(value);
         if (!raw) return {value:null,error:'blank'};
@@ -2751,23 +2923,23 @@
         return Number.isFinite(number) ? {value:number,changed:cleaned !== raw} : {value:null,error:'not a valid number'};
       }
 
-      function parseObservation(value, type, allowMissing, dateStrategy) {
+      function parseForecastValue(value, type, allowMissing, dateStrategy) {
         const raw = normalizeText(value);
-        if (!raw) return allowMissing ? {value:'',warning:'Blank observation retained.'} : {value:'',error:'Observation is blank.'};
+        if (!raw) return allowMissing ? {value:'',warning:'Blank forecast value retained.'} : {value:'',error:'Forecast value is blank.'};
         if (type === 'text') return {value:raw};
         if (type === 'date') {
           const parsed = parseDateValue(value, dateStrategy);
-          return parsed.value ? {value:parsed.value,warning:parsed.changed ? 'Date observation normalized to ' + parsed.value + '.' : ''} : {value:raw,error:'Observation is not a recognized date.'};
+          return parsed.value ? {value:parsed.value,warning:parsed.changed ? 'Date forecast value normalized to ' + parsed.value + '.' : ''} : {value:raw,error:'Forecast value is not a recognized date.'};
         }
         if (type === 'logical') {
           const normalized = raw.toLowerCase();
           if (['true','t','yes','y','1'].includes(normalized)) return {value:'true',warning:normalized === 'true' ? '' : 'Logical value normalized to true.'};
           if (['false','f','no','n','0'].includes(normalized)) return {value:'false',warning:normalized === 'false' ? '' : 'Logical value normalized to false.'};
-          return {value:raw,error:'Observation must be true or false.'};
+          return {value:raw,error:'Forecast value must be true or false.'};
         }
         const parsed = parseNumber(value);
-        if (parsed.error) return {value:raw,error:'Observation is not a valid number.'};
-        if (type === 'integer' && !Number.isInteger(parsed.value)) return {value:parsed.value,error:'Observation must be a whole number.'};
+        if (parsed.error) return {value:raw,error:'Forecast value is not a valid number.'};
+        if (type === 'integer' && !Number.isInteger(parsed.value)) return {value:parsed.value,error:'Forecast value must be a whole number.'};
         if (type === 'proportion' && (parsed.value < 0 || parsed.value > 1)) return {value:parsed.value,error:'Proportion must be between 0 and 1.'};
         return {value:parsed.value,warning:parsed.changed ? 'Thousands separators were removed.' : ''};
       }
@@ -2792,6 +2964,36 @@
         return elements.valueType.value === 'auto' ? 'number' : elements.valueType.value;
       }
 
+      function forecastValueType(outputType, targetId) {
+        const configured = normalizeText((state.profile.outputValueTypes || {})[outputType]).toLowerCase();
+        if (/integer|count|discrete/.test(configured)) return 'integer';
+        if (/proportion|probability/.test(configured)) return 'proportion';
+        if (/date/.test(configured)) return 'date';
+        if (/categor|ordinal|string|text|character/.test(configured)) return 'text';
+        if (/logical|boolean/.test(configured)) return 'logical';
+        if (/number|double|float|numeric|continuous/.test(configured)) return 'number';
+        return elements.valueType.value === 'auto' ? 'number' : elements.valueType.value;
+      }
+
+      function checkOutputRepresentation(outputTypeValue, outputTypeIdValue) {
+        const outputType = normalizeText(outputTypeValue).toLowerCase();
+        const rawOutputTypeId = normalizeText(outputTypeIdValue);
+        const outputTypeId = /^(na|null)$/i.test(rawOutputTypeId) ? '' : rawOutputTypeId;
+        if (!outputType) return {outputType, outputTypeId, error:'output_type is blank.'};
+        const allowedTypes = state.profile.outputTypes || [];
+        if (allowedTypes.length && !allowedTypes.includes(outputType)) return {outputType, outputTypeId, error:'“' + outputType + '” is not an output type configured for this hub.'};
+        const configuredIds = (state.profile.outputTypeIds || {})[outputType] || [];
+        const normalizedConfiguredIds = configuredIds.map(value => /^(na|null)$/i.test(normalizeText(value)) ? '' : normalizeText(value));
+        if (normalizedConfiguredIds.length && !normalizedConfiguredIds.includes(outputTypeId)) return {outputType, outputTypeId, error:'“' + (outputTypeId || '(blank)') + '” is not configured for output type “' + outputType + '”.'};
+        if (outputType === 'quantile') {
+          const level = Number(outputTypeId);
+          if (!outputTypeId || !Number.isFinite(level) || level < 0 || level > 1) return {outputType, outputTypeId, error:'Quantile output_type_id must be numeric between 0 and 1.'};
+        }
+        if (outputType === 'sample' && outputTypeId && !/^\d+$/.test(outputTypeId)) return {outputType, outputTypeId, error:'Sample output_type_id must be a whole-number sample index.'};
+        if (!['mean','median'].includes(outputType) && !outputTypeId) return {outputType, outputTypeId, error:'output_type_id is required for “' + outputType + '” rows.'};
+        return {outputType, outputTypeId};
+      }
+
       function addIssue(issues, type, title, detail, rowNumber = null, code = '') {
         issues.push({type,title,detail,rowNumber,code});
       }
@@ -2800,12 +3002,12 @@
         const omittedVersionField = ['as','of'].join('_');
         const unit = (state.profile.observableUnit || [state.profile.dateField,'target','location']).filter(field => field !== omittedVersionField);
         const columns = [];
-        unit.forEach(field => { if (!columns.includes(field) && field !== 'observation') columns.push(field); });
+        unit.forEach(field => { if (!columns.includes(field) && !['output_type','output_type_id','value'].includes(field)) columns.push(field); });
         if (!columns.includes(state.profile.dateField)) columns.unshift(state.profile.dateField);
         if (state.profile.targetRequired && !columns.includes('target')) columns.splice(1, 0, 'target');
         if (!columns.includes('location')) columns.splice(state.profile.targetRequired ? 2 : 1, 0, 'location');
         state.profile.additionalFields.forEach(field => { if (!columns.includes(field)) columns.push(field); });
-        columns.push('observation');
+        columns.push('output_type','output_type_id','value');
         return columns;
       }
 
@@ -2834,8 +3036,8 @@
       function validateAndTransform() {
         const issues = [];
         validateAssignmentSetup(issues);
-        const dateSource = elements.dateMap.value, locationSource = elements.locationMap.value, valueSource = elements.valueMap.value;
-        if (!dateSource || !locationSource || !valueSource) addIssue(issues, 'error', 'Required mapping missing', 'Return to step 2 and map date, location, and observation.', null, 'mapping');
+        const dateSource = elements.dateMap.value, locationSource = elements.locationMap.value, outputTypeSource = elements.outputTypeMap.value, outputTypeIdSource = elements.outputTypeIdMap.value, valueSource = elements.valueMap.value;
+        if (!dateSource || !locationSource || !outputTypeSource || !outputTypeIdSource || !valueSource) addIssue(issues, 'error', 'Required mapping missing', 'Return to step 2 and map the forecast task and model-output representation columns.', null, 'mapping');
         const columns = outputColumns();
         const transformed = [];
         const allowedTargets = new Set(state.profile.targets.map(target => target.id));
@@ -2856,7 +3058,7 @@
           else {
             if (parsedDate.changed) rowIssue('warning', 'Date normalized', 'Converted to ' + parsedDate.value + (parsedDate.reason ? ' from ' + parsedDate.reason : '') + '.', 'date-normalized');
             if (parsedDate.ambiguous) { ambiguousDates++; rowIssue('warning', 'Ambiguous date interpreted', 'Interpreted using the selected ' + (elements.dateStrategy.value === 'dmy' ? 'day/month' : 'month/day') + ' preference as ' + parsedDate.value + '.', 'date-ambiguous'); }
-            if (state.profile.weekday !== null && new Date(parsedDate.value + 'T00:00:00Z').getUTCDay() !== state.profile.weekday) rowIssue('error', 'Date is not a Saturday', state.profile.shortName + ' target dates in this profile must be weekly Saturdays.', 'weekday');
+            dateScheduleWarning(rowIssue, state.profile.dateField, parsedDate.value, true);
           }
 
           const rawLocation = normalizeText(sourceRow[locationSource]);
@@ -2875,27 +3077,45 @@
           }
 
           state.profile.additionalFields.forEach(field => {
-            output[field] = normalizeText(sourceRow[state.extraMappings[field]]);
-            if (!output[field]) rowIssue('error', 'Blank ' + field, 'This observable-unit field is required by the hub configuration.', 'extra-field');
+            const sourceValue = sourceRow[state.extraMappings[field]];
+            if (/date/i.test(field)) {
+              const parsedTaskDate = parseDateValue(sourceValue, elements.dateStrategy.value);
+              output[field] = parsedTaskDate.value || normalizeText(sourceValue);
+              if (!parsedTaskDate.value) rowIssue('error', 'Invalid ' + field, 'Could not read “' + normalizeText(sourceValue) + '” as a calendar date.', 'task-date');
+              else dateScheduleWarning(rowIssue, field, parsedTaskDate.value);
+            } else output[field] = normalizeText(sourceValue);
+            if (!output[field]) rowIssue('error', 'Blank ' + field, 'This forecast task field is required by the hub configuration.', 'extra-field');
           });
 
-          const observation = parseObservation(sourceRow[valueSource], targetType(assigned.value), elements.allowMissing.checked, elements.dateStrategy.value);
-          output.observation = observation.value;
-          if (observation.error) rowIssue('error', 'Invalid observation', observation.error, 'observation');
-          else if (observation.warning) rowIssue('warning', 'Observation normalized', observation.warning, 'observation-normalized');
+          if (state.profile.weekday !== null && state.profile.weekday !== undefined && output.reference_date && output.target_end_date && output.horizon !== undefined) {
+            const horizon = Number(output.horizon);
+            if (Number.isInteger(horizon)) {
+              const expectedTargetEnd = addDaysToIso(output.reference_date, horizon * 7);
+              if (expectedTargetEnd && output.target_end_date !== expectedTargetEnd) rowIssue('warning', 'Target end date does not match the weekly horizon', 'Horizon ' + horizon + ' from reference date ' + output.reference_date + ' gives ' + expectedTargetEnd + ', but this row uses ' + output.target_end_date + '.', 'target-end-horizon');
+            }
+          }
+
+          const representation = checkOutputRepresentation(sourceRow[outputTypeSource], sourceRow[outputTypeIdSource]);
+          output.output_type = representation.outputType;
+          output.output_type_id = representation.outputTypeId;
+          if (representation.error) rowIssue('error', 'Invalid model-output representation', representation.error, 'output-type');
+          const forecastValue = parseForecastValue(sourceRow[valueSource], forecastValueType(representation.outputType, assigned.value), elements.allowMissing.checked, elements.dateStrategy.value);
+          output.value = forecastValue.value;
+          if (forecastValue.error) rowIssue('error', 'Invalid forecast value', forecastValue.error, 'value');
+          else if (forecastValue.warning) rowIssue('warning', 'Forecast value normalized', forecastValue.warning, 'value-normalized');
           transformed.push(output);
         });
 
         if (state.droppedBlankRows) addIssue(issues, 'warning', 'Blank rows ignored', state.droppedBlankRows + ' completely blank source row' + (state.droppedBlankRows === 1 ? ' was' : 's were') + ' not included.', null, 'blank-rows');
         if (ambiguousDates && elements.dateStrategy.value === 'auto') addIssue(issues, 'warning', 'Automatic date preference used', ambiguousDates + ' ambiguous date' + (ambiguousDates === 1 ? ' was' : 's were') + ' interpreted as month/day/year. Choose day/month/year in step 2 if needed.', null, 'date-preference');
 
-        const keyColumns = columns.filter(column => column !== 'observation');
+        const keyColumns = columns.filter(column => column !== 'value');
         const duplicateMap = new Map();
         transformed.forEach(row => {
           const key = keyColumns.map(column => normalizeText(row[column])).join('\u001F');
-          if (keyColumns.some(column => !normalizeText(row[column]))) return;
+          if (keyColumns.some(column => column !== 'output_type_id' && !normalizeText(row[column]))) return;
           if (duplicateMap.has(key)) {
-            const item = {type:'error',title:'Duplicate observable unit',detail:'Matches data row ' + duplicateMap.get(key) + ' across ' + keyColumns.join(', ') + '.',rowNumber:row.__sourceRow,code:'duplicate'};
+            const item = {type:'error',title:'Duplicate forecast unit',detail:'Matches forecast row ' + duplicateMap.get(key) + ' across ' + keyColumns.join(', ') + '.',rowNumber:row.__sourceRow,code:'duplicate'};
             issues.push(item); row.__issues.push(item);
           } else duplicateMap.set(key, row.__sourceRow);
         });
@@ -2967,15 +3187,16 @@
         return {
           input_file:state.sourceMeta.isFile ? state.sourceName : 'source.csv', source_kind:state.sourceKind, extension:state.sourceMeta.extension || '.csv',
           sheet_name:state.sourceMeta.sheetName || null, header_row:Number(state.sourceMeta.headerRow || 1), date_column:elements.dateMap.value,
-          location_column:elements.locationMap.value, value_column:elements.valueMap.value, date_field:state.profile.dateField,
+          location_column:elements.locationMap.value, output_type_column:elements.outputTypeMap.value, output_type_id_column:elements.outputTypeIdMap.value, value_column:elements.valueMap.value, date_field:state.profile.dateField,
           date_strategy:elements.dateStrategy.value, allow_missing:elements.allowMissing.checked, sort_output:elements.sortOutput.checked,
-          weekday:state.profile.weekday, target_required:state.profile.targetRequired, target_mode:elements.targetAssignmentMode.value,
+          weekday:state.profile.weekday, task_values:state.profile.taskValues || {}, target_required:state.profile.targetRequired, target_mode:elements.targetAssignmentMode.value,
           fixed_target:elements.targetFixedSelect.value, target_column:elements.targetSourceColumn.value, target_map:targetMap,
           target_ranges:state.targetRanges.map(range => ({start:Number(range.start),end:Number(range.end),target:range.target})),
           target_types:Object.fromEntries(state.profile.targets.map(target => [target.id,target.type || 'number'])),
+          allowed_output_types:state.profile.outputTypes || [], output_type_ids:state.profile.outputTypeIds || {}, output_value_types:state.profile.outputValueTypes || {},
           fallback_type:elements.valueType.value === 'auto' ? 'number' : elements.valueType.value,
           location_map:locationMap, allowed_locations:state.profile.allowedLocations || null, extra_mappings:state.extraMappings,
-          output_columns:state.columns, unit_columns:state.columns.filter(column => column !== 'observation')
+          output_columns:state.columns, unit_columns:state.columns.filter(column => column !== 'value')
         };
       }
 
@@ -2985,11 +3206,12 @@
 
       function buildPythonCode(config) {
         const payload = JSON.stringify(JSON.stringify(config));
-        return `"""Reproduce the Hubverse transformation configured in Hubverse Data Prep."""
-from datetime import date, datetime
+        return `"""Reproduce the Hubverse forecast transformation configured in Hubverse Forecast Prep."""
+from datetime import date, datetime, timedelta
 from pathlib import Path
 import json
 import re
+import warnings
 
 import pandas as pd
 
@@ -3089,6 +3311,32 @@ def parse_date(value):
     return None if pd.isna(parsed) else parsed.date().isoformat()
 
 
+def configured_dates(field):
+    values = CONFIG.get("task_values", {}).get(field, [])
+    return {parsed for parsed in (parse_date(value) for value in values) if parsed}
+
+
+def warn_date_schedule(field, value, primary=False):
+    allowed = configured_dates(field)
+    label = field.replace("_", " ")
+    if allowed:
+        if value not in allowed:
+            warnings.warn(f"{label} {value} is outside the configured hub dates: {', '.join(sorted(allowed))}")
+        return
+    weekday = CONFIG.get("weekday")
+    if weekday is None:
+        return
+    parsed = date.fromisoformat(value)
+    python_weekday = (weekday + 6) % 7
+    if primary and field == "reference_date":
+        today = date.today()
+        expected = today + timedelta(days=(python_weekday - today.weekday()) % 7)
+        if parsed != expected:
+            warnings.warn(f"reference date {value} differs from the next expected hub date {expected.isoformat()}")
+    elif parsed.weekday() != python_weekday:
+        warnings.warn(f"{label} {value} is outside the selected hub's weekday cadence")
+
+
 def assigned_target(row, row_number):
     if not CONFIG["target_required"]:
         return ""
@@ -3103,19 +3351,19 @@ def assigned_target(row, row_number):
     return matches[0]
 
 
-def parse_observation(value, target):
-    kind = CONFIG["target_types"].get(target, CONFIG["fallback_type"])
+def parse_forecast_value(value, target, output_type):
+    kind = CONFIG["output_value_types"].get(output_type, CONFIG["fallback_type"])
     text = text_value(value)
     if not text:
         if CONFIG["allow_missing"]:
             return ""
-        raise ValueError("blank observation")
+        raise ValueError("blank forecast value")
     if kind == "text":
         return text
     if kind == "date":
         parsed = parse_date(value)
         if not parsed:
-            raise ValueError("observation is not a recognized date")
+            raise ValueError("forecast value is not a recognized date")
         return parsed
     if kind == "logical":
         lowered = text.lower()
@@ -3123,14 +3371,14 @@ def parse_observation(value, target):
             return "true"
         if lowered in {"false", "f", "no", "n", "0"}:
             return "false"
-        raise ValueError("observation must be true or false")
+        raise ValueError("forecast value must be true or false")
     cleaned = re.sub(r",(?=\\d{3}(?:\\D|$))", "", text)
     try:
         number = float(cleaned)
     except ValueError as error:
-        raise ValueError("observation is not numeric") from error
+        raise ValueError("forecast value is not numeric") from error
     if kind == "integer" and not number.is_integer():
-        raise ValueError("observation must be a whole number")
+        raise ValueError("forecast value must be a whole number")
     if kind == "proportion" and not 0 <= number <= 1:
         raise ValueError("proportion must be between 0 and 1")
     return int(number) if number.is_integer() else number
@@ -3144,8 +3392,7 @@ def prepare(source):
             target_date = parse_date(row[CONFIG["date_column"]])
             if not target_date:
                 raise ValueError("target date is invalid")
-            if CONFIG["weekday"] is not None and (pd.Timestamp(target_date).dayofweek + 1) % 7 != CONFIG["weekday"]:
-                raise ValueError("target date is not the weekday required by the selected hub")
+            warn_date_schedule(CONFIG["date_field"], target_date, primary=True)
             source_location = text_value(row[CONFIG["location_column"]])
             location = CONFIG["location_map"].get(source_location, "")
             if not location:
@@ -3159,10 +3406,43 @@ def prepare(source):
                     raise ValueError("target is not assigned")
                 record["target"] = target
             for field, source_column in CONFIG["extra_mappings"].items():
-                record[field] = text_value(row[source_column])
+                source_value = row[source_column]
+                record[field] = parse_date(source_value) if "date" in field.lower() else text_value(source_value)
                 if not record[field]:
                     raise ValueError(f"required field {field!r} is blank")
-            record["observation"] = parse_observation(row[CONFIG["value_column"]], target)
+                if "date" in field.lower():
+                    warn_date_schedule(field, record[field])
+            if CONFIG.get("weekday") is not None and record.get("reference_date") and record.get("target_end_date") and "horizon" in record:
+                try:
+                    horizon_number = float(text_value(record["horizon"]))
+                    horizon = int(horizon_number) if horizon_number.is_integer() else None
+                except ValueError:
+                    horizon = None
+                if horizon is not None:
+                    expected_target_end = (date.fromisoformat(record["reference_date"]) + timedelta(days=horizon * 7)).isoformat()
+                    if record["target_end_date"] != expected_target_end:
+                        warnings.warn(f"target end date {record['target_end_date']} does not match weekly horizon {horizon}; expected {expected_target_end}")
+            output_type = text_value(row[CONFIG["output_type_column"]]).lower()
+            output_type_id = text_value(row[CONFIG["output_type_id_column"]])
+            if output_type_id.lower() in {"na", "null"}:
+                output_type_id = ""
+            if CONFIG["allowed_output_types"] and output_type not in CONFIG["allowed_output_types"]:
+                raise ValueError(f"output_type {output_type!r} is not configured for this hub")
+            configured_ids = ["" if str(value).lower() in {"na", "null"} else str(value) for value in CONFIG["output_type_ids"].get(output_type, [])]
+            if configured_ids and output_type_id not in configured_ids:
+                raise ValueError(f"output_type_id {output_type_id!r} is not configured for {output_type!r}")
+            if output_type == "quantile":
+                try:
+                    quantile = float(output_type_id)
+                except ValueError as error:
+                    raise ValueError("quantile output_type_id must be numeric") from error
+                if not 0 <= quantile <= 1:
+                    raise ValueError("quantile output_type_id must be between 0 and 1")
+            if output_type not in {"mean", "median"} and not output_type_id:
+                raise ValueError(f"output_type_id is required for {output_type!r}")
+            record["output_type"] = output_type
+            record["output_type_id"] = output_type_id
+            record["value"] = parse_forecast_value(row[CONFIG["value_column"]], target, output_type)
             output_rows.append(record)
         except (KeyError, TypeError, ValueError) as error:
             errors.append(f"Data row {position}: {error}")
@@ -3173,7 +3453,7 @@ def prepare(source):
     output = pd.DataFrame(output_rows, columns=CONFIG["output_columns"])
     duplicated = output.duplicated(subset=CONFIG["unit_columns"], keep=False)
     if duplicated.any():
-        raise ValueError(f"{int(duplicated.sum())} rows have duplicate observable-unit keys")
+        raise ValueError(f"{int(duplicated.sum())} rows have duplicate forecast-unit keys")
     if CONFIG["sort_output"]:
         output = output.sort_values(CONFIG["unit_columns"], kind="stable")
     return output
@@ -3181,14 +3461,14 @@ def prepare(source):
 
 input_path = Path(CONFIG["input_file"])
 prepared = prepare(read_source(input_path))
-prepared.to_csv("time-series.csv", index=False, encoding="utf-8", lineterminator="\\n")
-print(f"Wrote {len(prepared):,} rows to time-series.csv")
+prepared.to_csv("forecast-model-output.csv", index=False, encoding="utf-8", lineterminator="\\n")
+print(f"Wrote {len(prepared):,} rows to forecast-model-output.csv")
 `;
       }
 
       function buildRCode(config) {
         const payload = JSON.stringify(config).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-        return `# Reproduce the Hubverse transformation configured in Hubverse Data Prep.
+        return `# Reproduce the Hubverse forecast transformation configured in Hubverse Forecast Prep.
 suppressPackageStartupMessages({
   library(jsonlite)
   library(lubridate)
@@ -3304,6 +3584,33 @@ parse_date_value <- function(value) {
   if (is.na(parsed)) NA_character_ else format(as.Date(parsed), "%Y-%m-%d")
 }
 
+configured_dates <- function(field) {
+  values <- CONFIG$task_values[[field]]
+  if (is.null(values) || !length(values)) return(character())
+  parsed <- vapply(as.list(unlist(values)), parse_date_value, character(1))
+  unique(parsed[!is.na(parsed) & parsed != ""])
+}
+
+warn_date_schedule <- function(field, value, primary = FALSE) {
+  allowed <- configured_dates(field)
+  label <- gsub("_", " ", field, fixed = TRUE)
+  if (length(allowed)) {
+    if (!value %in% allowed) warning(paste(label, value, "is outside the configured hub dates:", paste(sort(allowed), collapse = ", ")), call. = FALSE)
+    return(invisible(NULL))
+  }
+  if (is.null(CONFIG$weekday)) return(invisible(NULL))
+  parsed <- as.Date(value)
+  if (isTRUE(primary) && field == "reference_date") {
+    today <- Sys.Date()
+    days_ahead <- (CONFIG$weekday - as.POSIXlt(today)$wday + 7) %% 7
+    expected <- today + days_ahead
+    if (parsed != expected) warning(paste("reference date", value, "differs from the next expected hub date", format(expected, "%Y-%m-%d")), call. = FALSE)
+  } else if (as.POSIXlt(parsed)$wday != CONFIG$weekday) {
+    warning(paste(label, value, "is outside the selected hub's weekday cadence"), call. = FALSE)
+  }
+  invisible(NULL)
+}
+
 lookup <- function(mapping, key) {
   value <- mapping[[key]]
   if (is.null(value)) "" else text_value(value)
@@ -3318,30 +3625,30 @@ assigned_target <- function(row, row_number) {
   CONFIG$target_ranges[[which(matches)[1]]]$target
 }
 
-parse_observation <- function(value, target) {
-  kind <- lookup(CONFIG$target_types, target)
+parse_forecast_value <- function(value, target, output_type) {
+  kind <- lookup(CONFIG$output_value_types, output_type)
   if (kind == "") kind <- CONFIG$fallback_type
   text <- text_value(value)
   if (text == "") {
     if (isTRUE(CONFIG$allow_missing)) return("")
-    stop("blank observation")
+    stop("blank forecast value")
   }
   if (kind == "text") return(text)
   if (kind == "date") {
     parsed <- parse_date_value(value)
-    if (is.na(parsed)) stop("observation is not a recognized date")
+    if (is.na(parsed)) stop("forecast value is not a recognized date")
     return(parsed)
   }
   if (kind == "logical") {
     lowered <- tolower(text)
     if (lowered %in% c("true", "t", "yes", "y", "1")) return("true")
     if (lowered %in% c("false", "f", "no", "n", "0")) return("false")
-    stop("observation must be true or false")
+    stop("forecast value must be true or false")
   }
   cleaned <- gsub(",(?=[0-9]{3}(?:[^0-9]|$))", "", text, perl = TRUE)
   number <- suppressWarnings(as.numeric(cleaned))
-  if (is.na(number)) stop("observation is not numeric")
-  if (kind == "integer" && number != trunc(number)) stop("observation must be a whole number")
+  if (is.na(number)) stop("forecast value is not numeric")
+  if (kind == "integer" && number != trunc(number)) stop("forecast value must be a whole number")
   if (kind == "proportion" && (number < 0 || number > 1)) stop("proportion must be between 0 and 1")
   as.character(number)
 }
@@ -3354,7 +3661,7 @@ prepare <- function(source) {
       row <- source[position, , drop = FALSE]
       target_date <- parse_date_value(row[[CONFIG$date_column]][[1]])
       if (is.na(target_date)) stop("target date is invalid")
-      if (!is.null(CONFIG$weekday) && as.POSIXlt(as.Date(target_date))$wday != CONFIG$weekday) stop("target date is not the weekday required by the selected hub")
+      warn_date_schedule(CONFIG$date_field, target_date, primary = TRUE)
       source_location <- text_value(row[[CONFIG$location_column]][[1]])
       location <- lookup(CONFIG$location_map, source_location)
       if (location == "") stop(paste("location", shQuote(source_location), "is not mapped"))
@@ -3368,10 +3675,37 @@ prepare <- function(source) {
         record$target <- target
       }
       for (field in names(CONFIG$extra_mappings)) {
-        record[[field]] <- text_value(row[[CONFIG$extra_mappings[[field]]]][[1]])
+        source_value <- row[[CONFIG$extra_mappings[[field]]]][[1]]
+        record[[field]] <- if (grepl("date", field, ignore.case = TRUE)) parse_date_value(source_value) else text_value(source_value)
+        if (is.na(record[[field]])) stop(paste("required date field", shQuote(field), "is invalid"))
         if (record[[field]] == "") stop(paste("required field", shQuote(field), "is blank"))
+        if (grepl("date", field, ignore.case = TRUE)) warn_date_schedule(field, record[[field]])
       }
-      record$observation <- parse_observation(row[[CONFIG$value_column]][[1]], target)
+      if (!is.null(CONFIG$weekday) && !is.null(record$reference_date) && !is.null(record$target_end_date) && !is.null(record$horizon)) {
+        horizon_number <- suppressWarnings(as.numeric(record$horizon))
+        if (!is.na(horizon_number) && horizon_number == trunc(horizon_number)) {
+          expected_target_end <- format(as.Date(record$reference_date) + as.integer(horizon_number) * 7, "%Y-%m-%d")
+          if (record$target_end_date != expected_target_end) warning(paste("target end date", record$target_end_date, "does not match weekly horizon", as.integer(horizon_number), "; expected", expected_target_end), call. = FALSE)
+        }
+      }
+      output_type <- tolower(text_value(row[[CONFIG$output_type_column]][[1]]))
+      output_type_id <- text_value(row[[CONFIG$output_type_id_column]][[1]])
+      if (tolower(output_type_id) %in% c("na", "null")) output_type_id <- ""
+      if (length(CONFIG$allowed_output_types) && !output_type %in% unlist(CONFIG$allowed_output_types)) stop(paste("output_type", shQuote(output_type), "is not configured for this hub"))
+      configured_ids <- CONFIG$output_type_ids[[output_type]]
+      if (!is.null(configured_ids) && length(configured_ids)) {
+        configured_ids <- as.character(unlist(configured_ids))
+        configured_ids[tolower(configured_ids) %in% c("na", "null")] <- ""
+        if (!output_type_id %in% configured_ids) stop(paste("output_type_id", shQuote(output_type_id), "is not configured for", shQuote(output_type)))
+      }
+      if (output_type == "quantile") {
+        quantile <- suppressWarnings(as.numeric(output_type_id))
+        if (is.na(quantile) || quantile < 0 || quantile > 1) stop("quantile output_type_id must be numeric between 0 and 1")
+      }
+      if (!output_type %in% c("mean", "median") && output_type_id == "") stop(paste("output_type_id is required for", shQuote(output_type)))
+      record$output_type <- output_type
+      record$output_type_id <- output_type_id
+      record$value <- parse_forecast_value(row[[CONFIG$value_column]][[1]], target, output_type)
       records[[position]] <- record
     }, error = function(error) errors <<- c(errors, paste0("Data row ", position, ": ", conditionMessage(error))))
   }
@@ -3379,14 +3713,14 @@ prepare <- function(source) {
   output <- do.call(rbind.data.frame, c(records, stringsAsFactors = FALSE))
   output <- output[, unlist(CONFIG$output_columns), drop = FALSE]
   unit <- unlist(CONFIG$unit_columns)
-  if (any(duplicated(output[, unit, drop = FALSE]))) stop("Duplicate observable-unit keys found.")
+  if (any(duplicated(output[, unit, drop = FALSE]))) stop("Duplicate forecast-unit keys found.")
   if (isTRUE(CONFIG$sort_output)) output <- output[do.call(order, output[, unit, drop = FALSE]), , drop = FALSE]
   output
 }
 
 prepared <- prepare(read_source(CONFIG$input_file))
-readr::write_csv(prepared, "time-series.csv", na = "")
-message(sprintf("Wrote %s rows to time-series.csv", format(nrow(prepared), big.mark = ",")))
+readr::write_csv(prepared, "forecast-model-output.csv", na = "")
+message(sprintf("Wrote %s rows to forecast-model-output.csv", format(nrow(prepared), big.mark = ",")))
 `;
       }
 
@@ -3414,9 +3748,9 @@ message(sprintf("Wrote %s rows to time-series.csv", format(nrow(prepared), big.m
       }
 
       function downloadCsv() {
-        if (!state.csv) { showToast('Run the data checks first.', 'error'); return; }
-        downloadBlob(state.csv, 'time-series.csv', 'text/csv;charset=utf-8');
-        showToast('time-series.csv downloaded.', 'success');
+        if (!state.csv) { showToast('Run the forecast checks first.', 'error'); return; }
+        downloadBlob(state.csv, 'forecast-model-output.csv', 'text/csv;charset=utf-8');
+        showToast('Forecast model-output CSV downloaded.', 'success');
       }
 
       async function copyText(text, successMessage) {
@@ -3432,7 +3766,7 @@ message(sprintf("Wrote %s rows to time-series.csv", format(nrow(prepared), big.m
       function downloadCode() {
         if (!state.generatedCode) return;
         const python = elements.codeLanguage.value === 'python';
-        downloadBlob(state.generatedCode, python ? 'prepare_hubverse_data.py' : 'prepare_hubverse_data.R', 'text/plain;charset=utf-8');
+        downloadBlob(state.generatedCode, python ? 'prepare_hubverse_forecast.py' : 'prepare_hubverse_forecast.R', 'text/plain;charset=utf-8');
         showToast((python ? 'Python' : 'R') + ' pipeline downloaded.', 'success');
       }
 
@@ -3445,10 +3779,10 @@ message(sprintf("Wrote %s rows to time-series.csv", format(nrow(prepared), big.m
       }
 
       const tourContent = [
-        {title:'Bring in almost any table',description:'Start with modern Excel, CSV, TSV, JSON, pasted spreadsheet data, or a few manually entered rows.',bullets:['Excel worksheet and header-row selection included','All data stay in this browser']},
-        {title:'Choose the destination hub',description:'Choose one of the 30 public hubs, then connect the date, location, and value columns. Embedded JSON rules load automatically where available.',bullets:['Hubs grouped by active, training, development, and archival status','All dates become YYYY-MM-DD']},
-        {title:'Assign rows precisely',description:'Use one target, map a source target column, or assign targets by row range. Then review or import a location crosswalk.',bullets:['Add custom targets when needed','Unnecessary columns are removed']},
-        {title:'Check, download, and automate',description:'Resolve plain-language errors, download time-series.csv, and optionally save Python or R code that repeats the same transformation.',bullets:['Duplicate observable units are blocked','Official hub validation is still recommended']}
+        {title:'Bring in almost any forecast table',description:'Start with modern Excel, CSV, TSV, JSON, pasted spreadsheet data, or a few manually entered forecast rows.',bullets:['Excel worksheet and header-row selection included','All forecast data stay in this browser']},
+        {title:'Choose the destination hub',description:'Choose one of the public hubs, then connect its task IDs and the model-output representation columns. Current tasks.json rules load automatically where available.',bullets:['Hubs grouped by active, training, development, and archival status','Forecast dates become YYYY-MM-DD']},
+        {title:'Assign forecast tasks precisely',description:'Use one target, map a source target column, or assign targets by row range. Then review or import a location crosswalk.',bullets:['Add custom targets when needed','output_type and output_type_id are preserved']},
+        {title:'Check, download, and automate',description:'Resolve plain-language errors, download a forecast model-output CSV, and optionally save Python or R code that repeats the same transformation.',bullets:['Quantiles remain distinct forecast units','Official hub validation is still recommended']}
       ];
 
       function renderTour() {
@@ -3459,7 +3793,7 @@ message(sprintf("Wrote %s rows to time-series.csv", format(nrow(prepared), big.m
         $$('.mock-scene').forEach(scene => scene.classList.toggle('active', Number(scene.dataset.tourScene) === state.tourStep));
         $$('.tour-progress span').forEach((bar, index) => bar.classList.toggle('active', index <= state.tourStep));
         elements.tourBack.disabled = state.tourStep === 0;
-        elements.tourNext.textContent = state.tourStep === tourContent.length - 1 ? 'Start preparing data' : 'Next';
+        elements.tourNext.textContent = state.tourStep === tourContent.length - 1 ? 'Start preparing forecasts' : 'Next';
       }
 
       function openTour() {
@@ -3491,9 +3825,9 @@ message(sprintf("Wrote %s rows to time-series.csv", format(nrow(prepared), big.m
       $('#useManualButton').addEventListener('click', useManualRows);
       $('#clearSourceButton').addEventListener('click', clearSource);
       $('#sampleButton').addEventListener('click', () => {
-        const sample = 'week_ending,state,reported_count,target_name\n08/01/2026,Alabama,125,wk inc flu hosp\n08/08/2026,AL,137,wk inc flu hosp\n08/01/2026,Alaska,48,wk inc flu hosp\n08/08/2026,02,53,wk inc flu hosp';
+        const sample = 'reference_date,target,horizon,target_end_date,location,output_type,output_type_id,value\n2026-09-12,wk inc flu hosp,1,2026-09-19,US,quantile,0.1,8\n2026-09-12,wk inc flu hosp,1,2026-09-19,US,quantile,0.5,12\n2026-09-12,wk inc flu hosp,1,2026-09-19,US,quantile,0.9,18';
         elements.pasteInput.value = sample; setInputMode('paste');
-        const dataset = parseDelimitedDataset(sample); dataset.meta = {extension:'.csv',headerRow:1,isFile:false}; setSourceData(dataset, 'Example FluSight observations');
+        const dataset = parseDelimitedDataset(sample); dataset.meta = {extension:'.csv',headerRow:1,isFile:false}; setSourceData(dataset, 'Example FluSight quantile forecast');
       });
 
       elements.sheetSelect.addEventListener('change', () => {
@@ -3509,7 +3843,7 @@ message(sprintf("Wrote %s rows to time-series.csv", format(nrow(prepared), big.m
       elements.toStep2.addEventListener('click', () => { unlockStep(2); goToStep(2); });
       elements.hubSelect.addEventListener('change', event => { applyHubProfile(event.target.value); invalidateOutput(); });
       elements.configFiles.addEventListener('change', event => readHubConfigs(Array.from(event.target.files)));
-      [elements.dateMap,elements.valueMap].forEach(control => control.addEventListener('change', invalidateOutput));
+      [elements.dateMap,elements.outputTypeMap,elements.outputTypeIdMap,elements.valueMap].forEach(control => control.addEventListener('change', invalidateOutput));
       elements.locationMap.addEventListener('change', () => { state.locationCrosswalk = new Map(); refreshLocationCrosswalk(true); invalidateOutput(); });
       elements.dateStrategy.addEventListener('change', invalidateOutput);
       elements.valueType.addEventListener('change', invalidateOutput);
@@ -3562,8 +3896,8 @@ message(sprintf("Wrote %s rows to time-series.csv", format(nrow(prepared), big.m
 
       addManualRows(6);
       populateHubSelect('flusight');
-      state.profile = profileClone('flusight');
-      renderHubSummary(); renderExtraMappings(); renderTargetControls(); renderTour();
+      applyHubProfile('flusight');
+      renderTour();
       try { if (localStorage.getItem('hubverseDataPrepTourHidden') !== 'true') setTimeout(openTour, 260); } catch (_) { setTimeout(openTour, 260); }
     })();
   </script>

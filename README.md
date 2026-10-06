@@ -7,7 +7,7 @@ The toolkit is currently in beta testing. Generated files should always be check
 ## Included tools
 
 - **Model Metadata Generator:** Creates hub-specific model metadata YAML through a guided form.
-- **Hubverse Data Preparation:** Converts Excel, CSV, TSV, JSON, pasted, or manually entered data into Hubverse target time-series data, with target and location mapping plus optional Python or R transformation code.
+- **Hubverse Forecast Preparation:** Converts Excel, CSV, TSV, JSON, pasted, or manually entered forecasts into submission-ready Hubverse model output. It maps forecast task IDs, preserves <code>output_type</code>, <code>output_type_id</code>, and <code>value</code>, checks reference and target dates, and can generate reusable Python or R transformation code.
 - **Hubverse Submission Guide:** Teaches the GitHub submission process from the beginning, creates personalized file paths and filenames, and provides guided website, GitHub Desktop, and Windows/macOS command-line pathways. This guide is in beta and is still undergoing review and testing.
 
 ## Publish with GitHub Pages
@@ -35,7 +35,7 @@ Hubverse-Support-Toolkit/
 │   │   ├── metadata-generator/
 │   │   │   └── index.html        # Online metadata tool
 │   │   ├── data-preparation/
-│   │   │   └── index.html        # Online data-preparation tool
+│   │   │   └── index.html        # Online forecast-preparation tool
 │   │   └── submission-guide/
 │   │       └── index.html         # Online submission guide
 │   └── offline/
@@ -58,11 +58,11 @@ Standalone tool files are available in `docs/offline/` and from the download but
 
 No installation or local web server is required. Each tool's application code, styles, and embedded content are contained inside its HTML file. Links to external documentation still require an internet connection.
 
-Every hosted page is visibly labeled **Online version**, while each standalone download is labeled **Offline version**. "Processed in your browser" describes privacy, not connectivity: the hosted metadata and data tools make limited internet requests for current public hub files, while the offline versions do not make those live checks.
+Every hosted page is visibly labeled **Online version**, while each standalone download is labeled **Offline version**. "Processed in your browser" describes privacy, not connectivity: the hosted metadata and forecast tools make limited internet requests for current public hub files, while the offline versions do not make those live checks.
 
 The hosted Model Metadata Generator checks the selected hub's current public schema when the tool opens or the hub selection changes. If that check is unavailable, it falls back to the bundled snapshot. Standalone HTML downloads remain fully offline and use bundled schema snapshots; re-download the tool after a hub changes its schema, or upload the hub's current `model-metadata-schema.json` in the generator.
 
-The hosted Data Preparation Tool likewise checks the selected hub's current public `hub-config/tasks.json` and `hub-config/target-data.json` files, then falls back to its bundled profile if the check is unavailable. Its standalone HTML remains fully offline; re-download it after hub configuration changes or upload the current JSON files manually.
+The hosted Forecast Preparation Tool checks the selected hub's current public `hub-config/tasks.json`, then falls back to its bundled forecast profile if the check is unavailable. Its standalone HTML remains fully offline; re-download it after hub configuration changes or upload the current `tasks.json` manually. Recognized dates are formatted as `YYYY-MM-DD`; dates outside the configured or expected hub schedule produce warnings, while unreadable dates remain errors.
 
 ## Add another tool
 
