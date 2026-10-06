@@ -2929,6 +2929,12 @@
       function dateScheduleWarning(rowIssue, field, iso, primary = false) {
         const configuredDates = configuredDateValues(field);
         const label = field.replace(/_/g, ' ');
+        const weekday = state.profile.weekday;
+        if (primary && field === 'reference_date' && weekday !== null && weekday !== undefined) {
+          const expected = nextWeekdayIso(weekday);
+          if (expected && iso !== expected) rowIssue('warning', 'Reference date differs from the upcoming hub date', 'Found ' + iso + '; the Saturday ending the current Sunday–Saturday week is ' + expected + '.', 'reference-date-schedule');
+          return;
+        }
         if (configuredDates.length) {
           if (!configuredDates.includes(iso)) {
             const shown = configuredDates.slice(0,6).join(', ') + (configuredDates.length > 6 ? ', …' : '');
@@ -2936,12 +2942,9 @@
           }
           return;
         }
-        if (state.profile.weekday === null || state.profile.weekday === undefined) return;
-        if (primary && field === 'reference_date') {
-          const expected = nextWeekdayIso(state.profile.weekday);
-          if (expected && iso !== expected) rowIssue('warning', 'Reference date differs from the upcoming hub date', 'Found ' + iso + '; the next expected ' + (state.profile.weekday === 6 ? 'Saturday' : 'hub weekday') + ' is ' + expected + '.', 'reference-date-schedule');
-        } else if (new Date(iso + 'T00:00:00Z').getUTCDay() !== state.profile.weekday) {
-          rowIssue('warning', label.charAt(0).toUpperCase() + label.slice(1) + ' is outside the hub cadence', 'Found ' + iso + '; this hub profile expects ' + (state.profile.weekday === 6 ? 'Saturday' : 'weekday ' + state.profile.weekday) + ' dates.', 'weekday');
+        if (weekday === null || weekday === undefined) return;
+        if (new Date(iso + 'T00:00:00Z').getUTCDay() !== weekday) {
+          rowIssue('warning', label.charAt(0).toUpperCase() + label.slice(1) + ' is outside the hub cadence', 'Found ' + iso + '; this hub profile expects ' + (weekday === 6 ? 'Saturday' : 'weekday ' + weekday) + ' dates.', 'weekday');
         }
       }
 
@@ -3347,23 +3350,26 @@ def configured_dates(field):
 
 
 def warn_date_schedule(field, value, primary=False):
-    allowed = configured_dates(field)
     label = field.replace("_", " ")
+    weekday = CONFIG.get("weekday")
+    if primary and field == "reference_date" and weekday is not None:
+        parsed = date.fromisoformat(value)
+        python_weekday = (weekday + 6) % 7
+        today = date.today()
+        expected = today + timedelta(days=(python_weekday - today.weekday()) % 7)
+        if parsed != expected:
+            warnings.warn(f"reference date {value} differs from the Saturday ending the current Sunday-Saturday week, {expected.isoformat()}")
+        return
+    allowed = configured_dates(field)
     if allowed:
         if value not in allowed:
             warnings.warn(f"{label} {value} is outside the configured hub dates: {', '.join(sorted(allowed))}")
         return
-    weekday = CONFIG.get("weekday")
     if weekday is None:
         return
     parsed = date.fromisoformat(value)
     python_weekday = (weekday + 6) % 7
-    if primary and field == "reference_date":
-        today = date.today()
-        expected = today + timedelta(days=(python_weekday - today.weekday()) % 7)
-        if parsed != expected:
-            warnings.warn(f"reference date {value} differs from the next expected hub date {expected.isoformat()}")
-    elif parsed.weekday() != python_weekday:
+    if parsed.weekday() != python_weekday:
         warnings.warn(f"{label} {value} is outside the selected hub's weekday cadence")
 
 
@@ -3622,20 +3628,23 @@ configured_dates <- function(field) {
 }
 
 warn_date_schedule <- function(field, value, primary = FALSE) {
-  allowed <- configured_dates(field)
   label <- gsub("_", " ", field, fixed = TRUE)
+  if (isTRUE(primary) && field == "reference_date" && !is.null(CONFIG$weekday)) {
+    parsed <- as.Date(value)
+    today <- Sys.Date()
+    days_ahead <- (CONFIG$weekday - as.POSIXlt(today)$wday + 7) %% 7
+    expected <- today + days_ahead
+    if (parsed != expected) warning(paste("reference date", value, "differs from the Saturday ending the current Sunday-Saturday week,", format(expected, "%Y-%m-%d")), call. = FALSE)
+    return(invisible(NULL))
+  }
+  allowed <- configured_dates(field)
   if (length(allowed)) {
     if (!value %in% allowed) warning(paste(label, value, "is outside the configured hub dates:", paste(sort(allowed), collapse = ", ")), call. = FALSE)
     return(invisible(NULL))
   }
   if (is.null(CONFIG$weekday)) return(invisible(NULL))
   parsed <- as.Date(value)
-  if (isTRUE(primary) && field == "reference_date") {
-    today <- Sys.Date()
-    days_ahead <- (CONFIG$weekday - as.POSIXlt(today)$wday + 7) %% 7
-    expected <- today + days_ahead
-    if (parsed != expected) warning(paste("reference date", value, "differs from the next expected hub date", format(expected, "%Y-%m-%d")), call. = FALSE)
-  } else if (as.POSIXlt(parsed)$wday != CONFIG$weekday) {
+  if (as.POSIXlt(parsed)$wday != CONFIG$weekday) {
     warning(paste(label, value, "is outside the selected hub's weekday cadence"), call. = FALSE)
   }
   invisible(NULL)
