@@ -1,83 +1,8 @@
-# Hubverse Support Toolkit
+# Project files
 
-The Hubverse Support Toolkit is a collection of browser-based utilities from DMA-PRIME at Clemson University. The tools are intended to help modeling teams complete technical pieces of Hubverse submissions without requiring programming.
+This directory is reserved for project material that should not be published as part of the Hubverse Support Toolkit website.
 
-The toolkit is currently in beta testing. Generated files should always be checked against the selected hub's current instructions and official validation process before submission. Feedback and possible errors can be sent to [ambleic@clemson.edu](mailto:ambleic@clemson.edu?subject=Hubverse%20Support%20Toolkit%20feedback).
+GitHub Pages must be configured to publish from the `main` branch's `/docs` folder. With that setting, this directory is not served on the Pages website.
 
-## Included tools
+> Important: files committed to a public GitHub repository remain visible through GitHub even when they are outside the Pages publishing folder. Keep confidential or restricted material in a separate private repository.
 
-- **Model Metadata Generator:** Creates hub-specific model metadata YAML through a guided form.
-- **Hubverse Forecast Preparation:** Converts Excel, CSV, TSV, JSON, pasted, or manually entered forecasts into submission-ready Hubverse model output. It maps forecast task IDs, preserves <code>output_type</code>, <code>output_type_id</code>, and <code>value</code>, checks reference and target dates, and can generate reusable Python or R transformation code.
-- **Hubverse Submission Guide:** Teaches the GitHub submission process from the beginning, creates personalized file paths and filenames, and provides guided website, GitHub Desktop, and Windows/macOS command-line pathways. This guide is in beta and is still undergoing review and testing.
-
-## Publish with GitHub Pages
-
-This repository is deliberately organized so GitHub Pages publishes only the website files in `docs/`.
-
-1. Upload this repository structure to GitHub.
-2. Open **Settings → Pages** in the repository.
-3. Under **Build and deployment**, select **Deploy from a branch**.
-4. Select the `main` branch and the `/docs` folder.
-5. Save the settings. GitHub will display the website address when deployment finishes.
-
-Do not select the repository root as the publishing source. Selecting `/docs` keeps sibling project folders off the GitHub Pages website.
-
-## Repository structure
-
-```text
-Hubverse-Support-Toolkit/
-├── README.md
-├── LICENSE
-├── docs/                         # Published website
-│   ├── index.html                # Toolkit homepage
-│   ├── .nojekyll
-│   ├── tools/
-│   │   ├── metadata-generator/
-│   │   │   └── index.html        # Online metadata tool
-│   │   ├── data-preparation/
-│   │   │   └── index.html        # Online forecast-preparation tool
-│   │   └── submission-guide/
-│   │       └── index.html         # Online submission guide
-│   └── offline/
-│       ├── README.txt
-│       ├── Hubverse-Metadata-Generator.html
-│       ├── Hubverse-Data-Preparation.html
-│       └── Hubverse-Submission-Guide.html
-└── project/                      # Not published by GitHub Pages
-```
-
-Files outside `docs/` are not served on the Pages website. However, they are still visible in GitHub when the repository is public. Confidential, restricted, or private project material should be stored in a separate private repository.
-
-## Use a tool offline
-
-Standalone tool files are available in `docs/offline/` and from the download buttons on the toolkit homepage.
-
-1. Download the desired `.html` file.
-2. Save it locally.
-3. Double-click it to open it in a modern browser.
-
-No installation or local web server is required. Each tool's application code, styles, and embedded content are contained inside its HTML file. Links to external documentation still require an internet connection.
-
-Every hosted page is visibly labeled **Online version**, while each standalone download is labeled **Offline version**. "Processed in your browser" describes privacy, not connectivity: the hosted metadata and forecast tools make limited internet requests for current public hub files, while the offline versions do not make those live checks.
-
-The hosted Model Metadata Generator checks the selected hub's current public schema when the tool opens or the hub selection changes. If that check is unavailable, it falls back to the bundled snapshot. Standalone HTML downloads remain fully offline and use bundled schema snapshots; re-download the tool after a hub changes its schema, or upload the hub's current `model-metadata-schema.json` in the generator.
-
-The hosted Forecast Preparation Tool checks the selected hub's current public `hub-config/tasks.json`, then falls back to its bundled forecast profile if the check is unavailable. Its standalone HTML remains fully offline; re-download it after hub configuration changes or upload the current `tasks.json` manually. Recognized dates are formatted as `YYYY-MM-DD`; dates outside the configured or expected hub schedule produce warnings, while unreadable dates remain errors.
-
-## Add another tool
-
-For each future standalone tool:
-
-1. Create `docs/tools/tool-name/index.html` for the online version.
-2. Place a self-contained copy in `docs/offline/Descriptive-Tool-Name.html`.
-3. Add a new tool card to `docs/index.html` with both an **Open tool** link and a **Download standalone HTML** link.
-4. Test the online page from the repository's GitHub Pages URL and test the offline copy by opening it directly from a computer.
-
-Keep paths on the homepage relative so the site works at `https://USERNAME.github.io/REPOSITORY/`.
-
-## Official resources
-
-- [Hubverse](https://hubverse.io/)
-- [Hubverse documentation](https://docs.hubverse.io/)
-- [DMA-PRIME](https://dma-prime.org/)
-- [Clemson University](https://www.clemson.edu/)
