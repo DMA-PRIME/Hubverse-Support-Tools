@@ -446,6 +446,26 @@
     .mapping-target small { display: block; margin-top: 3px; color: var(--muted); }
     .mapping-arrow { color: var(--muted-2); text-align: center; }
     .mapping-row select { width: 100%; }
+    .flow-body[hidden] { display: none; }
+    .flow-card[data-flow-section] .card-heading { cursor: pointer; user-select: none; }
+    .flow-card[data-flow-section] .card-heading:focus-visible { outline: none; box-shadow: var(--focus); border-radius: 8px; }
+    .flow-card.flow-collapsed .card-heading { margin-bottom: 0; }
+    .flow-card.flow-locked { opacity: .62; }
+    .flow-card.flow-locked .card-heading { cursor: default; }
+    .flow-card.flow-done .card-heading::before { content: "✓"; background: var(--success); }
+    .flow-chevron { flex: 0 0 auto; width: 9px; height: 9px; margin: 9px 4px 0 auto; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); transition: transform .15s ease; }
+    .flow-card.flow-collapsed .flow-chevron { transform: rotate(-45deg); }
+    .flow-card.flow-locked .flow-chevron { visibility: hidden; }
+    .flow-status { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .flow-status:empty { display: none; }
+    .flow-continue { display: flex; justify-content: flex-end; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+    details.config-upload { margin-top: 14px; border-top: 0; }
+    details.config-upload summary { padding-top: 0; font-size: 13px; }
+    .horizon-calc { display: grid; gap: 10px; padding: 11px 12px; color: #344054; background: #f6f8fb; border: 1px solid var(--line); border-radius: 8px; font-size: 13px; line-height: 1.45; }
+    .horizon-calc[hidden] { display: none; }
+    .horizon-calc p { margin: 0; }
+    .horizon-calc code { padding: 1px 5px; color: var(--navy); background: #eef2f7; border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+    .horizon-calc .field { gap: 4px; max-width: 260px; }
 
     .field { display: grid; min-width: 0; gap: 6px; }
     .field + .field { margin-top: 14px; }
@@ -967,11 +987,16 @@
                 <small>Public hubs are grouped by status. Four private directory entries are intentionally excluded; 14 public hubs include offline JSON rule snapshots.</small>
               </div>
               <div class="hub-summary" id="hubSummary"></div>
-              <div class="field" style="margin-top:14px">
-                <label for="configFiles">Current forecast configuration <span class="helper">(recommended when prompted)</span></label>
-                <input id="configFiles" type="file" multiple accept=".json,application/json">
-                <small>Select the hub's <code>tasks.json</code>. It is read locally and overrides the selected forecast profile.</small>
-              </div>
+              <details class="advanced config-upload" id="configUploadDetails">
+                <summary>Use a hub configuration file (tasks.json)</summary>
+                <div class="advanced-body">
+                  <div class="field">
+                    <label for="configFiles">Current forecast configuration <span class="helper">(recommended when prompted)</span></label>
+                    <input id="configFiles" type="file" multiple accept=".json,application/json">
+                    <small>Select the hub's <code>tasks.json</code>. It is read locally and overrides the selected forecast profile.</small>
+                  </div>
+                </div>
+              </details>
               <div class="config-loaded" id="configLoaded" hidden></div>
             </div>
 
@@ -986,6 +1011,7 @@
                   <div class="mapping-arrow" aria-hidden="true">←</div>
                   <select id="dateMap" aria-label="Source column for date"></select>
                 </div>
+                <div class="horizon-calc" id="currentReferenceNote" hidden></div>
                 <div class="mapping-row">
                   <div class="mapping-target"><code>location</code><small>Location ID</small></div>
                   <div class="mapping-arrow" aria-hidden="true">←</div>
@@ -1013,6 +1039,7 @@
                 <small>Set by the selected hub's <code>tasks.json</code> configuration.</small>
               </div>
               <div id="configExtraFields"></div>
+              <div class="flow-continue"><button class="button button-primary" type="button" id="confirmMappingButton">Confirm columns &amp; continue</button></div>
             </div>
 
             <div class="card flow-card">
@@ -1029,6 +1056,7 @@
                 <select id="codeLanguage"><option value="python">Python (pandas)</option><option value="r">R (tidyverse)</option></select>
                 <small>The code is displayed and downloadable with the prepared CSV.</small>
               </div>
+              <div class="flow-continue"><button class="button button-primary" type="button" id="confirmPipelineButton">Continue</button></div>
             </div>
 
             <div class="card card-soft flow-card">
@@ -1715,7 +1743,7 @@
 
       const state = {
         step: 1, highestStep: 1, sourceName: '', sourceKind: '', sourceMeta: {}, headers: [], rows: [], droppedBlankRows: 0,
-        hubKey: 'flusight', profile: null, configNames: [], configSource: '', configStatus: '', configBranch: 'main', configRequestCounter: 0, extraMappings: {},
+        hubKey: 'flusight', profile: null, configNames: [], configSource: '', configStatus: '', configBranch: 'main', configRequestCounter: 0, extraMappings: {}, horizonUnit: 'week', horizonUnitTouched: false, referenceAutoDefault: false,
         targetValueMap: new Map(), targetRanges: [], locationCrosswalk: new Map(), customTargetsAdded: false, fixedTargetTouched: false,
         pendingWorkbook: null, transformed: [], columns: [], issues: [], issueFilter: 'all', csv: '', generatedCode: '', tourStep: 0
       };
@@ -1749,6 +1777,80 @@
         tourDialog: $('#tourDialog'), tourKicker: $('#tourKicker'), tourTitle: $('#tourTitle'), tourDescription: $('#tourDescription'), tourBullets: $('#tourBullets'),
         tourBack: $('#tourBackButton'), tourNext: $('#tourNextButton'), hideTour: $('#hideTourCheckbox'), toastRegion: $('#toastRegion')
       };
+
+      // Step 2 is completed one section at a time: hub and columns first, then code, then cleaning defaults.
+      const flow = {cards: [], unlocked: 2, open: new Set([1, 2]), done: new Set()};
+
+      function initSetupFlow() {
+        flow.cards = $$('#step2 .setup-flow > .flow-card');
+        flow.cards.forEach((card, index) => {
+          const number = index + 1;
+          card.dataset.flowSection = String(number);
+          const heading = $('.card-heading', card);
+          const body = document.createElement('div');
+          body.className = 'flow-body';
+          body.id = 'flowBody' + number;
+          Array.from(card.children).forEach(child => { if (child !== heading && !child.classList.contains('info-tip')) body.appendChild(child); });
+          card.appendChild(body);
+          const status = document.createElement('span');
+          status.className = 'flow-status';
+          heading.firstElementChild.appendChild(status);
+          const chevron = document.createElement('span');
+          chevron.className = 'flow-chevron';
+          chevron.setAttribute('aria-hidden', 'true');
+          heading.appendChild(chevron);
+          heading.setAttribute('role', 'button');
+          heading.setAttribute('aria-controls', body.id);
+          heading.addEventListener('click', () => toggleFlowSection(number));
+          heading.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleFlowSection(number); } });
+          if (number <= 2) body.addEventListener('change', () => { if (flow.done.has(2)) { flow.done.delete(2); renderSetupFlow(); } });
+        });
+        renderSetupFlow();
+      }
+
+      function renderSetupFlow() {
+        flow.cards.forEach((card, index) => {
+          const number = index + 1;
+          const locked = number > flow.unlocked;
+          const open = !locked && flow.open.has(number);
+          const heading = $('.card-heading', card);
+          card.classList.toggle('flow-collapsed', !open);
+          card.classList.toggle('flow-locked', locked);
+          card.classList.toggle('flow-done', flow.done.has(number));
+          $('.flow-body', card).hidden = !open;
+          heading.setAttribute('aria-expanded', String(open));
+          heading.setAttribute('aria-disabled', String(locked));
+          heading.tabIndex = locked ? -1 : 0;
+          $('.flow-status', heading).textContent = locked ? 'Opens after section ' + (number - 1) : '';
+        });
+      }
+
+      function toggleFlowSection(number) {
+        if (number > flow.unlocked) return;
+        if (flow.open.has(number)) flow.open.delete(number); else flow.open.add(number);
+        renderSetupFlow();
+      }
+
+      function completeFlowSection(number) {
+        flow.done.add(number);
+        flow.unlocked = Math.max(flow.unlocked, number + 1);
+        flow.open.add(number + 1);
+        renderSetupFlow();
+        const next = flow.cards[number];
+        if (next) setTimeout(() => next.scrollIntoView({behavior:'smooth', block:'start'}), 60);
+      }
+
+      function resetSetupFlow() {
+        flow.unlocked = 2; flow.open = new Set([1, 2]); flow.done = new Set();
+        renderSetupFlow();
+      }
+
+      function maybeOpenConfigUpload() {
+        const details = $('#configUploadDetails');
+        if (!details || !state.profile || state.configNames.length) return;
+        const needsConfig = (state.configStatus === 'fallback' && !state.profile.embeddedConfig) || (state.configStatus === '' && state.profile.requiresConfig);
+        if (needsConfig) details.open = true;
+      }
 
       function showToast(message, type = 'info') {
         const toast = document.createElement('div');
@@ -2131,6 +2233,7 @@
         state.highestStep = 1;
         updateSourceSummary();
         populateMappingControls();
+        resetSetupFlow();
         renderSourcePreview();
         showToast(state.rows.length.toLocaleString() + ' rows added.', 'success');
       }
@@ -2184,6 +2287,8 @@
         const outputTypeId = findBestHeader('outputTypeId', [date, location, outputType]);
         const value = findBestHeader('value', [date, location, outputType, outputTypeId]);
         fillSourceSelect(elements.dateMap, date);
+        state.referenceAutoDefault = !date || /targetend|targetdate/.test(normalizeHeader(date)) || !/date|week|time|period|ref|origin/.test(normalizeHeader(date));
+        state.extraMappings = {};
         fillSourceSelect(elements.locationMap, location);
         fillSourceSelect(elements.outputTypeMap, outputType);
         fillSourceSelect(elements.outputTypeIdMap, outputTypeId);
@@ -2373,6 +2478,7 @@
         state.configRequestCounter += 1;
         state.hubKey = key;
         state.profile = profileClone(key);
+        state.horizonUnitTouched = false;
         state.configNames = []; state.configSource = ''; state.configStatus = ''; state.configBranch = 'main';
         state.targetValueMap = new Map(); state.targetRanges = []; state.locationCrosswalk = new Map(); state.customTargetsAdded = false; state.fixedTargetTouched = false;
         elements.configFiles.value = ''; elements.configLoaded.hidden = true;
@@ -2395,6 +2501,7 @@
         const configNote = state.configStatus === 'checking' ? '<div class="hub-config-note"><strong>Checking the hub’s current tasks.json…</strong> The bundled forecast profile remains available while this check runs.</div>' : state.configStatus === 'fallback' ? (state.profile.embeddedConfig ? '<div class="hub-config-note"><strong>The live check was unavailable.</strong> The bundled forecast snapshot is active. You can upload the current <code>tasks.json</code> below.</div>' : '<div class="hub-config-note"><strong>The live check was unavailable, and no exact snapshot is bundled for this hub.</strong> Upload its current <code>tasks.json</code> before relying on hub-specific forecast rules.</div>') : state.profile.requiresConfig && !state.configNames.length ? '<div class="hub-config-note"><strong>No public forecast snapshot is embedded for this hub.</strong> Add its current <code>tasks.json</code>, or enter the exact target IDs and location crosswalk in the next step.</div>' : (state.profile.embeddedConfig && !state.configNames.length ? '<div class="hub-config-note"><strong>The bundled forecast snapshot is active.</strong> The hosted tool checks for a newer public <code>tasks.json</code> automatically; you can also upload one below.</div>' : '');
         elements.hubSummary.innerHTML = '<div class="hub-summary-line"><strong>' + escapeHtml(state.profile.name) + '</strong>' + repository + '</div><span>' + escapeHtml(state.profile.snapshot || '') + '</span>' + configSources + '<div class="hub-tags"><span class="hub-tag">' + escapeHtml(state.profile.category || 'Flexible') + '</span><span class="hub-tag">' + escapeHtml(rulesText) + '</span><span class="hub-tag">date: ' + escapeHtml(state.profile.dateField) + '</span><span class="hub-tag">' + escapeHtml(targetText) + '</span><span class="hub-tag">' + escapeHtml(locationText) + '</span><span class="hub-tag">outputs: ' + escapeHtml(outputTypeText) + '</span>' + (state.profile.weekday === 6 ? '<span class="hub-tag">weekly Saturday dates</span>' : '') + '</div>' + configNote;
         elements.assignmentHubBadge.textContent = state.profile.shortName || state.profile.name;
+        setTimeout(maybeOpenConfigUpload, 0);
       }
 
       function primitiveValues(value) {
@@ -2589,22 +2696,193 @@
         }
       }
 
+      // Task fields that can be derived when the source file does not supply them.
+      const HORIZON_CALCULATED = '__calculate_horizon__';
+      const TARGET_END_CALCULATED = '__calculate_target_end__';
+      const CURRENT_REFERENCE = '__current_reference_date__';
+      const HORIZON_REFERENCE_FIELDS = ['reference_date','origin_date','forecast_date'];
+      const HORIZON_END_FIELDS = ['target_end_date','target_date'];
+      const WEEKDAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+      function horizonCalculationFields() {
+        if (!state.profile) return null;
+        const additional = state.profile.additionalFields || [];
+        if (!additional.includes('horizon')) return null;
+        const available = [state.profile.dateField, ...additional];
+        const reference = HORIZON_REFERENCE_FIELDS.find(field => available.includes(field));
+        const end = HORIZON_END_FIELDS.find(field => additional.includes(field));
+        return reference && end ? {reference, end} : null;
+      }
+
+      function horizonIsCalculated() {
+        return state.extraMappings.horizon === HORIZON_CALCULATED && !!horizonCalculationFields();
+      }
+
+      function targetEndIsCalculated() {
+        const fields = horizonCalculationFields();
+        return !!fields && state.extraMappings[fields.end] === TARGET_END_CALCULATED;
+      }
+
+      function localTodayIso() {
+        const today = new Date();
+        return String(today.getFullYear()).padStart(4, '0') + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+      }
+
+      function currentReferenceDate() {
+        if (!state.profile || !HORIZON_REFERENCE_FIELDS.includes(state.profile.dateField)) return null;
+        const weekday = state.profile.weekday;
+        if (Number.isInteger(weekday)) return {value:nextWeekdayIso(weekday), basis:weekday === 6 ? 'the Saturday ending the current Sunday–Saturday week' : 'the next ' + WEEKDAY_NAMES[weekday] + ' (this hub’s round day)'};
+        const upcoming = configuredDateValues(state.profile.dateField).filter(value => value >= localTodayIso()).sort();
+        if (upcoming.length) return {value:upcoming[0], basis:'the next upcoming round date listed in the hub’s tasks.json'};
+        return null;
+      }
+
+      function referenceIsCurrent() {
+        return elements.dateMap.value === CURRENT_REFERENCE && !!currentReferenceDate();
+      }
+
+      function updateCurrentReferenceNote() {
+        const note = $('#currentReferenceNote');
+        if (!note) return;
+        const info = currentReferenceDate();
+        if (elements.dateMap.value !== CURRENT_REFERENCE || !info) { note.hidden = true; note.innerHTML = ''; return; }
+        note.hidden = false;
+        note.innerHTML = '<p><strong>Every row will use <code>' + escapeHtml(state.profile.dateField) + '</code> = ' + escapeHtml(info.value) + '.</strong> This is ' + escapeHtml(info.basis) + ', based on today’s date. Reusable code recalculates it each time it runs.</p>';
+      }
+
+      function refreshCurrentReferenceOption() {
+        const select = elements.dateMap;
+        const isReferenceField = !!state.profile && HORIZON_REFERENCE_FIELDS.includes(state.profile.dateField);
+        let option = select.querySelector('option[value="' + CURRENT_REFERENCE + '"]');
+        if (!isReferenceField) {
+          if (option) { const wasSelected = select.value === CURRENT_REFERENCE; option.remove(); if (wasSelected) select.value = ''; }
+          updateCurrentReferenceNote();
+          return;
+        }
+        const info = currentReferenceDate();
+        if (!option) {
+          option = document.createElement('option');
+          option.value = CURRENT_REFERENCE;
+          select.insertBefore(option, select.options[1] || null);
+        }
+        option.disabled = !info;
+        option.textContent = info ? 'Use the current week’s ' + state.profile.dateField + ' (' + info.value + ')' : 'Current week’s ' + state.profile.dateField + ' (needs a hub schedule or tasks.json dates)';
+        if (!info && select.value === CURRENT_REFERENCE) select.value = '';
+        if (info && state.referenceAutoDefault) select.value = CURRENT_REFERENCE;
+        updateCurrentReferenceNote();
+      }
+
+      function inferHorizonUnit() {
+        if (state.profile.weekday !== null && state.profile.weekday !== undefined) return 'week';
+        const text = (state.profile.targets || []).map(target => target.id + ' ' + (target.label || '')).join(' ').toLowerCase();
+        if (/\b(day|days|daily)\b/.test(text) && !/\bwk\b|week/.test(text)) return 'day';
+        return 'week';
+      }
+
+      function horizonUnitDays() { return state.horizonUnit === 'day' ? 1 : 7; }
+
+      function allowedHorizonValues() {
+        const configured = (state.profile.taskValues && state.profile.taskValues.horizon) || [];
+        return Array.from(new Set(configured.map(value => {
+          const text = normalizeText(value);
+          return /^[-+]?\d+(?:\.0+)?$/.test(text) ? String(Number(text)) : text;
+        }).filter(Boolean)));
+      }
+
+      function calculateHorizon(referenceIso, endIso) {
+        const unitDays = horizonUnitDays();
+        const days = Math.round((Date.parse(endIso + 'T00:00:00Z') - Date.parse(referenceIso + 'T00:00:00Z')) / 86400000);
+        if (!Number.isFinite(days)) return {error:'The dates could not be compared.'};
+        if (days % unitDays !== 0) return {error:endIso + ' is ' + days + ' days after ' + referenceIso + ', which is not a whole number of weeks.'};
+        const horizon = days / unitDays;
+        return {value:String(horizon === 0 ? 0 : horizon)};
+      }
+
+      function sourceColumnIsBlank(header) {
+        return !!header && state.rows.length > 0 && state.rows.every(row => !normalizeText(row[header]));
+      }
+
+      function derivedPanelMarkup(fields, mode) {
+        const allowed = allowedHorizonValues();
+        const allowedText = allowed.length ? ' This hub accepts horizons: <code>' + allowed.map(escapeHtml).join('</code>, <code>') + '</code>.' : '';
+        const description = mode === 'end'
+          ? '<strong><code>' + escapeHtml(fields.end) + '</code> will be calculated for every row</strong> as <code>' + escapeHtml(fields.reference) + '</code> plus <code>horizon</code> units, written as YYYY-MM-DD. Horizons are written as whole numbers.' + allowedText
+          : '<strong><code>horizon</code> will be calculated for every row</strong> as the number of units between <code>' + escapeHtml(fields.reference) + '</code> and <code>' + escapeHtml(fields.end) + '</code>, written as a whole number (for example <code>-1</code>, <code>0</code>, or <code>2</code>).' + allowedText;
+        return '<div class="horizon-calc" data-horizon-panel' + (mode ? '' : ' hidden') + '>' +
+          '<p data-horizon-description>' + description + '</p>' +
+          '<div class="field"><label for="horizonUnitSelect">Horizon unit</label><select id="horizonUnitSelect" data-horizon-unit>' +
+          '<option value="week"' + (state.horizonUnit === 'week' ? ' selected' : '') + '>Weeks (7 days)</option>' +
+          '<option value="day"' + (state.horizonUnit === 'day' ? ' selected' : '') + '>Days</option></select></div></div>';
+      }
+
+      function activeDerivedMode() {
+        if (targetEndIsCalculated()) return 'end';
+        if (horizonIsCalculated()) return 'horizon';
+        return '';
+      }
+
       function renderExtraMappings() {
         if (!state.profile) return;
+        refreshCurrentReferenceOption();
         const fields = state.profile.additionalFields || state.profile.observableUnit.filter(field => ![state.profile.dateField,'target','location','output_type','output_type_id','value'].includes(field));
         state.profile.additionalFields = fields;
         const previous = Object.assign({}, state.extraMappings);
         state.extraMappings = {};
         if (!fields.length) { elements.configExtraFields.innerHTML = ''; return; }
-        elements.configExtraFields.innerHTML = '<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line)"><h4>Other required forecast task fields</h4><p class="helper" style="margin:4px 0 12px">These configured task-ID columns will be retained before the model-output representation columns.</p><div class="mapping-list">' + fields.map(field => {
-          const selected = state.headers.includes(previous[field]) ? previous[field] : findBestHeader(field);
-          state.extraMappings[field] = selected;
-          return '<div class="mapping-row config-requirement" data-field="' + escapeHtml(field) + '"><div class="mapping-target"><code>' + escapeHtml(field) + '</code><small>Required by config</small></div><div class="mapping-arrow">←</div><select aria-label="Source column for ' + escapeHtml(field) + '"><option value="">Choose a source column…</option>' + state.headers.map(header => '<option value="' + escapeHtml(header) + '"' + (header === selected ? ' selected' : '') + '>' + escapeHtml(header) + '</option>').join('') + '</select></div>';
-        }).join('') + '</div></div>';
+        const derived = horizonCalculationFields();
+        if (!state.horizonUnitTouched) state.horizonUnit = inferHorizonUnit();
+        const calculatedValue = field => derived && field === 'horizon' ? HORIZON_CALCULATED : (derived && field === derived.end ? TARGET_END_CALCULATED : '');
+
+        // Choose mappings first: keep earlier choices, otherwise match a column, otherwise offer a calculation.
+        fields.forEach(field => {
+          const calculation = calculatedValue(field);
+          if (calculation && previous[field] === calculation) state.extraMappings[field] = calculation;
+          else if (state.headers.includes(previous[field])) state.extraMappings[field] = previous[field];
+          else {
+            let best = findBestHeader(field);
+            if (calculation === TARGET_END_CALCULATED && best && !/date|end|week/.test(normalizeHeader(best))) best = '';
+            state.extraMappings[field] = calculation === HORIZON_CALCULATED && (!best || sourceColumnIsBlank(best)) ? HORIZON_CALCULATED : best;
+          }
+        });
+        if (derived) {
+          const endSource = state.extraMappings[derived.end];
+          const horizonSource = state.extraMappings.horizon;
+          const endMissing = !endSource || (endSource !== TARGET_END_CALCULATED && sourceColumnIsBlank(endSource));
+          if (endMissing && horizonSource && horizonSource !== HORIZON_CALCULATED && !sourceColumnIsBlank(horizonSource)) state.extraMappings[derived.end] = TARGET_END_CALCULATED;
+          if (state.extraMappings[derived.end] === TARGET_END_CALCULATED && state.extraMappings.horizon === HORIZON_CALCULATED) state.extraMappings.horizon = '';
+        }
+
+        const displayFields = fields.slice();
+        const horizonIndex = displayFields.indexOf('horizon');
+        const endDateField = HORIZON_END_FIELDS.find(field => displayFields.includes(field));
+        if (horizonIndex >= 0 && endDateField && displayFields.indexOf(endDateField) > horizonIndex) {
+          displayFields.splice(displayFields.indexOf(endDateField), 1);
+          displayFields.splice(horizonIndex, 0, endDateField);
+        }
+        elements.configExtraFields.innerHTML = '<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line)"><h4>Other required forecast task fields</h4><p class="helper" style="margin:4px 0 12px">These configured task-ID columns will be retained before the model-output representation columns.</p><div class="mapping-list">' + displayFields.map(field => {
+          const selected = state.extraMappings[field];
+          const calculation = calculatedValue(field);
+          const calculationLabel = calculation === HORIZON_CALCULATED ? 'Calculate from ' + derived.reference + ' and ' + derived.end : (calculation ? 'Calculate from ' + derived.reference + ' and horizon' : '');
+          const calculateOption = calculation ? '<option value="' + calculation + '"' + (selected === calculation ? ' selected' : '') + '>' + escapeHtml(calculationLabel) + '</option>' : '';
+          return '<div class="mapping-row config-requirement" data-field="' + escapeHtml(field) + '"><div class="mapping-target"><code>' + escapeHtml(field) + '</code><small>' + (calculation ? 'Required by config · can be calculated' : 'Required by config') + '</small></div><div class="mapping-arrow">←</div><select aria-label="Source column for ' + escapeHtml(field) + '"><option value="">Choose a source column…</option>' + calculateOption + state.headers.map(header => '<option value="' + escapeHtml(header) + '"' + (header === selected ? ' selected' : '') + '>' + escapeHtml(header) + '</option>').join('') + '</select></div>';
+        }).join('') + (derived ? derivedPanelMarkup(derived, activeDerivedMode()) : '') + '</div></div>';
         $$('.config-requirement', elements.configExtraFields).forEach(row => {
           const field = row.dataset.field;
-          $('select', row).addEventListener('change', event => { state.extraMappings[field] = event.target.value; invalidateOutput(); });
+          $('select', row).addEventListener('change', event => {
+            state.extraMappings[field] = event.target.value;
+            if (derived) {
+              const mode = activeDerivedMode();
+              const panel = $('[data-horizon-panel]', elements.configExtraFields);
+              if (panel) {
+                panel.hidden = !mode;
+                if (mode) $('[data-horizon-description]', panel).outerHTML = $('[data-horizon-description]', (() => { const holder = document.createElement('div'); holder.innerHTML = derivedPanelMarkup(derived, mode); return holder; })()).outerHTML;
+              }
+            }
+            invalidateOutput();
+          });
         });
+        const unitSelect = $('[data-horizon-unit]', elements.configExtraFields);
+        if (unitSelect) unitSelect.addEventListener('change', event => { state.horizonUnit = event.target.value; state.horizonUnitTouched = true; invalidateOutput(); });
       }
 
       function validateMappingSetup() {
@@ -2615,6 +2893,7 @@
         const required = [elements.dateMap.value, elements.locationMap.value, elements.outputTypeMap.value, elements.outputTypeIdMap.value, elements.valueMap.value];
         if (required.some(value => !value)) { showToast('Choose source columns for the primary date, location, output_type, output_type_id, and value.', 'error'); return false; }
         if (new Set(required).size !== required.length) { showToast('The primary date, location, output_type, output_type_id, and value must use different source columns.', 'error'); return false; }
+        if (horizonIsCalculated() && targetEndIsCalculated()) { showToast('Horizon and ' + horizonCalculationFields().end + ' cannot both be calculated. Map one of them to a source column.', 'error'); return false; }
         const missingExtra = state.profile.additionalFields.filter(field => !state.extraMappings[field]);
         if (missingExtra.length) { showToast('Map the required hub field' + (missingExtra.length === 1 ? '' : 's') + ': ' + missingExtra.join(', ') + '.', 'error'); return false; }
         return true;
@@ -3076,6 +3355,9 @@
         const allowedTargets = new Set(state.profile.targets.map(target => target.id));
         const allowedLocations = state.profile.allowedLocations ? new Set(state.profile.allowedLocations) : null;
         let ambiguousDates = 0;
+        const currentReference = dateSource === CURRENT_REFERENCE ? currentReferenceDate() : null;
+        if (dateSource === CURRENT_REFERENCE && !currentReference) addIssue(issues, 'error', 'Current reference date unavailable', 'This hub has no weekly schedule or upcoming tasks.json dates. Map ' + state.profile.dateField + ' to a source column in step 2.', null, 'current-reference');
+        const calculatedTargetEnd = targetEndIsCalculated();
 
         state.rows.forEach((sourceRow, index) => {
           const sourceRowNumber = index + 1;
@@ -3085,7 +3367,7 @@
             issues.push(item); output.__issues.push(item);
           };
 
-          const parsedDate = parseDateValue(sourceRow[dateSource], elements.dateStrategy.value);
+          const parsedDate = currentReference ? {value:currentReference.value, changed:false} : parseDateValue(sourceRow[dateSource], elements.dateStrategy.value);
           output[state.profile.dateField] = parsedDate.value || normalizeText(sourceRow[dateSource]);
           if (!parsedDate.value) rowIssue('error', 'Invalid target date', 'Could not read “' + normalizeText(sourceRow[dateSource]) + '” as a calendar date.', 'date');
           else {
@@ -3109,7 +3391,10 @@
             else if (!allowedTargets.has(assigned.value)) rowIssue('error', 'Unknown target', '“' + assigned.value + '” is not in the current target list.', 'target-invalid');
           }
 
+          const calculatedHorizon = horizonIsCalculated();
           state.profile.additionalFields.forEach(field => {
+            if (field === 'horizon' && calculatedHorizon) return;
+            if (calculatedTargetEnd && field === horizonCalculationFields().end) return;
             const sourceValue = sourceRow[state.extraMappings[field]];
             if (/date/i.test(field)) {
               const parsedTaskDate = parseDateValue(sourceValue, elements.dateStrategy.value);
@@ -3120,7 +3405,38 @@
             if (!output[field]) rowIssue('error', 'Blank ' + field, 'This forecast task field is required by the hub configuration.', 'extra-field');
           });
 
-          if (state.profile.weekday !== null && state.profile.weekday !== undefined && output.reference_date && output.target_end_date && output.horizon !== undefined) {
+          if (calculatedHorizon) {
+            const horizonFields = horizonCalculationFields();
+            const referenceIso = output[horizonFields.reference], endIso = output[horizonFields.end];
+            const validIso = value => !!value && parseDateValue(value, 'ymd').value === value;
+            output.horizon = '';
+            if (validIso(referenceIso) && validIso(endIso)) {
+              const calculated = calculateHorizon(referenceIso, endIso);
+              if (calculated.error) rowIssue('error', 'Horizon could not be calculated', calculated.error + ' Check the dates or switch the horizon unit in step 2.', 'horizon-calc');
+              else {
+                output.horizon = calculated.value;
+                const allowedHorizons = allowedHorizonValues();
+                if (allowedHorizons.length && !allowedHorizons.includes(calculated.value)) rowIssue('error', 'Calculated horizon not accepted by hub', 'Horizon ' + calculated.value + ' (from ' + referenceIso + ' to ' + endIso + ') is not one of the hub’s accepted horizons: ' + allowedHorizons.join(', ') + '.', 'horizon-calc-invalid');
+              }
+            }
+          }
+
+          if (calculatedTargetEnd) {
+            const derivedFields = horizonCalculationFields();
+            const referenceIso = output[derivedFields.reference];
+            const horizonNumber = Number(normalizeText(output.horizon));
+            output[derivedFields.end] = '';
+            if (output.horizon && !Number.isInteger(horizonNumber)) rowIssue('error', derivedFields.end + ' could not be calculated', 'Horizon “' + output.horizon + '” is not a whole number.', 'target-end-calc');
+            else if (referenceIso && parseDateValue(referenceIso, 'ymd').value === referenceIso && output.horizon) {
+              output.horizon = String(horizonNumber === 0 ? 0 : horizonNumber);
+              output[derivedFields.end] = addDaysToIso(referenceIso, horizonNumber * horizonUnitDays());
+              dateScheduleWarning(rowIssue, derivedFields.end, output[derivedFields.end]);
+              const allowedHorizons = allowedHorizonValues();
+              if (allowedHorizons.length && !allowedHorizons.includes(output.horizon)) rowIssue('error', 'Horizon not accepted by hub', 'Horizon ' + output.horizon + ' is not one of the hub’s accepted horizons: ' + allowedHorizons.join(', ') + '.', 'horizon-invalid');
+            }
+          }
+
+          if (!calculatedHorizon && !calculatedTargetEnd && state.profile.weekday !== null && state.profile.weekday !== undefined && output.reference_date && output.target_end_date && output.horizon !== undefined) {
             const horizon = Number(output.horizon);
             if (Number.isInteger(horizon)) {
               const expectedTargetEnd = addDaysToIso(output.reference_date, horizon * 7);
@@ -3219,7 +3535,8 @@
         const targetMap = Object.fromEntries(state.targetValueMap.entries());
         return {
           input_file:state.sourceMeta.isFile ? state.sourceName : 'source.csv', source_kind:state.sourceKind, extension:state.sourceMeta.extension || '.csv',
-          sheet_name:state.sourceMeta.sheetName || null, header_row:Number(state.sourceMeta.headerRow || 1), date_column:elements.dateMap.value,
+          sheet_name:state.sourceMeta.sheetName || null, header_row:Number(state.sourceMeta.headerRow || 1), date_column:referenceIsCurrent() ? null : elements.dateMap.value,
+          current_reference:referenceIsCurrent() ? {weekday:Number.isInteger(state.profile.weekday) ? state.profile.weekday : null, configured_dates:configuredDateValues(state.profile.dateField)} : null,
           location_column:elements.locationMap.value, output_type_column:elements.outputTypeMap.value, output_type_id_column:elements.outputTypeIdMap.value, value_column:elements.valueMap.value, date_field:state.profile.dateField,
           date_strategy:elements.dateStrategy.value, allow_missing:elements.allowMissing.checked, sort_output:elements.sortOutput.checked,
           weekday:state.profile.weekday, task_values:state.profile.taskValues || {}, target_required:state.profile.targetRequired, target_mode:elements.targetAssignmentMode.value,
@@ -3228,7 +3545,10 @@
           target_types:Object.fromEntries(state.profile.targets.map(target => [target.id,target.type || 'number'])),
           allowed_output_types:state.profile.outputTypes || [], output_type_ids:state.profile.outputTypeIds || {}, output_value_types:state.profile.outputValueTypes || {},
           fallback_type:elements.valueType.value === 'auto' ? 'number' : elements.valueType.value,
-          location_map:locationMap, allowed_locations:state.profile.allowedLocations || null, extra_mappings:state.extraMappings,
+          location_map:locationMap, allowed_locations:state.profile.allowedLocations || null,
+          extra_mappings:Object.fromEntries(Object.entries(state.extraMappings).filter(([field, source]) => ![HORIZON_CALCULATED, TARGET_END_CALCULATED].includes(source))),
+          calculated_target_end:targetEndIsCalculated() ? {field:horizonCalculationFields().end, reference_field:horizonCalculationFields().reference, horizon_field:'horizon', unit_days:horizonUnitDays(), allowed_values:allowedHorizonValues()} : null,
+          calculated_horizon:horizonIsCalculated() ? Object.assign({field:'horizon', unit_days:horizonUnitDays(), allowed_values:allowedHorizonValues()}, (() => { const fields = horizonCalculationFields(); return {reference_field:fields.reference, end_field:fields.end}; })()) : null,
           output_columns:state.columns, unit_columns:state.columns.filter(column => column !== 'value')
         };
       }
@@ -3420,12 +3740,24 @@ def parse_forecast_value(value, target, output_type):
     return int(number) if number.is_integer() else number
 
 
+def current_reference_date():
+    rule = CONFIG["current_reference"]
+    today = date.today()
+    if rule.get("weekday") is not None:
+        python_weekday = (rule["weekday"] - 1) % 7
+        return (today + timedelta(days=(python_weekday - today.weekday()) % 7)).isoformat()
+    upcoming = sorted(value for value in rule.get("configured_dates") or [] if value >= today.isoformat())
+    if not upcoming:
+        raise ValueError("no upcoming reference date is configured for this hub")
+    return upcoming[0]
+
+
 def prepare(source):
     output_rows = []
     errors = []
     for position, (_, row) in enumerate(source.iterrows(), start=1):
         try:
-            target_date = parse_date(row[CONFIG["date_column"]])
+            target_date = current_reference_date() if CONFIG.get("current_reference") else parse_date(row[CONFIG["date_column"]])
             if not target_date:
                 raise ValueError("target date is invalid")
             warn_date_schedule(CONFIG["date_field"], target_date, primary=True)
@@ -3448,7 +3780,37 @@ def prepare(source):
                     raise ValueError(f"required field {field!r} is blank")
                 if "date" in field.lower():
                     warn_date_schedule(field, record[field])
-            if CONFIG.get("weekday") is not None and record.get("reference_date") and record.get("target_end_date") and "horizon" in record:
+            end_rule = CONFIG.get("calculated_target_end")
+            if end_rule:
+                reference_value = record.get(end_rule["reference_field"])
+                try:
+                    horizon_number = float(text_value(record.get(end_rule["horizon_field"])))
+                except ValueError:
+                    horizon_number = None
+                if not reference_value or horizon_number is None or not horizon_number.is_integer():
+                    raise ValueError("target end date cannot be calculated without a valid reference date and whole-number horizon")
+                horizon = int(horizon_number)
+                allowed_horizons = [str(value) for value in end_rule.get("allowed_values") or []]
+                if allowed_horizons and str(horizon) not in allowed_horizons:
+                    raise ValueError(f"horizon {horizon} is not accepted by this hub ({', '.join(allowed_horizons)})")
+                record[end_rule["horizon_field"]] = horizon
+                record[end_rule["field"]] = (date.fromisoformat(reference_value) + timedelta(days=horizon * end_rule["unit_days"])).isoformat()
+                warn_date_schedule(end_rule["field"], record[end_rule["field"]])
+            horizon_rule = CONFIG.get("calculated_horizon")
+            if horizon_rule:
+                reference_value = record.get(horizon_rule["reference_field"])
+                end_value = record.get(horizon_rule["end_field"])
+                if not reference_value or not end_value:
+                    raise ValueError("horizon cannot be calculated without valid reference and target end dates")
+                day_difference = (date.fromisoformat(end_value) - date.fromisoformat(reference_value)).days
+                if day_difference % horizon_rule["unit_days"]:
+                    raise ValueError(f"{end_value} is {day_difference} days after {reference_value}, which is not a whole number of weeks")
+                horizon = day_difference // horizon_rule["unit_days"]
+                allowed_horizons = [str(value) for value in horizon_rule.get("allowed_values") or []]
+                if allowed_horizons and str(horizon) not in allowed_horizons:
+                    raise ValueError(f"calculated horizon {horizon} is not accepted by this hub ({', '.join(allowed_horizons)})")
+                record[horizon_rule["field"]] = horizon
+            elif not end_rule and CONFIG.get("weekday") is not None and record.get("reference_date") and record.get("target_end_date") and "horizon" in record:
                 try:
                     horizon_number = float(text_value(record["horizon"]))
                     horizon = int(horizon_number) if horizon_number.is_integer() else None
@@ -3692,13 +4054,26 @@ parse_forecast_value <- function(value, target, output_type) {
   as.character(number)
 }
 
+current_reference_date <- function() {
+  rule <- CONFIG$current_reference
+  today <- Sys.Date()
+  if (!is.null(rule$weekday)) {
+    offset <- (as.integer(rule$weekday) - as.POSIXlt(today)$wday) %% 7
+    return(format(today + offset, "%Y-%m-%d"))
+  }
+  upcoming <- sort(as.character(unlist(rule$configured_dates)))
+  upcoming <- upcoming[upcoming >= format(today, "%Y-%m-%d")]
+  if (!length(upcoming)) stop("no upcoming reference date is configured for this hub")
+  upcoming[[1]]
+}
+
 prepare <- function(source) {
   records <- vector("list", nrow(source))
   errors <- character()
   for (position in seq_len(nrow(source))) {
     tryCatch({
       row <- source[position, , drop = FALSE]
-      target_date <- parse_date_value(row[[CONFIG$date_column]][[1]])
+      target_date <- if (!is.null(CONFIG$current_reference)) current_reference_date() else parse_date_value(row[[CONFIG$date_column]][[1]])
       if (is.na(target_date)) stop("target date is invalid")
       warn_date_schedule(CONFIG$date_field, target_date, primary = TRUE)
       source_location <- text_value(row[[CONFIG$location_column]][[1]])
@@ -3720,7 +4095,31 @@ prepare <- function(source) {
         if (record[[field]] == "") stop(paste("required field", shQuote(field), "is blank"))
         if (grepl("date", field, ignore.case = TRUE)) warn_date_schedule(field, record[[field]])
       }
-      if (!is.null(CONFIG$weekday) && !is.null(record$reference_date) && !is.null(record$target_end_date) && !is.null(record$horizon)) {
+      end_rule <- CONFIG$calculated_target_end
+      if (!is.null(end_rule)) {
+        reference_value <- record[[end_rule$reference_field]]
+        horizon_number <- suppressWarnings(as.numeric(record[[end_rule$horizon_field]]))
+        if (is.null(reference_value) || is.na(reference_value) || length(horizon_number) == 0 || is.na(horizon_number) || horizon_number != trunc(horizon_number)) stop("target end date cannot be calculated without a valid reference date and whole-number horizon")
+        horizon <- as.integer(horizon_number)
+        allowed_horizons <- as.character(unlist(end_rule$allowed_values))
+        if (length(allowed_horizons) && !as.character(horizon) %in% allowed_horizons) stop(paste0("horizon ", horizon, " is not accepted by this hub (", paste(allowed_horizons, collapse = ", "), ")"))
+        record[[end_rule$horizon_field]] <- as.character(horizon)
+        record[[end_rule$field]] <- format(as.Date(reference_value) + horizon * as.integer(end_rule$unit_days), "%Y-%m-%d")
+        warn_date_schedule(end_rule$field, record[[end_rule$field]])
+      }
+      horizon_rule <- CONFIG$calculated_horizon
+      if (!is.null(horizon_rule)) {
+        reference_value <- record[[horizon_rule$reference_field]]
+        end_value <- record[[horizon_rule$end_field]]
+        if (is.null(reference_value) || is.null(end_value) || is.na(reference_value) || is.na(end_value)) stop("horizon cannot be calculated without valid reference and target end dates")
+        day_difference <- as.integer(as.Date(end_value) - as.Date(reference_value))
+        unit_days <- as.integer(horizon_rule$unit_days)
+        if (day_difference %% unit_days != 0) stop(paste(end_value, "is", day_difference, "days after", reference_value, "which is not a whole number of weeks"))
+        horizon <- as.character(day_difference %/% unit_days)
+        allowed_horizons <- as.character(unlist(horizon_rule$allowed_values))
+        if (length(allowed_horizons) && !horizon %in% allowed_horizons) stop(paste0("calculated horizon ", horizon, " is not accepted by this hub (", paste(allowed_horizons, collapse = ", "), ")"))
+        record[[horizon_rule$field]] <- horizon
+      } else if (is.null(end_rule) && !is.null(CONFIG$weekday) && !is.null(record$reference_date) && !is.null(record$target_end_date) && !is.null(record$horizon)) {
         horizon_number <- suppressWarnings(as.numeric(record$horizon))
         if (!is.na(horizon_number) && horizon_number == trunc(horizon_number)) {
           expected_target_end <- format(as.Date(record$reference_date) + as.integer(horizon_number) * 7, "%Y-%m-%d")
@@ -3814,7 +4213,7 @@ message(sprintf("Wrote %s rows to forecast-model-output.csv", format(nrow(prepar
         elements.allowMissing.checked = false; elements.sortOutput.checked = true; elements.generateCode.checked = false;
         elements.codeLanguage.value = 'python'; elements.codeLanguageField.hidden = true; elements.dateStrategy.value = 'auto'; elements.valueType.value = 'auto';
         elements.targetAssignmentMode.value = 'fixed'; elements.crosswalkPaste.value = ''; elements.hubSelect.value = 'flusight';
-        applyHubProfile('flusight'); setInputMode('upload'); goToStep(1);
+        applyHubProfile('flusight'); setInputMode('upload'); resetSetupFlow(); goToStep(1);
       }
 
       const tourContent = [
@@ -3845,6 +4244,9 @@ message(sprintf("Wrote %s rows to forecast-model-output.csv", format(nrow(prepar
         if (typeof elements.tourDialog.close === 'function') elements.tourDialog.close(); else elements.tourDialog.removeAttribute('open');
       }
 
+      initSetupFlow();
+      $('#confirmMappingButton').addEventListener('click', () => { if (validateMappingSetup()) completeFlowSection(2); });
+      $('#confirmPipelineButton').addEventListener('click', () => completeFlowSection(3));
       $$('.nav-button').forEach(button => button.addEventListener('click', () => setView(button.dataset.view)));
       $('#brandHome').addEventListener('click', event => { event.preventDefault(); setView('prepare'); });
       $('#aboutStartButton').addEventListener('click', () => setView('prepare'));
@@ -3882,6 +4284,7 @@ message(sprintf("Wrote %s rows to forecast-model-output.csv", format(nrow(prepar
       elements.toStep2.addEventListener('click', () => { unlockStep(2); goToStep(2); });
       elements.hubSelect.addEventListener('change', event => { applyHubProfile(event.target.value); invalidateOutput(); });
       elements.configFiles.addEventListener('change', event => readHubConfigs(Array.from(event.target.files)));
+      elements.dateMap.addEventListener('change', () => { state.referenceAutoDefault = false; updateCurrentReferenceNote(); });
       [elements.dateMap,elements.outputTypeMap,elements.outputTypeIdMap,elements.valueMap].forEach(control => control.addEventListener('change', invalidateOutput));
       elements.locationMap.addEventListener('change', () => { state.locationCrosswalk = new Map(); refreshLocationCrosswalk(true); invalidateOutput(); });
       elements.dateStrategy.addEventListener('change', invalidateOutput);
