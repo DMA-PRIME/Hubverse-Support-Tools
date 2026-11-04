@@ -64,6 +64,10 @@ The hosted Model Metadata Generator checks the selected hub's current public sch
 
 The hosted Forecast Preparation Tool checks the selected hub's current public `hub-config/tasks.json`, then falls back to its bundled forecast profile if the check is unavailable. Its standalone HTML remains fully offline; re-download it after hub configuration changes or upload the current `tasks.json` manually. Recognized dates are formatted as `YYYY-MM-DD`; dates outside the configured or expected hub schedule produce warnings, while unreadable dates remain errors.
 
+## Interface languages
+
+Every page, online and offline, has an **EN | FR | ES** switch in its header (it moves into any open walkthrough dialog). The choice is remembered in the browser, and a link can preselect a language with `?lang=fr` or `?lang=es`. Only the interface and instructions are translated: generated CSV, YAML and code, copied commands, data previews, hub names, location and target labels, and GitHub button names stay exactly as they are. Each page carries its translations in a `<script id="hubverse-i18n">` block at the end of the file; text a hub publishes after the bundled snapshot (for example a changed schema description) appears in English until it is added.
+
 ## Add another tool
 
 For each future standalone tool:

@@ -33,3 +33,7 @@ The Submission Guide is still undergoing review and testing. Confirm its
 instructions against the selected hub before submitting.
 
 Feedback: ambleic@clemson.edu
+
+Each tool has an EN | FR | ES language switch in its header. It changes the
+interface and instructions only; downloaded files and generated code are the
+same in every language.
